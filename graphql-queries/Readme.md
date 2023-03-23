@@ -50,6 +50,24 @@ Collaborators
     }
   }
 }
+
+query {
+    enterprise(slug: "world-health-organization") {
+        ownerInfo {
+            outsideCollaborators(first: 100) {
+                pageInfo {
+                    startCursor
+                    endCursor
+                    hasNextPage
+                    hasPreviousPage
+                }
+                nodes {
+                    login
+                }
+            }
+        }
+    }
+}
 ```
 
 Repository Information (including License type)
