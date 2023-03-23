@@ -33,5 +33,64 @@ Getting Basic Information of the organization:
 }
 ```
 
+Collaborators
+
+```
+{
+  organization(login: "WorldHealthOrganization") {
+    repositories(first: 100) {
+      edges {
+        node {
+          name
+          collaborators {
+           totalCount
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+Repository Information (including License type)
+
+```
+{
+  organization(login: "WorldHealthOrganization") {
+    repositories(first: 100) {
+      edges {
+        node {
+          collaborators {
+            totalCount
+          }
+          nameWithOwner
+          projects {
+            totalCount
+          }
+          projectsV2 {
+            totalCount
+          }
+          discussions {
+            totalCount
+          }
+          forks {
+            totalCount
+          }
+          isPrivate
+          issues {
+            totalCount
+          }
+          licenseInfo {
+            name
+          }
+          watchers {
+            totalCount
+          }
+        }
+      }
+    }
+  }
+}
+```
 
 CC: @hasan-dot
