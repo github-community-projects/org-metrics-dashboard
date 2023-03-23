@@ -92,5 +92,27 @@ Repository Information (including License type)
   }
 }
 ```
+Looking for :bugs: 
 
+```
+{
+  organization(login: "githubcustomers") {
+    name
+    repositories(first: 100) {
+      edges {
+        node {
+          issues(labels: "bug", first: 100) {
+            edges {
+              node {
+                id
+                url
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
 CC: @hasan-dot
