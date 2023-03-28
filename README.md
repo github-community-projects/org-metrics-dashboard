@@ -15,9 +15,8 @@ Issue Project  [here](https://github.com/github/SI-skills-based-volunteering/iss
 
 ### UI
 
-1. Navigate to the `ui/` directory
-2. Run `npm i`
-3. Run `npm run dev`
+1. Run `npm i`
+2. Run `npm run dev`
 
 <!-- TODO: Add min requirements and deployment steps -->
 
