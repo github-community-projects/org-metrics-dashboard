@@ -8,7 +8,7 @@ import { signIn, signOut } from 'next-auth/react';
 import Image from 'next/image';
 
 const navigation = [
-  { name: 'Playground', href: '/' },
+  { name: 'Playground', href: '/sbv-world-health-org-metrics' },
 ];
 
 function classNames(...classes: string[]) {

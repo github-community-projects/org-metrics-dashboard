@@ -1,5 +1,5 @@
 import { Card, Metric, Text, Flex, Grid, Title, BarList } from '@tremor/react';
-import Chart from './playground/chart';
+import Chart from './sbv-world-health-org-metrics/chart';
 
 const website = [
   { name: '/home', value: 1230 },
