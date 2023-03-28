@@ -39,5 +39,6 @@
     "singleQuote": true,
     "tabWidth": 2,
     "trailingComma": "none"
-  }
+  },
+  "homepage": "https://sbv-world-health-org-metrics.github.io/sbv-world-health-org-metrics/"
 }
