@@ -133,4 +133,47 @@ Looking for :bugs:
   }
 }
 ```
+
+
+>Better snapshot of community of users 
+>* Country, 
+>* region, 
+>* types of institutions, 
+>* status of implementation, 
+>* scope of implementation, 
+>* disease/use cases
+
+Some Example of getting members of a repository (project) information. I picked up a public Organization so everyone can see the results in https://docs.github.com/en/graphql/overview/explorer
+
+```
+{
+  organization(login: "docker") {
+    name
+    repositories(first: 10) {
+      edges {
+        node {
+          mentionableUsers(first: 10) {
+            pageInfo {
+              endCursor
+              hasNextPage
+            }
+            nodes {
+              company
+              email
+              location
+              login
+              name
+              twitterUsername
+              followers {
+                totalCount
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+```
 CC: @hasan-dot
