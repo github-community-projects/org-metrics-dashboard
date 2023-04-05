@@ -52,7 +52,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "16"
-          cache: ${{ steps.detect-package-manager.outputs.manager }}
+          cache: |
+            ${{ steps.detect-package-manager.outputs.manager }}:${{ github.workspace }}/who-metrics-ui/node_modules
       - name: Setup Pages
         uses: actions/configure-pages@v3
         with:
