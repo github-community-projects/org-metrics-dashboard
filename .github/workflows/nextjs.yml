@@ -64,11 +64,12 @@ jobs:
           #
           # You may remove this line if you want to manage the configuration yourself.
           static_site_generator: next
+          base_path: "/sbv-world-health-org-metrics"
       - name: Restore cache
         uses: actions/cache@v3
         with:
           path: |
-            .next/cache
+            "${{ github.workspace }}/who-metrics-ui/.next/cache"
           # Generate a new cache whenever packages or source files change.
           key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
           # If source files changed but packages didn't, rebuild from a prior cache.
