@@ -1,0 +1,23 @@
+---
+version: 2
+registries:
+  ghcr:
+    type: docker-registry
+    url: ghcr.io
+    username: PAT
+    password: "${{secrets.CONTAINER_BUILDER_TOKEN}}"
+updates:
+- package-ecosystem: "gomod"
+  directory: "/"
+  schedule:
+    interval: weekly
+- package-ecosystem: docker
+  registries:
+  - ghcr
+  directory: "/"
+  schedule:
+    interval: weekly
+- package-ecosystem: github-actions
+  directory: "/"
+  schedule:
+    interval: weekly
