@@ -83,5 +83,5 @@ func formatJSON(data interface{}) (string, error) {
 	if err := enc.Encode(data); err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("%s", buf), nil
+	return buf.String(), nil
 }
