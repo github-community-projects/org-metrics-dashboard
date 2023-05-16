@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 
@@ -52,25 +54,34 @@ func run() error {
 				}
 			} `graphql:"organization(login:$organizationLogin)"`
 		}
+
 		variables := map[string]interface{}{
 			"organizationLogin": githubv4.String("WorldHealthOrganization"),
 		}
+
 		err := client.Query(context.Background(), &q, variables)
 		if err != nil {
 			return err
 		}
-		printJSON(q)
 
+		jsonData, err := formatJSON(q)
+
+		if err != nil {
+			return err
+		}
+		fmt.Println(jsonData)
 	}
 	return nil
 }
 
-// printJSON prints v as JSON encoded with indent to stdout. It panics on any error.
-func printJSON(v interface{}) {
-	w := json.NewEncoder(os.Stdout)
-	w.SetIndent("", "\t")
-	err := w.Encode(v)
-	if err != nil {
-		panic(err)
+// formatJSON formats data as JSON.
+func formatJSON(data interface{}) (string, error) {
+	buf := new(bytes.Buffer)
+	enc := json.NewEncoder(buf)
+	enc.SetEscapeHTML(false)
+	enc.SetIndent("", "  ")
+	if err := enc.Encode(data); err != nil {
+		return "", err
 	}
+	return fmt.Sprintf("%s", buf), nil
 }
