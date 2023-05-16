@@ -1,6 +1,11 @@
 # Before using, configure goproxy; see https://goproxy.githubapp.com/setup.
 .PHONY: all
-all: build
+all: run
+
+.PHONY: run
+run: build
+	@echo "==> running metrics <=="
+	./backend/bin/metrics
 
 .PHONY: build
 build: metrics
@@ -31,7 +36,7 @@ clean:
 .PHONY: metrics
 metrics:
 	@echo "==> building metrics <=="
-	cd backend && go build -o ./bin/metircs ./cmd/metrics
+	cd backend && go build -o ./bin/metrics ./cmd/metrics
 
 test-go:
 	@echo "==> running Go tests <=="
