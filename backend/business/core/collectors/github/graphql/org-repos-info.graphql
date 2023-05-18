@@ -1,0 +1,36 @@
+{
+  organization(login: "WorldHealthOrganization") {
+    repositories(first: 100) {
+      edges {
+        node {
+          collaborators {
+            totalCount
+          }
+          nameWithOwner
+          projects {
+            totalCount
+          }
+          projectsV2 {
+            totalCount
+          }
+          discussions {
+            totalCount
+          }
+          forks {
+            totalCount
+          }
+          isPrivate
+          issues {
+            totalCount
+          }
+          licenseInfo {
+            name
+          }
+          watchers {
+            totalCount
+          }
+        }
+      }
+    }
+  }
+}

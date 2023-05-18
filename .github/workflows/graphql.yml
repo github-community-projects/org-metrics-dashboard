@@ -1,0 +1,49 @@
+# This workflow will do a:
+#   - clean build of a Go project 
+#   - run the tests
+#   - execute the generated binary
+#   - saves the output to a file
+#   - saves the file in the repository
+
+name: Go
+
+on:
+  # manually trigger the workflow
+  workflow_dispatch:
+    
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v2
+      with:
+        go-version: ^1.16
+    - name: Get dependencies
+      run: |
+        cd backend
+        go get -v -t -d ./...
+        if [ -f Gopkg.toml ]; then
+            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+            dep ensure
+        fi
+    - name: Build Go
+      run: make build
+    # - name: Test
+    #   run: make test
+    - name: Run Go program and save output
+      id: run
+      run: |
+        $PWD/backend/bin/metrics > output.txt
+        echo "::set-output name=output::$(cat output.txt)"
+
+    - name: Upload output
+      # upload the output to the repository
+      uses: actions/upload-artifact@v2
+      with:
+        name: output
+        path: output.txt
