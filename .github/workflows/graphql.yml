@@ -19,6 +19,7 @@ permissions:
 env:
   GH_TOKEN: ${{ github.token }}
   BRANCH: output-file-${{ github.run_number }}
+  GRAPHQL_TOKEN: ${{ secrets.GRAPHQL_TOKEN }}
 
 jobs:
   build:

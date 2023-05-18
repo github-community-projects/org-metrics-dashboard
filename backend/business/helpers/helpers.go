@@ -24,7 +24,7 @@ func FormatJSON(data interface{}) (string, error) {
 
 func NewGHGraphQLClient() *githubv4.Client {
 	src := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: os.Getenv("GITHUB_GRAPHQL_TOKEN")},
+		&oauth2.Token{AccessToken: os.Getenv("GRAPHQL_TOKEN")},
 	)
 	httpClient := oauth2.NewClient(context.Background(), src)
 	return githubv4.NewClient(httpClient)
