@@ -36,7 +36,7 @@ clean:
 .PHONY: metrics
 metrics:
 	@echo "==> building metrics <=="
-	cd backend && go build -o ./bin/metrics ./cmd/metrics
+	cd backend && go build -o ./bin/metrics ./cmd
 
 test-go:
 	@echo "==> running Go tests <=="
