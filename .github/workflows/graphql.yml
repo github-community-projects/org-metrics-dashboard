@@ -18,6 +18,7 @@ permissions:
 
 env:
   GH_TOKEN: ${{ github.token }}
+  BRANCH: output-file-${{ github.run_number }}
 
 jobs:
   build:
@@ -65,13 +66,13 @@ jobs:
         git config --global user.username "hasan-dot"
     - name: Commit output file
       run: |
-        git checkout -b output-file-${{ github.run_number }}
+        git checkout -b $BRANCH
         git add output.txt
         git commit -m "Add output file"
-        git push origin output-file-${{ github.run_number }}
+        git push origin $BRANCH
     - name: Create Pull Request
       run: |
-        gh pr create --base main --head ${{ github.ref }} --title "Output file PR" --body "Please review the output file changes."
+        gh pr create --base main --head $BRANCH --title "Output file PR" --body "Please review the output file changes."
     - name: Merge Pull Request
       run: |
         gh pr merge --auto --delete-branch
