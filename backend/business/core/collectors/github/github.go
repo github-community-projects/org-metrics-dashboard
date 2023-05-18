@@ -20,6 +20,7 @@ func NewGitHubCollector(client *githubv4.Client) *GitHubCollector {
 }
 
 func (c *GitHubCollector) Collect(ctx context.Context) ([]string, []error) {
+	// TODO: process with goroutines
 	results, errors := make([]string, len(c.fetchers)), make([]error, len(c.fetchers))
 	for _, fetcher := range c.fetchers {
 		result, err := fetcher.Fetch(ctx)
@@ -43,5 +44,7 @@ func buildFetchers(client *githubv4.Client) []Fetcher {
 	*/
 	return []Fetcher{
 		fetchers.NewOrgInfo(client, "WorldHealthOrganization"),
+		fetchers.NewCollaboratorsPerRepo(client, "WorldHealthOrganization"),
+		fetchers.NewOrgReposInfo(client, "WorldHealthOrganization"),
 	}
 }
