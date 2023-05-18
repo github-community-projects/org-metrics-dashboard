@@ -19,5 +19,8 @@ Issue Project  [here](https://github.com/github/SI-skills-based-volunteering/iss
 2. Run `npm run dev`
 
 <!-- TODO: Add min requirements and deployment steps -->
-
-
+### Backend
+Run the following command to run the action locally
+```
+gh act -W .github/workflows/graphql.yml  --artifact-server-path ./tmp/ --env-file dev.vscode.env
+```
