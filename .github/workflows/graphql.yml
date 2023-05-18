@@ -5,12 +5,12 @@
 #   - saves the output to a file
 #   - saves the file in the repository
 
-name: Go
+name: Fecth metrics
 
 on:
   # manually trigger the workflow
   workflow_dispatch:
-    
+
 
 jobs:
   build:
