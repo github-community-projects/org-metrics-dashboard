@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/who-metrics/business/core"
@@ -23,7 +24,7 @@ func run() error {
 	core := core.New(githubCollector)
 
 	results, errors := core.Amass(context.Background())
-	log.Println(results)
-	log.Println(errors)
+	fmt.Println(results)
+	fmt.Println(errors)
 	return nil
 }
