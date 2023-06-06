@@ -1,2 +1,3 @@
 *.env
 tmp/*
+sbv-world-health-org-metrics.code-workspace
