@@ -7,37 +7,58 @@ import (
 	"github.com/shurcooL/githubv4"
 )
 
-type CollaboratorsPerRepo struct {
+type ReposInfoFetcher struct {
 	client  *githubv4.Client
 	orgName string
 }
 
-type RepoCollaboratorsInfo struct {
+func NewReposInfoFetcher(client *githubv4.Client, orgName string) *ReposInfoFetcher {
+	return &ReposInfoFetcher{client: client, orgName: orgName}
+}
+
+type repoInfo struct {
 	Node struct {
-		Name          githubv4.String
+		NameWithOwner githubv4.String
 		Collaborators struct {
+			TotalCount githubv4.Int
+		}
+		Projects struct {
+			TotalCount githubv4.Int
+		}
+		ProjectsV2 struct {
+			TotalCount githubv4.Int
+		}
+		Discussions struct {
+			TotalCount githubv4.Int
+		}
+		Forks struct {
+			TotalCount githubv4.Int
+		}
+		Issues struct {
+			TotalCount githubv4.Int
+		}
+		LicenseInfo struct {
+			Name githubv4.String
+		}
+		Watchers struct {
 			TotalCount githubv4.Int
 		}
 	}
 }
 
-func NewCollaboratorsPerRepo(client *githubv4.Client, orgName string) *CollaboratorsPerRepo {
-	return &CollaboratorsPerRepo{client: client, orgName: orgName}
-}
-
 type collaboratorsQuery struct {
 	Organization struct {
 		Repositories struct {
-			Edges    []RepoCollaboratorsInfo
+			Edges    []repoInfo
 			PageInfo struct {
 				EndCursor   githubv4.String
 				HasNextPage bool
 			}
-		} `graphql:"repositories(first: 100, after: $reposCursor)"`
+		} `graphql:"repositories(first: 100, privacy: PUBLIC, after: $reposCursor)"`
 	} `graphql:"organization(login:$organizationLogin)"`
 }
 
-func (f *CollaboratorsPerRepo) Fetch(ctx context.Context) (string, error) {
+func (f *ReposInfoFetcher) Fetch(ctx context.Context) (string, error) {
 	variables := map[string]interface{}{
 		"organizationLogin": githubv4.String(f.orgName),
 		"reposCursor":       (*githubv4.String)(nil), // Null after argument to get first page.
@@ -45,7 +66,7 @@ func (f *CollaboratorsPerRepo) Fetch(ctx context.Context) (string, error) {
 
 	var q collaboratorsQuery
 
-	var allRepos []RepoCollaboratorsInfo
+	var allRepos []repoInfo
 
 	for {
 		err := f.client.Query(ctx, &q, variables)
@@ -66,10 +87,19 @@ func (f *CollaboratorsPerRepo) Fetch(ctx context.Context) (string, error) {
 	return csvString, nil
 }
 
-func (f *CollaboratorsPerRepo) formatCSV(data []RepoCollaboratorsInfo) (string, error) {
-	csvString := "repo_name,collaborators_count\n"
+func (f *ReposInfoFetcher) formatCSV(data []repoInfo) (string, error) {
+	csvString := "repo_name,collaborators_count,projects_count,discussions_count,forks_count,issues_count,licenseInfo,watchers_count\n"
 	for _, edge := range data {
-		csvString += fmt.Sprintf("%s,%d\n", edge.Node.Name, edge.Node.Collaborators.TotalCount)
+		csvString += fmt.Sprintf("%s,%d,%d,%d,%d,%d,%s,%d\n",
+			edge.Node.NameWithOwner,
+			edge.Node.Collaborators.TotalCount,
+			edge.Node.Projects.TotalCount+edge.Node.ProjectsV2.TotalCount,
+			edge.Node.Discussions.TotalCount,
+			edge.Node.Forks.TotalCount,
+			edge.Node.Issues.TotalCount,
+			edge.Node.LicenseInfo.Name,
+			edge.Node.Watchers.TotalCount,
+		)
 	}
 	return csvString, nil
 }

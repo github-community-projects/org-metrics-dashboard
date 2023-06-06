@@ -44,7 +44,7 @@ func buildFetchers(client *githubv4.Client) []Fetcher {
 	*/
 	return []Fetcher{
 		// fetchers.NewOrgInfo(client, "WorldHealthOrganization"),
-		fetchers.NewCollaboratorsPerRepo(client, "WorldHealthOrganization"),
+		fetchers.NewReposInfoFetcher(client, "WorldHealthOrganization"),
 		// fetchers.NewOrgReposInfo(client, "WorldHealthOrganization"),
 	}
 }
