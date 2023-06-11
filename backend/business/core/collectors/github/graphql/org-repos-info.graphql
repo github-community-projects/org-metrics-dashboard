@@ -1,6 +1,6 @@
 {
   organization(login: "WorldHealthOrganization") {
-    repositories(first: 100) {
+    repositories(first: 100, privacy: PUBLIC) {
       edges {
         node {
           collaborators {
