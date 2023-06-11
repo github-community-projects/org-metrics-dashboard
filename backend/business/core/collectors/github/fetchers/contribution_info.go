@@ -19,7 +19,6 @@ func NewContributionInfoFetcher(client *githubv4.Client, orgName string) *Contri
 type contributionInfo struct {
 	Node struct {
 		NameWithOwner githubv4.String
-		
 	}
 }
 

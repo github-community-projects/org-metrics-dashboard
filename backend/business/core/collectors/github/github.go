@@ -44,8 +44,8 @@ func buildFetchers(client *githubv4.Client) []Fetcher {
 	*/
 	// TODO: map the fetchers to keys so we can easily access them
 	return []Fetcher{
-		fetchers.NewOrgInfo(client, "WorldHealthOrganization"),
-		// fetchers.NewReposInfoFetcher(client, "WorldHealthOrganization"),
-		// fetchers.NewOrgReposInfo(client, "WorldHealthOrganization"),
+		// fetchers.NewOrgInfo(client, "WorldHealthOrganization"),
+		fetchers.NewReposInfoFetcher(client, "WorldHealthOrganization"),
+		// fetchers.NewContributionInfoFetcher(client, "WorldHealthOrganization"),
 	}
 }
