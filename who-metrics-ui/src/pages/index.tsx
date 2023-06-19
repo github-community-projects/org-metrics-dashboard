@@ -1,5 +1,5 @@
 import { Card, Metric, Text, Flex, Grid, Title, BarList } from '@tremor/react';
-import Chart from './components/chart';
+import Chart from '../components/chart';
 
 const website = [
   { name: '/home', value: 1230 },
