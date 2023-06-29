@@ -18,7 +18,7 @@ function classNames(...classes: string[]) {
 
 export default function Navbar() {
   const pathname = usePathname();
-
+  
   return (
     <Disclosure as="nav" className="bg-white shadow-sm">
       {({ open }) => (
@@ -44,7 +44,8 @@ export default function Navbar() {
                         pathname === item.href
                           ? 'border-slate-500 text-gray-900'
                           : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-                        'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'
+                        'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium',
+                        item.href,
                       )}
                       aria-current={pathname === item.href ? 'page' : undefined}
                     >
@@ -74,18 +75,6 @@ export default function Navbar() {
                   {item.name}
                 </Disclosure.Button>
               ))}
-            </div>
-            <div className="border-t border-gray-200 pt-4 pb-3">
-              {(
-                <div className="mt-3 space-y-1">
-                  <button
-                    onClick={() => signIn('github')}
-                    className="flex w-full px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
-                  >
-                    Sign in
-                  </button>
-                </div>
-              )}
             </div>
           </Disclosure.Panel>
         </>
