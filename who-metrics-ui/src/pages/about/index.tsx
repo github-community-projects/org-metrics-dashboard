@@ -1,5 +1,6 @@
 import { Card, Metric, Text, Flex, Grid, Title, BarList } from '@tremor/react';
-import Chart from './sbv-world-health-org-metrics/chart';
+import Chart from '../../components/chart';
+import Navbar from '../../components/navbar';
 
 const website = [
   { name: '/home', value: 1230 },
@@ -70,7 +71,7 @@ const categories: {
 export default function PlaygroundPage() {
   return (
     <main className="p-4 md:p-10 mx-auto max-w-7xl">
-      <Grid className="gap-6" numColsSm={2} numColsLg={3}>
+      <Grid className="gap-6" numItemsSm={2} numItemsLg={3}>
         {categories.map((item) => (
           <Card key={item.title}>
             <Flex alignItems="start">
@@ -84,30 +85,6 @@ export default function PlaygroundPage() {
               <Metric>{item.metric}</Metric>
               <Text className="truncate">from {item.metricPrev}</Text>
             </Flex>
-          </Card>
-        ))}
-      </Grid>
-      <Grid className="mt-8 gap-6" numColsSm={2} numColsLg={3}>
-        {data.map((item) => (
-          <Card key={item.category}>
-            <Title>{item.category}</Title>
-            <Flex
-              className="space-x-2"
-              justifyContent="start"
-              alignItems="baseline"
-            >
-              <Metric>{item.stat}</Metric>
-              <Text>Total views</Text>
-            </Flex>
-            <Flex className="mt-6">
-              <Text>Pages</Text>
-              <Text className="text-right">Views</Text>
-            </Flex>
-            <BarList
-              className="mt-2"
-              data={item.data}
-              valueFormatter={dataFormatter}
-            />
           </Card>
         ))}
       </Grid>

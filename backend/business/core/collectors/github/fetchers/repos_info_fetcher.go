@@ -37,6 +37,18 @@ type repoInfo struct {
 		Issues struct {
 			TotalCount githubv4.Int
 		}
+		OpenIssues    struct {
+			TotalCount githubv4.Int
+		} `graphql:"openIssues: issues(states: OPEN)"`
+		ClosedIssues struct {
+			TotalCount githubv4.Int
+		} `graphql:"closedIssues: issues(states: CLOSED)"`
+		OpenPullRequests struct {
+			TotalCount githubv4.Int
+		} `graphql:"openPullRequests: pullRequests(states: OPEN)"`
+		MergedPullRequests struct {
+			TotalCount githubv4.Int
+		} `graphql:"mergedPullRequests: pullRequests(states: MERGED)"`
 		LicenseInfo struct {
 			Name githubv4.String
 		}
@@ -46,7 +58,7 @@ type repoInfo struct {
 	}
 }
 
-type collaboratorsQuery struct {
+type reposInfoQuery struct {
 	Organization struct {
 		Repositories struct {
 			Edges    []repoInfo
@@ -64,7 +76,7 @@ func (f *ReposInfoFetcher) Fetch(ctx context.Context) (string, error) {
 		"reposCursor":       (*githubv4.String)(nil), // Null after argument to get first page.
 	}
 
-	var q collaboratorsQuery
+	var q reposInfoQuery
 
 	var allRepos []repoInfo
 
@@ -88,15 +100,19 @@ func (f *ReposInfoFetcher) Fetch(ctx context.Context) (string, error) {
 }
 
 func (f *ReposInfoFetcher) formatCSV(data []repoInfo) (string, error) {
-	csvString := "repo_name,collaborators_count,projects_count,discussions_count,forks_count,issues_count,licenseInfo,watchers_count\n"
+	csvString := "repo_name,collaborators_count,projects_count,discussions_count,forks_count,issues_count,open_issues_count,closed_issues_count,open_pull_requests_count,merged_pull_requests_count,license_name,watchers_count\n"
 	for _, edge := range data {
-		csvString += fmt.Sprintf("%s,%d,%d,%d,%d,%d,%s,%d\n",
+		csvString += fmt.Sprintf("%s,%d,%d,%d,%d,%d,%d,%d,%d,%d,%s,%d\n",
 			edge.Node.NameWithOwner,
 			edge.Node.Collaborators.TotalCount,
 			edge.Node.Projects.TotalCount+edge.Node.ProjectsV2.TotalCount,
 			edge.Node.Discussions.TotalCount,
 			edge.Node.Forks.TotalCount,
 			edge.Node.Issues.TotalCount,
+			edge.Node.OpenIssues.TotalCount,
+			edge.Node.ClosedIssues.TotalCount,
+			edge.Node.OpenPullRequests.TotalCount,
+			edge.Node.MergedPullRequests.TotalCount,
 			edge.Node.LicenseInfo.Name,
 			edge.Node.Watchers.TotalCount,
 		)

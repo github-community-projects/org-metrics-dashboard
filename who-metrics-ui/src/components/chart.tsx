@@ -14,6 +14,21 @@ const data = [
     Profit: 1398
   },
   {
+    Month: 'March 22',
+    Sales: 3890,
+    Profit: 2980
+  },
+  {
+    Month: 'Jan 22',
+    Sales: 3500,
+    Profit: 2780
+  },
+  {
+    Month: 'Jan 22',
+    Sales: 5890,
+    Profit: 4980
+  },
+  {
     Month: 'Jan 22',
     Sales: 3890,
     Profit: 2980
@@ -35,6 +50,7 @@ export default function Chart() {
         index="Month"
         colors={['indigo', 'fuchsia']}
         valueFormatter={valueFormatter}
+        curveType="natural"
       />
     </Card>
   );
