@@ -1,5 +1,6 @@
 import { Card, Metric, Text, Flex, Grid, Title, BarList } from '@tremor/react';
 import Chart from '../components/chart';
+import DarkModeToggle from '@/components/DarkModeToggle';
 
 const website = [
   { name: '/home', value: 1230 },
@@ -70,6 +71,7 @@ const categories: {
 export default function PlaygroundPage() {
   return (
     <main className="p-4 md:p-10 mx-auto max-w-7xl">
+      <DarkModeToggle/>
       <Grid className="gap-6" numItemsSm={2} numItemsLg={3}>
         {categories.map((item) => (
           <Card key={item.title}>
