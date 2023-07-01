@@ -30,7 +30,9 @@ import {
 } from "@tremor/react";
 
 import { InfoIcon } from '@primer/octicons-react'
-import {Tooltip} from '@primer/react'
+import {Box, Tooltip} from '@primer/react'
+import Image from 'next/image';
+import logo from '@/images/who-logo-wide.svg';
 
 type Kpi = {
   title: string;
@@ -212,10 +214,18 @@ export default function DashboardExample() {
     yAxisWidth: 56,
   };
   return (
-    <main className="px-12 py-12">
-      <Title>Dashboard</Title>
-      <Text>Lorem ipsum dolor sit amet, consetetur sadipscing elitr.</Text>
-
+    <main className="px-18 py-18">
+      <Box className="flex" sx={{flexDirection: 'row', gap: 4, alignItems: 'center', mb: 1,}}>
+        <Image
+          className="block h-8 w-auto"
+          src={logo}
+          height={50}
+          width={150}
+          alt='who logo'
+        />
+        <Title>Dashboard</Title>
+      </Box>
+        <Text>Lorem ipsum dolor sit amet, consetetur sadipscing elitr.</Text>
       <TabGroup className="mt-6">
         <TabList>
           <Tab>Overview</Tab>

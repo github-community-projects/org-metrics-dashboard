@@ -6,7 +6,7 @@ import { Disclosure, Menu, Transition } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { signIn, signOut } from 'next-auth/react';
 import Image from 'next/image';
-import logo from '../images/who-logo-wide.svg';
+import logo from '@/images/who-logo-wide.svg';
 
 const navigation = [
   { name: 'Playground', href: '/sbv-world-health-org-metrics' },
