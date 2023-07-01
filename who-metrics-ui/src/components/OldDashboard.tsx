@@ -1,5 +1,5 @@
 import { Card, Metric, Text, Flex, Grid, Title, BarList } from '@tremor/react';
-import Chart from "./chart";
+import Chart from "./Chart";
 
 
 const website = [
