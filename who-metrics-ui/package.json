@@ -12,6 +12,7 @@
     "@headlessui/react": "^1.7.12",
     "@heroicons/react": "^2.0.16",
     "@planetscale/database": "^1.5.0",
+    "@primer/octicons-react": "^19.4.0",
     "@primer/react": "^35.26.0",
     "@tremor/react": "^3.0.0",
     "@types/js-cookie": "^3.0.3",
@@ -39,9 +40,14 @@
   },
   "homepage": "https://sbv-world-health-org-metrics.github.io/sbv-world-health-org-metrics/",
   "devDependencies": {
+    "@types/glob": "^8.1.0",
     "@typescript-eslint/eslint-plugin": "^5.60.1",
     "@typescript-eslint/parser": "^5.60.1",
     "eslint": "^8.44.0",
+    "eslint-plugin-compat": "^4.1.4",
+    "eslint-plugin-delegated-events": "^1.0.0",
+    "eslint-plugin-github": "^4.8.0",
+    "eslint-plugin-primer-react": "^3.0.0",
     "eslint-plugin-react": "^7.32.2"
   }
 }

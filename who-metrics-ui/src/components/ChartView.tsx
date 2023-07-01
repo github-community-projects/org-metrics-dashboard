@@ -1,6 +1,17 @@
 "use client";
 
-import { Flex, Title, Icon, TabGroup, TabList, Tab, AreaChart, Text, Color } from "@tremor/react";
+import { InfoIcon } from "@primer/octicons-react";
+import { Tooltip } from "@primer/react";
+import {
+  Flex,
+  Title,
+  TabGroup,
+  TabList,
+  Tab,
+  AreaChart,
+  Text,
+  Color,
+} from "@tremor/react";
 import { useState } from "react";
 
 const usNumberformatter = (number: number, decimals = 0) =>
@@ -11,11 +22,17 @@ const usNumberformatter = (number: number, decimals = 0) =>
     .format(Number(number))
     .toString();
 
-const formatters: { [key: string]: any } = {
-  Sales: (number: number) => `$ ${usNumberformatter(number)}`,
-  Profit: (number: number) => `$ ${usNumberformatter(number)}`,
-  Customers: (number: number) => `${usNumberformatter(number)}`,
-  Delta: (number: number) => `${usNumberformatter(number, 2)}%`,
+type Formatter = (number: number) => string;
+
+interface Formatters {
+  [key: string]: Formatter;
+}
+
+const formatters: Formatters = {
+  Sales: (number) => `$ ${usNumberformatter(number)}`,
+  Profit: (number) => `$ ${usNumberformatter(number)}`,
+  Customers: (number) => `${usNumberformatter(number)}`,
+  Delta: (number) => `${usNumberformatter(number, 2)}%`,
 };
 
 const Kpis = {
@@ -60,7 +77,7 @@ export const performance: DailyPerformance[] = [
   },
 ];
 
-const ChartView = () => {
+export const ChartView = () => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const selectedKpi = kpiList[selectedIndex];
 
@@ -79,13 +96,15 @@ const ChartView = () => {
     <>
       <div className="md:flex justify-between">
         <div>
-          <Flex className="space-x-0.5" justifyContent="start" alignItems="center">
+          <Flex
+            className="space-x-0.5"
+            justifyContent="start"
+            alignItems="center"
+          >
             <Title> Performance History </Title>
-            {/* <Icon
-              icon={null}
-              variant="simple"
-              tooltip="Shows daily increase or decrease of particular domain"
-            /> */}
+            <Tooltip aria-label="Shows daily increase or decrease of particular domain">
+              <InfoIcon size={24} />
+            </Tooltip>
           </Flex>
           <Text> Daily change per domain </Text>
         </div>
@@ -105,10 +124,13 @@ const ChartView = () => {
       </div>
       {/* mobile */}
       <div className="mt-8 sm:hidden">
-        <AreaChart {...areaChartArgs} startEndOnly={true} showGradient={false} showYAxis={false} />
+        <AreaChart
+          {...areaChartArgs}
+          startEndOnly={true}
+          showGradient={false}
+          showYAxis={false}
+        />
       </div>
     </>
   );
-}
-
-export default ChartView;
+};

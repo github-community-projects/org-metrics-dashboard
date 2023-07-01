@@ -15,8 +15,6 @@ import {
   Flex,
   Metric,
   ProgressBar,
-  AreaChart,
-  Color,
   MultiSelect,
   MultiSelectItem,
   Select,
@@ -29,10 +27,13 @@ import {
   TableRow,
 } from "@tremor/react";
 
-import { InfoIcon } from '@primer/octicons-react'
-import {Box, Tooltip} from '@primer/react'
-import Image from 'next/image';
-import logo from '@/images/who-logo-wide.svg';
+import { InfoIcon } from "@primer/octicons-react";
+import { Box, Tooltip } from "@primer/react";
+import Image from "next/image";
+import logo from "../images/who-logo-wide.svg";
+import { ChartView } from "./";
+
+import { useState } from "react";
 
 type Kpi = {
   title: string;
@@ -69,31 +70,6 @@ const kpiData: Kpi[] = [
     deltaType: "moderateDecrease",
   },
 ];
-
-import { useState } from "react";
-
-const usNumberformatter = (number: number, decimals = 0) =>
-  Intl.NumberFormat("us", {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  })
-    .format(Number(number))
-    .toString();
-
-const formatters: { [key: string]: any } = {
-  Sales: (number: number) => `$ ${usNumberformatter(number)}`,
-  Profit: (number: number) => `$ ${usNumberformatter(number)}`,
-  Customers: (number: number) => `${usNumberformatter(number)}`,
-  Delta: (number: number) => `${usNumberformatter(number, 2)}%`,
-};
-
-const Kpis = {
-  Sales: "Sales",
-  Profit: "Profit",
-  Customers: "Customers",
-};
-
-const kpiList = [Kpis.Sales, Kpis.Profit, Kpis.Customers];
 
 export type DailyPerformance = {
   date: string;
@@ -193,9 +169,7 @@ const deltaTypes: { [key: string]: DeltaType } = {
   underperforming: "moderateDecrease",
 };
 
-export default function DashboardExample() {
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const selectedKpi = kpiList[selectedIndex];
+export const DashboardExample = () => {
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedNames, setSelectedNames] = useState<string[]>([]);
 
@@ -203,29 +177,22 @@ export default function DashboardExample() {
     (salesPerson.status === selectedStatus || selectedStatus === "all") &&
     (selectedNames.includes(salesPerson.name) || selectedNames.length === 0);
 
-  const areaChartArgs = {
-    className: "mt-5 h-72",
-    data: performance,
-    index: "date",
-    categories: [selectedKpi],
-    colors: ["blue"] as Color[],
-    showLegend: false,
-    valueFormatter: formatters[selectedKpi],
-    yAxisWidth: 56,
-  };
   return (
     <main className="px-18 py-18">
-      <Box className="flex" sx={{flexDirection: 'row', gap: 4, alignItems: 'center', mb: 1,}}>
+      <Box
+        className="flex"
+        sx={{ flexDirection: "row", gap: 4, alignItems: "center", mb: 1 }}
+      >
         <Image
           className="block h-8 w-auto"
           src={logo}
           height={50}
           width={150}
-          alt='who logo'
+          alt="who logo"
         />
         <Title>Dashboard</Title>
       </Box>
-        <Text>Lorem ipsum dolor sit amet, consetetur sadipscing elitr.</Text>
+      <Text>Lorem ipsum dolor sit amet, consetetur sadipscing elitr.</Text>
       <TabGroup className="mt-6">
         <TabList>
           <Tab>Overview</Tab>
@@ -241,7 +208,9 @@ export default function DashboardExample() {
                       <Text>{item.title}</Text>
                       <Metric className="truncate">{item.metric}</Metric>
                     </div>
-                    <BadgeDelta deltaType={item.deltaType}>{item.delta}</BadgeDelta>
+                    <BadgeDelta deltaType={item.deltaType}>
+                      {item.delta}
+                    </BadgeDelta>
                   </Flex>
                   <Flex className="mt-4 space-x-2">
                     <Text className="truncate">{`${item.progress}% (${item.metric})`}</Text>
@@ -253,41 +222,7 @@ export default function DashboardExample() {
             </Grid>
             <div className="mt-6">
               <Card>
-                <>
-                  <div className="md:flex justify-between">
-                    <div>
-                      <Flex className="space-x-0.5" justifyContent="start" alignItems="center">
-                        <Title> Performance History </Title>
-                        <Tooltip aria-label="Shows daily increase or decrease of particular domain">
-                            <InfoIcon size={24} />
-                        </Tooltip>
-                      </Flex>
-                      <Text> Daily change per domain </Text>
-                    </div>
-                    <div>
-                      <TabGroup index={selectedIndex} onIndexChange={setSelectedIndex}>
-                        <TabList color="gray" variant="solid">
-                          <Tab>Sales</Tab>
-                          <Tab>Profit</Tab>
-                          <Tab>Customers</Tab>
-                        </TabList>
-                      </TabGroup>
-                    </div>
-                  </div>
-                  {/* web */}
-                  <div className="mt-8 hidden sm:block">
-                    <AreaChart {...areaChartArgs} />
-                  </div>
-                  {/* mobile */}
-                  <div className="mt-8 sm:hidden">
-                    <AreaChart
-                      {...areaChartArgs}
-                      startEndOnly={true}
-                      showGradient={false}
-                      showYAxis={false}
-                    />
-                  </div>
-                </>
+                <ChartView />
               </Card>
             </div>
           </TabPanel>
@@ -296,11 +231,15 @@ export default function DashboardExample() {
               <Card>
                 <>
                   <div>
-                    <Flex className="space-x-0.5" justifyContent="start" alignItems="center">
-                      <Title> Performance History </Title>
+                    <Flex
+                      className="space-x-0.5"
+                      justifyContent="start"
+                      alignItems="center"
+                    >
+                      <Title> Performance Hasan </Title>
                       <Tooltip aria-label="Shows daily increase or decrease of particular domain">
                         <InfoIcon size={24} />
-                    </Tooltip>
+                      </Tooltip>
                     </Flex>
                   </div>
                   <div className="flex space-x-2">
@@ -321,21 +260,37 @@ export default function DashboardExample() {
                       onValueChange={setSelectedStatus}
                     >
                       <SelectItem value="all">All Performances</SelectItem>
-                      <SelectItem value="overperforming">Overperforming</SelectItem>
+                      <SelectItem value="overperforming">
+                        Overperforming
+                      </SelectItem>
                       <SelectItem value="average">Average</SelectItem>
-                      <SelectItem value="underperforming">Underperforming</SelectItem>
+                      <SelectItem value="underperforming">
+                        Underperforming
+                      </SelectItem>
                     </Select>
                   </div>
                   <Table className="mt-6">
                     <TableHead>
                       <TableRow>
                         <TableHeaderCell>Name</TableHeaderCell>
-                        <TableHeaderCell className="text-right">Leads</TableHeaderCell>
-                        <TableHeaderCell className="text-right">Sales ($)</TableHeaderCell>
-                        <TableHeaderCell className="text-right">Quota ($)</TableHeaderCell>
-                        <TableHeaderCell className="text-right">Variance</TableHeaderCell>
-                        <TableHeaderCell className="text-right">Region</TableHeaderCell>
-                        <TableHeaderCell className="text-right">Status</TableHeaderCell>
+                        <TableHeaderCell className="text-right">
+                          Leads
+                        </TableHeaderCell>
+                        <TableHeaderCell className="text-right">
+                          Sales ($)
+                        </TableHeaderCell>
+                        <TableHeaderCell className="text-right">
+                          Quota ($)
+                        </TableHeaderCell>
+                        <TableHeaderCell className="text-right">
+                          Variance
+                        </TableHeaderCell>
+                        <TableHeaderCell className="text-right">
+                          Region
+                        </TableHeaderCell>
+                        <TableHeaderCell className="text-right">
+                          Status
+                        </TableHeaderCell>
                       </TableRow>
                     </TableHead>
 
@@ -345,13 +300,26 @@ export default function DashboardExample() {
                         .map((item) => (
                           <TableRow key={item.name}>
                             <TableCell>{item.name}</TableCell>
-                            <TableCell className="text-right">{item.leads}</TableCell>
-                            <TableCell className="text-right">{item.sales}</TableCell>
-                            <TableCell className="text-right">{item.quota}</TableCell>
-                            <TableCell className="text-right">{item.variance}</TableCell>
-                            <TableCell className="text-right">{item.region}</TableCell>
                             <TableCell className="text-right">
-                              <BadgeDelta deltaType={deltaTypes[item.status]} size="xs">
+                              {item.leads}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {item.sales}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {item.quota}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {item.variance}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {item.region}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <BadgeDelta
+                                deltaType={deltaTypes[item.status]}
+                                size="xs"
+                              >
                                 {item.status}
                               </BadgeDelta>
                             </TableCell>
@@ -367,4 +335,4 @@ export default function DashboardExample() {
       </TabGroup>
     </main>
   );
-}
+};
