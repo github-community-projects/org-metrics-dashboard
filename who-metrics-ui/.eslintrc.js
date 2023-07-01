@@ -103,7 +103,7 @@ const baseConfig = {
     "import/resolver": {
       node: {
         extensions: [".js", ".ts", ".tsx"],
-        moduleDirectory: ["node_modules", "app/assets/modules"],
+        moduleDirectory: ["who-metrics-ui/src", "who-metrics-ui/node_modules"],
       },
       typescript: true,
     },

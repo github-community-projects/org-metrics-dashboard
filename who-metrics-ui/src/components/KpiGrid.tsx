@@ -1,6 +1,15 @@
 "use client";
 
-import { BadgeDelta, Card, Grid, DeltaType, Flex, Metric, ProgressBar, Text } from "@tremor/react";
+import {
+  BadgeDelta,
+  Card,
+  Grid,
+  DeltaType,
+  Flex,
+  Metric,
+  ProgressBar,
+  Text,
+} from "@tremor/react";
 
 type Kpi = {
   title: string;
@@ -59,6 +68,6 @@ const KpiCardGrid = () => {
       ))}
     </Grid>
   );
-}
+};
 
 export default KpiCardGrid;

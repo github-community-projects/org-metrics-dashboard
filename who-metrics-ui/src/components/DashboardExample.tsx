@@ -30,7 +30,8 @@ import {
 import { InfoIcon } from "@primer/octicons-react";
 import { Box, Tooltip } from "@primer/react";
 import Image from "next/image";
-import logo from "../images/who-logo-wide.svg";
+// eslint-disable-next-line import/no-unresolved, import/extensions
+import logo from "@/images/who-logo-wide.svg";
 import { ChartView } from "./";
 
 import { useState } from "react";

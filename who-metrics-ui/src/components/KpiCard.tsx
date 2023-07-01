@@ -1,6 +1,13 @@
 "use client";
 
-import { BadgeDelta, Card, Flex, Metric, ProgressBar, Text } from "@tremor/react";
+import {
+  BadgeDelta,
+  Card,
+  Flex,
+  Metric,
+  ProgressBar,
+  Text,
+} from "@tremor/react";
 
 // Single KPI card in the demo dashboard with sample inputs
 const KpiCard = () => {
@@ -20,6 +27,6 @@ const KpiCard = () => {
       <ProgressBar value={15.9} className="mt-2" />
     </Card>
   );
-}
+};
 
-export default KpiCard
+export default KpiCard;
