@@ -3,30 +3,45 @@
 import {
   BadgeDelta,
   Card,
+  DeltaType,
   Flex,
   Metric,
   ProgressBar,
   Text,
 } from "@tremor/react";
 
-// Single KPI card in the demo dashboard with sample inputs
-const KpiCard = () => {
+type KpiCardProps = {
+  title: string;
+  metric: string;
+  delta: string;
+  deltaType: string;
+  target: string;
+  progress: number;
+};
+
+const KpiCard = ({
+  title,
+  metric,
+  delta,
+  deltaType,
+  target,
+  progress,
+}: KpiCardProps) => {
   return (
     <Card className="max-w-lg mx-auto">
       <Flex alignItems="start">
-        <div>
-          <Text>Sales</Text>
-          <Metric>$ 12,699</Metric>
+        <div className="truncate">
+          <Text>{title}</Text>
+          <Metric className="truncate">{metric}</Metric>
         </div>
-        <BadgeDelta deltaType="moderateIncrease">13.2%</BadgeDelta>
+        <BadgeDelta deltaType={deltaType as DeltaType}>{delta}</BadgeDelta>
       </Flex>
       <Flex className="mt-4">
-        <Text className="truncate">68% ($ 149,940)</Text>
-        <Text>$ 220,500</Text>
+        <Text className="truncate">{`${progress}% (${metric})`}</Text>
+        <Text>{target}</Text>
       </Flex>
-      <ProgressBar value={15.9} className="mt-2" />
+      <ProgressBar value={progress} className="mt-2" />
     </Card>
   );
 };
-
 export default KpiCard;
