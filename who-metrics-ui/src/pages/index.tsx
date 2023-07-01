@@ -1,6 +1,7 @@
 import { Card, Metric, Text, Flex, Grid, Title, BarList } from '@tremor/react';
 import Chart from '../components/chart';
 import DarkModeToggle from '@/components/DarkModeToggle';
+import OldDashboard from '@/components/OldDashboard';
 
 const website = [
   { name: '/home', value: 1230 },
@@ -25,95 +26,11 @@ const app = [
   { name: '/downloads', value: 191 }
 ];
 
-const data = [
-  {
-    category: 'Website',
-    stat: '10,234',
-    data: website
-  },
-  {
-    category: 'Online Shop',
-    stat: '12,543',
-    data: shop
-  },
-  {
-    category: 'Mobile App',
-    stat: '2,543',
-    data: app
-  }
-];
-
-const dataFormatter = (number: number) =>
-  Intl.NumberFormat('us').format(number).toString();
-
-const categories: {
-  title: string;
-  metric: string;
-  metricPrev: string;
-}[] = [
-  {
-    title: 'Sales',
-    metric: '$ 12,699',
-    metricPrev: '$ 9,456'
-  },
-  {
-    title: 'Profit',
-    metric: '$ 40,598',
-    metricPrev: '$ 45,564'
-  },
-  {
-    title: 'Customers',
-    metric: '1,072',
-    metricPrev: '856'
-  }
-];
-
 export default function PlaygroundPage() {
   return (
     <main className="p-4 md:p-10 mx-auto max-w-7xl">
       <DarkModeToggle/>
-      <Grid className="gap-6" numItemsSm={2} numItemsLg={3}>
-        {categories.map((item) => (
-          <Card key={item.title}>
-            <Flex alignItems="start">
-              <Text>{item.title}</Text>
-            </Flex>
-            <Flex
-              className="space-x-3 truncate"
-              justifyContent="start"
-              alignItems="baseline"
-            >
-              <Metric>{item.metric}</Metric>
-              <Text className="truncate">from {item.metricPrev}</Text>
-            </Flex>
-          </Card>
-        ))}
-      </Grid>
-      <Grid className="mt-8 gap-6" numItemsSm={2} numItemsLg={3}>
-        {data.map((item) => (
-          <Card key={item.category}>
-            <Title>{item.category}</Title>
-            <Flex
-              className="space-x-2"
-              justifyContent="start"
-              alignItems="baseline"
-            >
-              <Metric>{item.stat}</Metric>
-              <Text>Total views</Text>
-            </Flex>
-            <Flex className="mt-6">
-              <Text>Pages</Text>
-              <Text className="text-right">Views</Text>
-            </Flex>
-            <BarList
-              className="mt-2"
-              data={item.data}
-              valueFormatter={dataFormatter}
-            />
-          </Card>
-        ))}
-      </Grid>
-      <Chart />
+      <OldDashboard/>
     </main>
   );
 }

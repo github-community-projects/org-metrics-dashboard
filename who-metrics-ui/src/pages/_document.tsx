@@ -5,7 +5,6 @@ export default function Document() {
   return (
     <Html lang="en" className={`h-full`}>
       <Head />
-      <Navbar />
       <body className="h-full">
         <Main />
         <NextScript />
