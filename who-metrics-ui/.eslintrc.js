@@ -57,7 +57,8 @@ const baseConfig = {
     "plugin:primer-react/recommended",
   ],
   parserOptions: {
-    project: ["who-metrics-ui/tsconfig.json"],
+    project: "./tsconfig.json",
+    tsconfigRootDir: __dirname,
   },
   ignorePatterns: ["*__generated__*"],
   rules: {
