@@ -55,6 +55,7 @@ const baseConfig = {
     "plugin:react/jsx-runtime",
     "plugin:react-hooks/recommended",
     "plugin:primer-react/recommended",
+    "next",
   ],
   parserOptions: {
     project: "./tsconfig.json",
@@ -62,7 +63,6 @@ const baseConfig = {
   },
   ignorePatterns: ["*__generated__*"],
   rules: {
-    "import/no-unresolved": ["error"],
     "compat/compat": ["error"],
     "delegated-events/global-on": ["error"],
     "delegated-events/no-high-freq": ["error"],
