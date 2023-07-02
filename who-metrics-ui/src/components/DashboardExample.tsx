@@ -20,6 +20,7 @@ import { ChartView } from "./";
 
 import KpiCard from "./KpiCard";
 import { PerformanceHistoryTable } from "./PerformanceHistoryTable";
+import DarkModeButton from "./DarkModeButton";
 
 type Kpi = {
   title: string;
@@ -109,10 +110,20 @@ export const DashboardExample = () => {
       </Box>
       <Text>Lorem ipsum dolor sit amet, consetetur sadipscing elitr.</Text>
       <TabGroup className="mt-6">
-        <TabList>
-          <Tab>Overview</Tab>
-          <Tab>Detail</Tab>
-        </TabList>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 2,
+          }}
+        >
+          <TabList>
+            <Tab>Overview</Tab>
+            <Tab>Detail</Tab>
+          </TabList>
+          <DarkModeButton />
+        </Box>
         <TabPanels>
           <TabPanel>
             <Grid numItemsLg={3} className="mt-6 gap-6">
