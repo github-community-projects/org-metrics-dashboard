@@ -63,6 +63,18 @@ const baseConfig = {
   },
   ignorePatterns: ["*__generated__*"],
   rules: {
+    "import/no-unresolved": [
+      "error",
+      {
+        ignore: [".svg"],
+      },
+    ],
+    "import/extensions": [
+      "error",
+      {
+        svg: "always",
+      },
+    ],
     "compat/compat": ["error"],
     "delegated-events/global-on": ["error"],
     "delegated-events/no-high-freq": ["error"],
