@@ -126,6 +126,11 @@ export const DashboardExample = () => {
         </Box>
         <TabPanels>
           <TabPanel>
+            <div className="mt-6">
+              <Card>
+                <ChartView />
+              </Card>
+            </div>
             <Grid numItemsLg={3} className="mt-6 gap-6">
               {kpiData.map((item) => (
                 <KpiCard

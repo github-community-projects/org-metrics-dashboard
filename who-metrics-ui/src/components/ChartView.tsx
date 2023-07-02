@@ -5,92 +5,51 @@ import { Tooltip } from "@primer/react";
 import {
   Flex,
   Title,
-  TabGroup,
-  TabList,
-  Tab,
   AreaChart,
   Text,
   Color,
+  Grid,
+  Col,
+  Card,
 } from "@tremor/react";
-import { useState } from "react";
+import KpiCard from "./KpiCard";
 
-const usNumberformatter = (number: number, decimals = 0) =>
-  Intl.NumberFormat("us", {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  })
-    .format(Number(number))
-    .toString();
-
-type Formatter = (number: number) => string;
-
-interface Formatters {
-  [key: string]: Formatter;
-}
-
-const formatters: Formatters = {
-  Sales: (number) => `$ ${usNumberformatter(number)}`,
-  Profit: (number) => `$ ${usNumberformatter(number)}`,
-  Customers: (number) => `${usNumberformatter(number)}`,
-  Delta: (number) => `${usNumberformatter(number, 2)}%`,
-};
+const usNumberformatter = (number: number) =>
+  Intl.NumberFormat("us").format(Number(number)).toString();
 
 const Kpis = {
-  Sales: "Sales",
-  Profit: "Profit",
-  Customers: "Customers",
+  Members: "Members",
+  Collaborators: "Collaborators",
 };
 
-const kpiList = [Kpis.Sales, Kpis.Profit, Kpis.Customers];
+const kpiList = [Kpis.Members, Kpis.Collaborators];
 
 export type DailyPerformance = {
   date: string;
-  Sales: number;
-  Profit: number;
-  Customers: number;
+  Members: number;
+  Collaborators: number;
 };
 
-export const performance: DailyPerformance[] = [
-  {
-    date: "2023-05-01",
-    Sales: 900.73,
-    Profit: 173,
-    Customers: 73,
-  },
-  {
-    date: "2023-05-02",
-    Sales: 1000.74,
-    Profit: 174.6,
-    Customers: 74,
-  },
-  {
-    date: "2023-05-03",
-    Sales: 1100.93,
-    Profit: 293.1,
-    Customers: 293,
-  },
-  {
-    date: "2023-05-04",
-    Sales: 1200.9,
-    Profit: 290.2,
-    Customers: 29,
-  },
-];
-
 export const ChartView = () => {
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const selectedKpi = kpiList[selectedIndex];
+  const performanceData = [];
 
-  const areaChartArgs = {
-    className: "mt-5 h-72",
-    data: performance,
-    index: "date",
-    categories: [selectedKpi],
-    colors: ["blue"] as Color[],
-    showLegend: false,
-    valueFormatter: formatters[selectedKpi],
-    yAxisWidth: 56,
-  };
+  const startDate = new Date();
+  startDate.setFullYear(startDate.getFullYear() - 2);
+
+  for (let i = 0; i < 24; i++) {
+    const date = new Date(startDate);
+    date.setMonth(date.getMonth() + i);
+
+    const members = Math.floor(Math.random() * 100) + 100;
+    const collaborators = Math.floor(Math.random() * 200) + 50;
+    performanceData.push({
+      date: `${date.toLocaleString("default", {
+        month: "short",
+      })} ${date.getFullYear()}`,
+      Members: members,
+      Collaborators: collaborators,
+    });
+  }
 
   return (
     <>
@@ -102,35 +61,54 @@ export const ChartView = () => {
             alignItems="center"
           >
             <Title> Performance History </Title>
-            <Tooltip aria-label="Shows daily increase or decrease of particular domain">
-              <InfoIcon size={24} />
+            <Tooltip aria-label="Shows monthly contrinuters">
+              <InfoIcon size={16} />
             </Tooltip>
           </Flex>
           <Text> Daily change per domain </Text>
         </div>
-        <div>
-          <TabGroup index={selectedIndex} onIndexChange={setSelectedIndex}>
-            <TabList color="gray" variant="solid">
-              <Tab>Sales</Tab>
-              <Tab>Profit</Tab>
-              <Tab>Customers</Tab>
-            </TabList>
-          </TabGroup>
-        </div>
       </div>
       {/* web */}
-      <div className="mt-8 hidden sm:block">
-        <AreaChart {...areaChartArgs} />
-      </div>
-      {/* mobile */}
-      <div className="mt-8 sm:hidden">
-        <AreaChart
-          {...areaChartArgs}
-          startEndOnly={true}
-          showGradient={false}
-          showYAxis={false}
-        />
-      </div>
+      <Grid numItems={1} numItemsSm={2} numItemsLg={3} className="gap-2">
+        <Col numColSpan={1} numColSpanLg={2}>
+          <Card className="">
+            <AreaChart
+              className="mt-5 h-72"
+              data={performanceData}
+              index={"date"}
+              categories={kpiList}
+              colors={["indigo", "cyan"] as Color[]}
+              showLegend={false}
+              valueFormatter={usNumberformatter}
+              yAxisWidth={56}
+              allowDecimals={false}
+            />
+          </Card>
+        </Col>
+        <Col
+          numColSpan={1}
+          style={{
+            justifyContent: "space-between",
+            flexDirection: "column",
+            display: "flex",
+          }}
+        >
+          <KpiCard
+            title="Open Source Health"
+            metric="85%"
+            progress={85}
+            target="100%"
+            color="pink"
+          />
+          <KpiCard
+            title="Project Activities"
+            metric="64%"
+            progress={64}
+            target="100%"
+            color="green"
+          />
+        </Col>
+      </Grid>
     </>
   );
 };

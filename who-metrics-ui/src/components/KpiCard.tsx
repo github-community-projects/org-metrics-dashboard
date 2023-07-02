@@ -3,6 +3,7 @@
 import {
   BadgeDelta,
   Card,
+  Color,
   DeltaType,
   Flex,
   Metric,
@@ -12,11 +13,12 @@ import {
 
 type KpiCardProps = {
   title: string;
-  metric: string;
-  delta: string;
-  deltaType: string;
+  metric?: string;
+  delta?: string;
+  deltaType?: string;
   target: string;
   progress: number;
+  color?: Color;
 };
 
 const KpiCard = ({
@@ -26,7 +28,11 @@ const KpiCard = ({
   deltaType,
   target,
   progress,
+  color,
 }: KpiCardProps) => {
+  const merticTextVal: string = metric
+    ? `${progress}% (${metric})`
+    : `${progress}%`;
   return (
     <Card className="max-w-lg mx-auto">
       <Flex alignItems="start">
@@ -34,13 +40,15 @@ const KpiCard = ({
           <Text>{title}</Text>
           <Metric className="truncate">{metric}</Metric>
         </div>
-        <BadgeDelta deltaType={deltaType as DeltaType}>{delta}</BadgeDelta>
+        {delta && (
+          <BadgeDelta deltaType={deltaType as DeltaType}>{delta}</BadgeDelta>
+        )}
       </Flex>
       <Flex className="mt-4">
-        <Text className="truncate">{`${progress}% (${metric})`}</Text>
+        <Text className="truncate">{merticTextVal}</Text>
         <Text>{target}</Text>
       </Flex>
-      <ProgressBar value={progress} className="mt-2" />
+      <ProgressBar value={progress} className="mt-2" color={color} />
     </Card>
   );
 };
