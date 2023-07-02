@@ -55,13 +55,26 @@ const baseConfig = {
     "plugin:react/jsx-runtime",
     "plugin:react-hooks/recommended",
     "plugin:primer-react/recommended",
+    "next",
   ],
   parserOptions: {
-    project: ["who-metrics-ui/tsconfig.json"],
+    project: "./tsconfig.json",
+    tsconfigRootDir: __dirname,
   },
   ignorePatterns: ["*__generated__*"],
   rules: {
-    "import/no-unresolved": ["error"],
+    "import/no-unresolved": [
+      "error",
+      {
+        ignore: [".svg"],
+      },
+    ],
+    "import/extensions": [
+      "error",
+      {
+        svg: "always",
+      },
+    ],
     "compat/compat": ["error"],
     "delegated-events/global-on": ["error"],
     "delegated-events/no-high-freq": ["error"],

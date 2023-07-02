@@ -15,7 +15,6 @@ import {
 
 import { Box } from "@primer/react";
 import Image from "next/image";
-// eslint-disable-next-line import/no-unresolved, import/extensions
 import logo from "@/images/who-logo-wide.svg";
 import { ChartView } from "./";
 
