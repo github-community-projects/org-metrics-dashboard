@@ -15,7 +15,7 @@ Issue Project  [here](https://github.com/github/SI-skills-based-volunteering/iss
 
 ### UI
 
-1. Run `npm i`
+1. Run `cd who-metrics-ui && npm i`
 2. Run `npm run dev`
 
 <!-- TODO: Add min requirements and deployment steps -->

@@ -12,7 +12,7 @@ build: metrics
 
 tools:
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.51.2
-	.devcontainer/scripts/install-tools.sh
+	./scripts/install-tools.sh
 
 .PHONY: test
 test:  test-go
