@@ -81,7 +81,7 @@ jobs:
       - name: Static HTML export with Next.js
         run: cd "${{ github.workspace }}/who-metrics-ui" && ${{ steps.detect-package-manager.outputs.runner }} next export
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v2
         with:
           path: "${{ github.workspace }}/who-metrics-ui/out"
 
