@@ -64,7 +64,6 @@ jobs:
           #
           # You may remove this line if you want to manage the configuration yourself.
           static_site_generator: next
-          base_path: "/sbv-world-health-org-metrics"
       - name: Restore cache
         uses: actions/cache@v3
         with:
