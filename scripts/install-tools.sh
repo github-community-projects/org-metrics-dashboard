@@ -1,9 +1,12 @@
 #!/bin/bash
 
-set -e
+set -euo pipefail
+
+echo "==> Installing golang tools"
 
 go install github.com/go-delve/delve/cmd/dlv@latest
 go install golang.org/x/tools/gopls@latest
 go install golang.org/x/tools/cmd/goimports@latest
 go install github.com/rogpeppe/godef@latest
-gh extension install https://github.com/nektos/gh-act
+
+echo "==> golang tools installation complete!"

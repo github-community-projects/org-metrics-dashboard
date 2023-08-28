@@ -1,4 +1,3 @@
-FROM mcr.microsoft.com/vscode/devcontainers/go:1.19-buster
+FROM mcr.microsoft.com/vscode/devcontainers/go:1.20-bullseye
 
-COPY scripts scripts
-RUN ./scripts/install-tools.sh
+USER vscode
