@@ -69,7 +69,7 @@ jobs:
       run: |
         git checkout -b $BRANCH
         git add output.txt
-        git commit -m "Add output file"
+        git -c commit.gpgsign=false commit -m "Add output file"
         git push origin $BRANCH
     - name: Create Pull Request
       run: |
