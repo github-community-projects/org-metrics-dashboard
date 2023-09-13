@@ -1,8 +1,12 @@
 # World Health Org Metrics Project 
 
+## Problem Statement
+
+The World Health Organization leads global efforts to expand universal health coverage. They direct and coordinate the world’s response to health emergencies however there is currently no integrated digital environment for public health experts from all around the globe to collaborate on pandemic and epidemic intelligence and ongoing public health emergency events. The World Health Organization is exploring how to easily collaborate with external experts around the world to work on public health issues like COVID-19.
+
 ## Goal
 
-Monitor open source health across different projects to have a high level view the best practices adopted by various open source projects
+Monitor open source health across different projects to have a high level view the best practices adopted by various open source projects to help build interest in open source work and advocate for more open source development
 
 Issue Project  [here](https://github.com/github/SI-skills-based-volunteering/issues/147#issuecomment-1472370039)
 
