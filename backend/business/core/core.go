@@ -23,7 +23,7 @@ Its because Collect is a method of the Collector interface.
 And "Amass" is a synonym for "collect" (and is much cooler).
 */
 func (c *Core) Amass(ctx context.Context) ([]string, []error) {
-	results, errors := make([]string, len(c.collectors)), make([]error, len(c.collectors))
+	results, errors := make([]string, 0), make([]error, 0)
 	for _, collector := range c.collectors {
 		r, errs := collector.Collect(ctx)
 		results = append(results, r...)

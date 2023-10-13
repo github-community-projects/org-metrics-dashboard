@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+	"sync"
 
 	"github.com/shurcooL/githubv4"
 	"github.com/who-metrics/business/core/collectors/github/fetchers"
@@ -11,24 +12,33 @@ type Fetcher interface {
 	Fetch(ctx context.Context) (string, error)
 }
 
-type GitHubCollector struct {
+type Collector struct {
 	fetchers []Fetcher
 }
 
-func NewGitHubCollector(client *githubv4.Client) *GitHubCollector {
-	return &GitHubCollector{fetchers: buildFetchers(client)}
+func NewGitHubCollector(client *githubv4.Client) *Collector {
+	return &Collector{fetchers: buildFetchers(client)}
 }
 
-func (c *GitHubCollector) Collect(ctx context.Context) ([]string, []error) {
-	// TODO: process with goroutines
-	results, errors := make([]string, len(c.fetchers)), make([]error, len(c.fetchers))
+func (c *Collector) Collect(ctx context.Context) ([]string, []error) {
+	var wg sync.WaitGroup
+
+	results, errors := make([]string, 0), make([]error, 0)
 	for _, fetcher := range c.fetchers {
-		result, err := fetcher.Fetch(ctx)
-		if err != nil {
-			errors = append(errors, err)
-		}
-		results = append(results, result)
+		wg.Add(1)
+		fetcher := fetcher
+		go func() {
+			defer wg.Done()
+			var result, err = fetcher.Fetch(ctx)
+			if err != nil {
+				errors = append(errors, err)
+			}
+			if result != "" {
+				results = append(results, result)
+			}
+		}()
 	}
+	wg.Wait()
 	return results, errors
 }
 
@@ -44,8 +54,8 @@ func buildFetchers(client *githubv4.Client) []Fetcher {
 	*/
 	// TODO: map the fetchers to keys so we can easily access them
 	return []Fetcher{
-		// fetchers.NewOrgInfo(client, "WorldHealthOrganization"),
+		fetchers.NewOrgInfo(client, "WorldHealthOrganization"),
 		fetchers.NewReposInfoFetcher(client, "WorldHealthOrganization"),
-		// fetchers.NewContributionInfoFetcher(client, "WorldHealthOrganization"),
+		fetchers.NewContributionInfoFetcher(client, "WorldHealthOrganization"),
 	}
 }
