@@ -1,0 +1,30 @@
+{
+  "github/github": {
+    "repoName": "github",
+    "collaboratorsCount": 10,
+    "projectsCount": 100,
+    "discussionsCount": 100,
+    "forksCount": 100,
+    "issuesCount": 100,
+    "openIssuesCount": 100,
+    "closedIssuesCount": 100,
+    "openPullRequestsCount": 100,
+    "mergedPullRequestsCount": 100,
+    "licenseName": "MIT",
+    "watchersCount": 100
+  },
+  "github/ospo": {
+    "repoName": "github",
+    "collaboratorsCount": 10,
+    "projectsCount": 100,
+    "discussionsCount": 100,
+    "forksCount": 100,
+    "issuesCount": 100,
+    "openIssuesCount": 100,
+    "closedIssuesCount": 100,
+    "openPullRequestsCount": 100,
+    "mergedPullRequestsCount": 100,
+    "licenseName": "MIT",
+    "watchersCount": 100
+  }
+}

@@ -2,10 +2,13 @@
 const nextConfig = {
   reactStrictMode: true,
   productionBrowserSourceMaps: true,
-  basePath: '/sbv-world-health-org-metrics',
+  basePath:
+    process.env.NODE_ENV === "development"
+      ? ""
+      : "/sbv-world-health-org-metrics",
   images: {
     unoptimized: true,
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

@@ -5,7 +5,7 @@
 #   - saves the output to a file
 #   - saves the file in the repository
 
-name: Fecth metrics
+name: Fetch metrics
 
 on:
   # manually trigger the workflow
