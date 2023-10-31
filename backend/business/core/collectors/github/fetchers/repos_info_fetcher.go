@@ -98,7 +98,6 @@ func (f *ReposInfoFetcher) Fetch(ctx context.Context) (*map[string]RepoInfoResul
 
 	for {
 		err := f.client.Query(ctx, &q, variables)
-		fmt.Println(err)
 
 		if err != nil {
 			return nil, fmt.Errorf("failed to fetch repos info for %s: %s", f.orgName, err.Error())

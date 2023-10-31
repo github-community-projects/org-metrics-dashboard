@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"log"
 
 	"github.com/who-metrics/business/core"
@@ -30,28 +29,16 @@ func run(format string) error {
 	githubCollector := github.NewGitHubCollector(c, "sbv-world-health-org-metrics")
 	core := core.New(githubCollector)
 
-	results, errors := core.Amass(context.Background())
+	errors := core.Amass(context.Background())
 
 	// We should really retry on error, and preserve the data we've already collected
 	// TODO: maybe fix this?
 	if len(errors) > 0 {
-		// panic(errors)
-	}
-
-	if (format == "csv") && (len(results) > 0) {
-		fmt.Println(results)
-		fmt.Println(errors)
-		return nil
-	}
-
-	if (format == "json") && (len(results) > 0) {
-		output, err := helpers.FormatJSON(results)
-		if err != nil {
-			return err
+		// print every error in the errors array
+		for _, err := range errors {
+			log.Println(err)
 		}
-
-		fmt.Println(output)
-		return nil
+		panic(errors)
 	}
 
 	return nil

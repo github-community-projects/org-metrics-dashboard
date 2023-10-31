@@ -2,7 +2,9 @@ package github
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"os"
 
 	"github.com/shurcooL/githubv4"
 	"github.com/who-metrics/business/core/collectors/github/fetchers"
@@ -10,7 +12,6 @@ import (
 
 type GitHubCollector struct {
 	fetchers Fetchers
-	// format   string
 }
 
 func NewGitHubCollector(client *githubv4.Client, organizationName string) *GitHubCollector {
@@ -27,7 +28,7 @@ type ResultOutput struct {
 	Repositories map[string]RepositoryInfoResult `json:"repositories"`
 }
 
-func (c *GitHubCollector) Collect(ctx context.Context) ([]string, []error) {
+func (c *GitHubCollector) Collect(ctx context.Context) []error {
 	errors := make([]error, 0)
 	orgInfo, err := c.fetchers.OrgInfo.Fetch(ctx)
 	if err != nil {
@@ -42,10 +43,14 @@ func (c *GitHubCollector) Collect(ctx context.Context) ([]string, []error) {
 		errors = append(errors, err)
 	}
 
-	// Build the final result
 	result := ResultOutput{
 		OrgInfo:      orgInfo,
 		Repositories: make(map[string]RepositoryInfoResult),
+	}
+
+	if reposInfo == nil {
+		errors = append(errors, fmt.Errorf("no repository information found"))
+		return errors
 	}
 
 	for _, repo := range *reposInfo {
@@ -55,26 +60,28 @@ func (c *GitHubCollector) Collect(ctx context.Context) ([]string, []error) {
 		}
 	}
 
-	fmt.Println(result)
+	jsonData, err := json.Marshal(result)
+	if err != nil {
+		errors = append(errors, err)
+		return errors
+	}
 
-	return []string{}, errors
-	// // Handle csv format
-	// if c.format == "csv" {
-	// 	// TODO: process with goroutines
-	// 	results, errors := make([]string, len(c.fetchers)), make([]error, 0)
+	file, err := os.Create("who-metrics-ui/src/data/data.json")
+	if err != nil {
+		errors = append(errors, err)
+		return errors
+	}
+	defer file.Close()
 
-	// 	for _, fetcher := range c.fetchers {
-	// 		result, err := fetcher.Fetch(ctx)
-	// 		if err != nil {
-	// 			errors = append(errors, err)
-	// 		}
-	// 		results = append(results, result)
-	// 	}
-	// 	return results, errors
+	_, err = file.Write(jsonData)
+	if err != nil {
+		errors = append(errors, err)
+		return errors
+	}
 
-	// }
+	fmt.Println("JSON data written to ", file.Name())
 
-	// Handle json format
+	return errors
 }
 
 type Fetchers struct {
@@ -84,21 +91,11 @@ type Fetchers struct {
 }
 
 func buildFetchers(client *githubv4.Client, organizationName string) Fetchers {
-	// TODO:
-	// load all variables from env or somewhere else
-	// it should look something like this:
-	/*
-		vars := GetVars()
-		return []Fetcher{
-			&fetchers.OrgInfo{client: client, orgName: vars.orgName},
-		}
-	*/
 	fetchers := Fetchers{
 		OrgInfo:          fetchers.NewOrgInfo(client, organizationName),
 		ReposInfo:        fetchers.NewReposInfoFetcher(client, organizationName),
 		ContributionInfo: fetchers.NewContributionInfoFetcher(client, organizationName),
 	}
 
-	// TODO: map the fetchers to keys so we can easily access them
 	return fetchers
 }
