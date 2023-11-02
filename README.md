@@ -76,8 +76,9 @@ Issue Project  [here](https://github.com/github/SI-skills-based-volunteering/iss
 
 To update the repository data.
 
-1. Generate a [new GitHub Token](https://github.com/settings/tokens) with the ability to read repo and projects.
-2. Run the following command from the root of the repository
+1. Generate a [new GitHub Token](https://github.com/settings/tokens) with the ability to read repo, read org, and  read projects scopes.
+1. Set the `GRAPHQL_TOKEN` environment variable to be the value of your newly created token.
+1. Run the following command from the root of the repository:
 ```
 make build
 ./backend/bin/metrics
