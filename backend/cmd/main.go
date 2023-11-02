@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"flag"
 	"log"
+	"os"
 
 	"github.com/who-metrics/business/core"
 	"github.com/who-metrics/business/core/collectors/github"
@@ -11,22 +11,20 @@ import (
 )
 
 func main() {
-	formatPtr := flag.String("format", "csv", "Format of the output file: csv or json")
-
-	if (*formatPtr != "csv") && (*formatPtr != "json") {
-		log.Fatal("Invalid format flag")
-	}
-
-	err := run(*formatPtr)
+	err := run()
 	if err != nil {
 		log.Println(err)
 	}
 }
 
-func run(format string) error {
+func run() error {
 	// GitHub GraphQL API v4 token.
 	c := helpers.NewGHGraphQLClient()
-	githubCollector := github.NewGitHubCollector(c, "sbv-world-health-org-metrics")
+	org := os.Getenv("ORGANIZATION_NAME")
+	if org == "" {
+		org = "sbv-world-health-org-metrics"
+	}
+	githubCollector := github.NewGitHubCollector(c, org)
 	core := core.New(githubCollector)
 
 	errors := core.Amass(context.Background())
