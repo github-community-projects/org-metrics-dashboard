@@ -2,7 +2,6 @@ package fetchers
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/shurcooL/githubv4"
 )
@@ -63,21 +62,6 @@ func (c *ContributionInfoFetcher) Fetch(ctx context.Context) (*map[string]Contri
 
 	result := c.buildResult(allRepos)
 	return result, nil
-}
-
-// FormatCSV formats the given data as CSV
-func (f *ContributionInfoFetcher) FormatCSV(data []contributionInfo) (string, error) {
-	csvString := "repo_name,issues_opened\n"
-	for _, edge := range data {
-		csvString += fmt.Sprintf("%s\n",
-			edge.Node.NameWithOwner,
-			// edge.Node.OpenIssues.TotalCount,
-			// edge.Node.ClosedIssues.TotalCount,
-			// edge.Node.OpenPullRequests.TotalCount,
-			// edge.Node.MergedPullRequests.TotalCount,
-		)
-	}
-	return csvString, nil
 }
 
 func (f *ContributionInfoFetcher) buildResult(data []contributionInfo) *map[string]ContributionInfoResult {

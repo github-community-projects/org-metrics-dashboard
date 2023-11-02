@@ -109,33 +109,11 @@ func (f *ReposInfoFetcher) Fetch(ctx context.Context) (*map[string]RepoInfoResul
 		variables["reposCursor"] = githubv4.NewString(q.Organization.Repositories.PageInfo.EndCursor)
 	}
 
-	result := f.buildJSON(allRepos)
+	result := f.buildResult(allRepos)
 	return result, nil
 }
 
-// FormatCSV formats the given data as CSV file
-func (f *ReposInfoFetcher) FormatCSV(data []repoInfo) (string, error) {
-	csvString := "repo_name,collaborators_count,projects_count,discussions_count,forks_count,issues_count,open_issues_count,closed_issues_count,open_pull_requests_count,merged_pull_requests_count,license_name,watchers_count\n"
-	for _, edge := range data {
-		csvString += fmt.Sprintf("%s,%d,%d,%d,%d,%d,%d,%d,%d,%d,%s,%d\n",
-			edge.Node.NameWithOwner,
-			edge.Node.Collaborators.TotalCount,
-			edge.Node.Projects.TotalCount+edge.Node.ProjectsV2.TotalCount,
-			edge.Node.Discussions.TotalCount,
-			edge.Node.Forks.TotalCount,
-			edge.Node.Issues.TotalCount,
-			edge.Node.OpenIssues.TotalCount,
-			edge.Node.ClosedIssues.TotalCount,
-			edge.Node.OpenPullRequests.TotalCount,
-			edge.Node.MergedPullRequests.TotalCount,
-			edge.Node.LicenseInfo.Name,
-			edge.Node.Watchers.TotalCount,
-		)
-	}
-	return csvString, nil
-}
-
-func (f *ReposInfoFetcher) buildJSON(data []repoInfo) *map[string]RepoInfoResult {
+func (f *ReposInfoFetcher) buildResult(data []repoInfo) *map[string]RepoInfoResult {
 	holder := make(map[string]RepoInfoResult)
 	for _, edge := range data {
 		holder[string(edge.Node.NameWithOwner)] = RepoInfoResult{

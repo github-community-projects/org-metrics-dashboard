@@ -2,7 +2,6 @@ package fetchers
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/shurcooL/githubv4"
 )
@@ -72,21 +71,6 @@ func (oif *OrgInfoFetcher) Fetch(ctx context.Context) (*OrgInfoResult, error) {
 		return result, err
 	}
 	return result, nil
-}
-
-func (f *OrgInfoFetcher) formatCSV(data orgInfo) (string, error) {
-	csvString := "login,name,description,createdAt,totalMembers,totalProjects,totalRepositories,totalTeams\n"
-	csvString += fmt.Sprintf("%s,%s,%s,%s,%d,%d,%d,%d\n",
-		data.Login,
-		data.Name,
-		data.Description,
-		data.CreatedAt,
-		data.MembersWithRole.TotalCount,
-		data.Projects.TotalCount+data.ProjectsV2.TotalCount,
-		data.Repositories.TotalCount,
-		data.Teams.TotalCount,
-	)
-	return csvString, nil
 }
 
 func (f *OrgInfoFetcher) buildResult(data orgInfo) *OrgInfoResult {
