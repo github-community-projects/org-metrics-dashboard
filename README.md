@@ -50,6 +50,12 @@ Issue Project  [here](https://github.com/github/SI-skills-based-volunteering/iss
       </b>David Gardiner<br>
       <b> Software Engineer II</b>
     </td>
+    <td colspan=3 align=center>
+    <img src="https://github.com/ipc103.png?v=4" width="110" height="110"><br/>
+      <a href="https://github.com/ipc103">@ipc103</a><br/>
+      </b>Ian Candy<br>
+      <b> Senior Software Engineer</b>
+    </td>
    </tr>
 </table>
 
