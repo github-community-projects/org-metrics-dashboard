@@ -29,8 +29,6 @@ func run() error {
 
 	errors := core.Amass(context.Background())
 
-	// We should really retry on error, and preserve the data we've already collected
-	// TODO: maybe fix this?
 	if len(errors) > 0 {
 		// print every error in the errors array
 		for _, err := range errors {
