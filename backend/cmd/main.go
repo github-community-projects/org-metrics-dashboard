@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
+	"os"
 
 	"github.com/who-metrics/business/core"
 	"github.com/who-metrics/business/core/collectors/github"
@@ -20,11 +20,22 @@ func main() {
 func run() error {
 	// GitHub GraphQL API v4 token.
 	c := helpers.NewGHGraphQLClient()
-	githubCollector := github.NewGitHubCollector(c)
+	org := os.Getenv("ORGANIZATION_NAME")
+	if org == "" {
+		org = "sbv-world-health-org-metrics"
+	}
+	githubCollector := github.NewGitHubCollector(c, org)
 	core := core.New(githubCollector)
 
-	results, errors := core.Amass(context.Background())
-	fmt.Println(results)
-	fmt.Println(errors)
+	errors := core.Amass(context.Background())
+
+	if len(errors) > 0 {
+		// print every error in the errors array
+		for _, err := range errors {
+			log.Println(err)
+		}
+		panic(errors)
+	}
+
 	return nil
 }

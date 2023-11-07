@@ -7,6 +7,21 @@ import (
 	"github.com/shurcooL/githubv4"
 )
 
+type RepoInfoResult struct {
+	RepoName                string `json:"repoName"`
+	CollaboratorsCount      int    `json:"collaboratorsCount"`
+	ProjectsCount           int    `json:"projectsCount"`
+	DiscussionsCount        int    `json:"discussionsCount"`
+	ForksCount              int    `json:"forksCount"`
+	IssuesCount             int    `json:"issuesCount"`
+	OpenIssuesCount         int    `json:"openIssuesCount"`
+	ClosedIssuesCount       int    `json:"closedIssuesCount"`
+	OpenPullRequestsCount   int    `json:"openPullRequestsCount"`
+	MergedPullRequestsCount int    `json:"mergedPullRequestsCount"`
+	LicenseName             string `json:"licenseName"`
+	WatchersCount           int    `json:"watchersCount"`
+}
+
 type ReposInfoFetcher struct {
 	client  *githubv4.Client
 	orgName string
@@ -37,7 +52,7 @@ type repoInfo struct {
 		Issues struct {
 			TotalCount githubv4.Int
 		}
-		OpenIssues    struct {
+		OpenIssues struct {
 			TotalCount githubv4.Int
 		} `graphql:"openIssues: issues(states: OPEN)"`
 		ClosedIssues struct {
@@ -66,11 +81,12 @@ type reposInfoQuery struct {
 				EndCursor   githubv4.String
 				HasNextPage bool
 			}
-		} `graphql:"repositories(first: 100, privacy: PUBLIC, after: $reposCursor)"`
+		} `graphql:"repositories(first: 20, privacy: PUBLIC, after: $reposCursor)"`
 	} `graphql:"organization(login:$organizationLogin)"`
 }
 
-func (f *ReposInfoFetcher) Fetch(ctx context.Context) (string, error) {
+// Fetch fetches the repos info for the given organization
+func (f *ReposInfoFetcher) Fetch(ctx context.Context) (*map[string]RepoInfoResult, error) {
 	variables := map[string]interface{}{
 		"organizationLogin": githubv4.String(f.orgName),
 		"reposCursor":       (*githubv4.String)(nil), // Null after argument to get first page.
@@ -82,8 +98,9 @@ func (f *ReposInfoFetcher) Fetch(ctx context.Context) (string, error) {
 
 	for {
 		err := f.client.Query(ctx, &q, variables)
+
 		if err != nil {
-			return "", err
+			return nil, fmt.Errorf("failed to fetch repos info for %s: %s", f.orgName, err.Error())
 		}
 		allRepos = append(allRepos, q.Organization.Repositories.Edges...)
 		if !q.Organization.Repositories.PageInfo.HasNextPage {
@@ -92,30 +109,28 @@ func (f *ReposInfoFetcher) Fetch(ctx context.Context) (string, error) {
 		variables["reposCursor"] = githubv4.NewString(q.Organization.Repositories.PageInfo.EndCursor)
 	}
 
-	csvString, err := f.formatCSV(allRepos)
-	if err != nil {
-		return "", err
-	}
-	return csvString, nil
+	result := f.buildResult(allRepos)
+	return result, nil
 }
 
-func (f *ReposInfoFetcher) formatCSV(data []repoInfo) (string, error) {
-	csvString := "repo_name,collaborators_count,projects_count,discussions_count,forks_count,issues_count,open_issues_count,closed_issues_count,open_pull_requests_count,merged_pull_requests_count,license_name,watchers_count\n"
+func (f *ReposInfoFetcher) buildResult(data []repoInfo) *map[string]RepoInfoResult {
+	holder := make(map[string]RepoInfoResult)
 	for _, edge := range data {
-		csvString += fmt.Sprintf("%s,%d,%d,%d,%d,%d,%d,%d,%d,%d,%s,%d\n",
-			edge.Node.NameWithOwner,
-			edge.Node.Collaborators.TotalCount,
-			edge.Node.Projects.TotalCount+edge.Node.ProjectsV2.TotalCount,
-			edge.Node.Discussions.TotalCount,
-			edge.Node.Forks.TotalCount,
-			edge.Node.Issues.TotalCount,
-			edge.Node.OpenIssues.TotalCount,
-			edge.Node.ClosedIssues.TotalCount,
-			edge.Node.OpenPullRequests.TotalCount,
-			edge.Node.MergedPullRequests.TotalCount,
-			edge.Node.LicenseInfo.Name,
-			edge.Node.Watchers.TotalCount,
-		)
+		holder[string(edge.Node.NameWithOwner)] = RepoInfoResult{
+			RepoName:                string(edge.Node.NameWithOwner),
+			CollaboratorsCount:      int(edge.Node.Collaborators.TotalCount),
+			ProjectsCount:           int(edge.Node.Projects.TotalCount + edge.Node.ProjectsV2.TotalCount),
+			DiscussionsCount:        int(edge.Node.Discussions.TotalCount),
+			ForksCount:              int(edge.Node.Forks.TotalCount),
+			IssuesCount:             int(edge.Node.Issues.TotalCount),
+			OpenIssuesCount:         int(edge.Node.OpenIssues.TotalCount),
+			ClosedIssuesCount:       int(edge.Node.ClosedIssues.TotalCount),
+			OpenPullRequestsCount:   int(edge.Node.OpenPullRequests.TotalCount),
+			MergedPullRequestsCount: int(edge.Node.MergedPullRequests.TotalCount),
+			LicenseName:             string(edge.Node.LicenseInfo.Name),
+			WatchersCount:           int(edge.Node.Watchers.TotalCount),
+		}
 	}
-	return csvString, nil
+
+	return &holder
 }

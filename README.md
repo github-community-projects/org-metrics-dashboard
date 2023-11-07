@@ -73,7 +73,15 @@ Issue Project  [here](https://github.com/github/SI-skills-based-volunteering/iss
 
 <!-- TODO: Add min requirements and deployment steps -->
 ### Backend
-Run the following command to run the action locally
+
+To update the repository data.
+
+1. Generate a [new GitHub Token](https://github.com/settings/tokens) with the ability to read repo, read org, and  read projects scopes.
+1. Set the `GRAPHQL_TOKEN` environment variable to be the value of your newly created token.
+1. Run the following command from the root of the repository:
 ```
-gh act -W .github/workflows/graphql.yml  --artifact-server-path ./tmp/ --env-file dev.vscode.env
+make build
+./backend/bin/metrics
 ```
+
+This will generate a new `data.json` file in the UI directory which can be imported directly as part of the static build.

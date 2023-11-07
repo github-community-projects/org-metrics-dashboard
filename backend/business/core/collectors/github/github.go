@@ -2,60 +2,100 @@ package github
 
 import (
 	"context"
-	"sync"
+	"encoding/json"
+	"fmt"
+	"os"
 
 	"github.com/shurcooL/githubv4"
 	"github.com/who-metrics/business/core/collectors/github/fetchers"
 )
 
-type Fetcher interface {
-	Fetch(ctx context.Context) (string, error)
+type GitHubCollector struct {
+	fetchers Fetchers
 }
 
-type Collector struct {
-	fetchers []Fetcher
+func NewGitHubCollector(client *githubv4.Client, organizationName string) *GitHubCollector {
+	return &GitHubCollector{fetchers: buildFetchers(client, organizationName)}
 }
 
-func NewGitHubCollector(client *githubv4.Client) *Collector {
-	return &Collector{fetchers: buildFetchers(client)}
+type RepositoryInfoResult struct {
+	fetchers.ContributionInfoResult
+	fetchers.RepoInfoResult
 }
 
-func (c *Collector) Collect(ctx context.Context) ([]string, []error) {
-	var wg sync.WaitGroup
+type ResultOutput struct {
+	OrgInfo      *fetchers.OrgInfoResult         `json:"orgInfo"`
+	Repositories map[string]RepositoryInfoResult `json:"repositories"`
+}
 
-	results, errors := make([]string, 0), make([]error, 0)
-	for _, fetcher := range c.fetchers {
-		wg.Add(1)
-		fetcher := fetcher
-		go func() {
-			defer wg.Done()
-			var result, err = fetcher.Fetch(ctx)
-			if err != nil {
-				errors = append(errors, err)
-			}
-			if result != "" {
-				results = append(results, result)
-			}
-		}()
+func (c *GitHubCollector) Collect(ctx context.Context) []error {
+	errors := make([]error, 0)
+	orgInfo, err := c.fetchers.OrgInfo.Fetch(ctx)
+	if err != nil {
+		errors = append(errors, err)
 	}
-	wg.Wait()
-	return results, errors
-}
+	reposInfo, err := c.fetchers.ReposInfo.Fetch(ctx)
+	if err != nil {
+		errors = append(errors, err)
+	}
+	contributionInfo, err := c.fetchers.ContributionInfo.Fetch(ctx)
+	if err != nil {
+		errors = append(errors, err)
+	}
 
-func buildFetchers(client *githubv4.Client) []Fetcher {
-	// TODO:
-	// load all variables from env or somewhere else
-	// it should look something like this:
-	/*
-		vars := GetVars()
-		return []Fetcher{
-			&fetchers.OrgInfo{client: client, orgName: vars.orgName},
+	result := ResultOutput{
+		OrgInfo:      orgInfo,
+		Repositories: make(map[string]RepositoryInfoResult),
+	}
+
+	if reposInfo == nil {
+		errors = append(errors, fmt.Errorf("no repository information found"))
+		return errors
+	}
+
+	for _, repo := range *reposInfo {
+		result.Repositories[repo.RepoName] = RepositoryInfoResult{
+			RepoInfoResult:         repo,
+			ContributionInfoResult: (*contributionInfo)[repo.RepoName],
 		}
-	*/
-	// TODO: map the fetchers to keys so we can easily access them
-	return []Fetcher{
-		fetchers.NewOrgInfo(client, "WorldHealthOrganization"),
-		fetchers.NewReposInfoFetcher(client, "WorldHealthOrganization"),
-		fetchers.NewContributionInfoFetcher(client, "WorldHealthOrganization"),
 	}
+
+	jsonData, err := json.Marshal(result)
+	if err != nil {
+		errors = append(errors, err)
+		return errors
+	}
+
+	file, err := os.Create("who-metrics-ui/src/data/data.json")
+	if err != nil {
+		errors = append(errors, err)
+		return errors
+	}
+	defer file.Close()
+
+	_, err = file.Write(jsonData)
+	if err != nil {
+		errors = append(errors, err)
+		return errors
+	}
+
+	fmt.Println("JSON data written to ", file.Name())
+
+	return errors
+}
+
+type Fetchers struct {
+	OrgInfo          *fetchers.OrgInfoFetcher
+	ReposInfo        *fetchers.ReposInfoFetcher
+	ContributionInfo *fetchers.ContributionInfoFetcher
+}
+
+func buildFetchers(client *githubv4.Client, organizationName string) Fetchers {
+	fetchers := Fetchers{
+		OrgInfo:          fetchers.NewOrgInfo(client, organizationName),
+		ReposInfo:        fetchers.NewReposInfoFetcher(client, organizationName),
+		ContributionInfo: fetchers.NewContributionInfoFetcher(client, organizationName),
+	}
+
+	return fetchers
 }
