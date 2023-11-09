@@ -19,7 +19,8 @@ import logo from "@/images/who-logo-wide.svg";
 import { ChartView } from "./";
 
 import KpiCard from "./KpiCard";
-import { PerformanceHistoryTable } from "./PerformanceHistoryTable";
+import RepositoriesTable from "./RepositoriesTable";
+import Data from "../data/data.json";
 
 type Kpi = {
   title: string;
@@ -103,11 +104,14 @@ export const DashboardExample = () => {
           src={logo}
           height={50}
           width={150}
-          alt="who logo"
+          alt="World Health Organization logo"
         />
-        <Title>Dashboard</Title>
+        <Title>{Data.orgInfo.name} Open Source Dashboard</Title>
       </Box>
-      <Text>Lorem ipsum dolor sit amet, consetetur sadipscing elitr.</Text>
+      <Text>
+        This project includes metrics about the Open Source repositories for the
+        {Data.orgInfo.name}.
+      </Text>
       <TabGroup className="mt-6">
         <TabList>
           <Tab>Overview</Tab>
@@ -135,7 +139,7 @@ export const DashboardExample = () => {
             </div>
           </TabPanel>
           <TabPanel>
-            <PerformanceHistoryTable />
+            <RepositoriesTable />
           </TabPanel>
         </TabPanels>
       </TabGroup>
