@@ -13,7 +13,7 @@ import {
   DeltaType,
 } from "@tremor/react";
 
-import { Box } from "@primer/react";
+import { Box, useTheme as primerUseTheme } from "@primer/react";
 import Image from "next/image";
 import logo from "@/images/who-logo-wide.svg";
 import { ChartView } from "./";
@@ -21,6 +21,7 @@ import { ChartView } from "./";
 import KpiCard from "./KpiCard";
 import RepositoriesTable from "./RepositoriesTable";
 import Data from "../data/data.json";
+import { useTheme } from "next-themes";
 
 type Kpi = {
   title: string;
@@ -93,6 +94,16 @@ export const performance: DailyPerformance[] = [
 ];
 
 export const DashboardExample = () => {
+  const { theme, systemTheme } = useTheme();
+  const { setColorMode } = primerUseTheme();
+  if (theme === "light" || theme === "dark" || theme === "auto") {
+    setColorMode(theme);
+  }
+
+  if (theme === "system" && systemTheme) {
+    setColorMode(systemTheme);
+  }
+
   return (
     <main className="px-18 py-18">
       <Box

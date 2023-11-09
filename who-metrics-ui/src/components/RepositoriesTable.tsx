@@ -4,8 +4,6 @@ import {
   Card,
   Select,
   Flex,
-  MultiSelect,
-  MultiSelectItem,
   SelectItem,
   Table,
   TableBody,
@@ -17,6 +15,7 @@ import {
 } from "@tremor/react";
 import { useState } from "react";
 import Data from "../data/data.json";
+import { RepositorySelector } from "./RepositorySelector";
 
 const repos = Object.values(Data["repositories"]);
 const licenses = repos
@@ -56,20 +55,11 @@ const RepositoriesTable = () => {
           </Flex>
         </div>
         <div className="flex space-x-2">
-          <MultiSelect
-            className="max-w-full sm:max-w-xs"
-            onValueChange={setSelectedNames}
-            placeholder="Select repositories..."
-          >
-            {repos.map((item) => (
-              <MultiSelectItem
-                key={item.repositoryName}
-                value={item.repositoryName}
-              >
-                {item.repositoryName}
-              </MultiSelectItem>
-            ))}
-          </MultiSelect>
+          <RepositorySelector
+            selectedNames={selectedNames}
+            setSelectedNames={setSelectedNames}
+            repositoryNames={repos.map((repo) => repo.repositoryName)}
+          />
           <Select
             className="max-w-full sm:max-w-xs"
             defaultValue="all"
