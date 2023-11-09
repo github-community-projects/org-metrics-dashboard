@@ -66,11 +66,6 @@ Issue Project  [here](https://github.com/github/SI-skills-based-volunteering/iss
 
 ## Development in Codespaces
 
-### UI
-
-1. Run `cd who-metrics-ui && npm i`
-2. Run `npm run dev`
-
 <!-- TODO: Add min requirements and deployment steps -->
 ### Backend
 
@@ -85,3 +80,11 @@ make build
 ```
 
 This will generate a new `data.json` file in the UI directory which can be imported directly as part of the static build.
+
+### UI
+
+Run `make dev` to develop in the UI. This will:
+
+1. Build the backend project using the steps above
+1. Generate a new `data.json` file with the required data inside the frontend directory
+1. Run the Next development server
