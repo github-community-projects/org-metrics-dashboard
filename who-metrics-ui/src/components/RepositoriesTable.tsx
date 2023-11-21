@@ -29,6 +29,11 @@ const Labels: Record<string, keyof Repo> = {
   License: "licenseName",
   Watchers: "watchersCount",
   "Open Issues": "openIssuesCount",
+  "Closed Issues": "closedIssuesCount",
+  Projects: "projectsCount",
+  "Open PRs": "openPullRequestsCount",
+  "Merged PRs": "mergedPullRequestsCount",
+  Forks: "forksCount",
 } as const;
 
 const headers = Object.keys(Labels);
@@ -49,7 +54,7 @@ const RepositoriesTable = () => {
             alignItems="center"
           >
             <Title>Repositories </Title>
-            <Tooltip aria-label="Shows daily increase or decrease of particular domain">
+            <Tooltip aria-label="All of the repositories in this organization">
               <InfoIcon size={24} />
             </Tooltip>
           </Flex>
