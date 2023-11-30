@@ -18,6 +18,9 @@ permissions:
   pages: write
   id-token: write
 
+env:
+  GRAPHQL_TOKEN: ${{ secrets.GRAPHQL_TOKEN }}
+  ORGANIZATION_NAME: WorldHealthOrganization
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 # However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
@@ -31,6 +34,26 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v4
+        with:
+          go-version: ^1.19
+      - name: Get dependencies
+        run: |
+          cd backend
+          go get -v -t -d ./...
+          if [ -f Gopkg.toml ]; then
+              curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+              dep ensure
+          fi
+      - name: Build Go
+        run: make build
+      # - name: Test
+      #   run: make test
+      - name: Run Go program and save output
+        id: run
+        run: |
+          $PWD/backend/bin/metrics
       - name: Detect package manager
         id: detect-package-manager
         run: |
@@ -51,7 +74,7 @@ jobs:
             exit 1
           fi
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: "16"
           cache: ${{ steps.detect-package-manager.outputs.manager }}

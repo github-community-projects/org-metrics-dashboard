@@ -5,7 +5,7 @@ import (
 )
 
 type Collector interface {
-	Collect(ctx context.Context) ([]string, []error)
+	Collect(ctx context.Context) ([]error)
 }
 
 type Core struct {
@@ -22,13 +22,12 @@ You would wonder why it's not called Collect.
 Its because Collect is a method of the Collector interface.
 And "Amass" is a synonym for "collect" (and is much cooler).
 */
-func (c *Core) Amass(ctx context.Context) ([]string, []error) {
-	results, errors := make([]string, 0), make([]error, 0)
+func (c *Core) Amass(ctx context.Context) ([]error) {
+	errors := make([]error, 0)
 	for _, collector := range c.collectors {
-		r, errs := collector.Collect(ctx)
-		results = append(results, r...)
+		errs := collector.Collect(ctx)
 		errors = append(errors, errs...)
 	}
 
-	return results, errors
+	return errors
 }

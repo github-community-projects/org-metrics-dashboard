@@ -23,6 +23,10 @@ func FormatJSON(data interface{}) (string, error) {
 }
 
 func NewGHGraphQLClient() *githubv4.Client {
+	if os.Getenv("GRAPHQL_TOKEN") == "" {
+		panic("GRAPHQL_TOKEN environment variable is not set")
+	}
+
 	src := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: os.Getenv("GRAPHQL_TOKEN")},
 	)
