@@ -1,8 +1,6 @@
 "use client";
 
 import {
-  Card,
-  Grid,
   Title,
   Text,
   Tab,
@@ -10,54 +8,15 @@ import {
   TabGroup,
   TabPanel,
   TabPanels,
-  DeltaType,
 } from "@tremor/react";
 
 import { Box, useTheme as primerUseTheme } from "@primer/react";
 import Image from "next/image";
 import logo from "@/images/who-logo-wide.svg";
-import { ChartView } from "./";
 
-import KpiCard from "./KpiCard";
 import RepositoriesTable from "./RepositoriesTable";
 import Data from "../data/data.json";
 import { useTheme } from "next-themes";
-
-type Kpi = {
-  title: string;
-  metric: string;
-  progress: number;
-  target: string;
-  delta: string;
-  deltaType: DeltaType;
-};
-
-const kpiData: Kpi[] = [
-  {
-    title: "Sales",
-    metric: "$ 12,699",
-    progress: 15.9,
-    target: "$ 80,000",
-    delta: "13.2%",
-    deltaType: "moderateIncrease",
-  },
-  {
-    title: "Profit",
-    metric: "$ 45,564",
-    progress: 36.5,
-    target: "$ 125,000",
-    delta: "23.9%",
-    deltaType: "increase",
-  },
-  {
-    title: "Customers",
-    metric: "1,072",
-    progress: 53.6,
-    target: "2,000",
-    delta: "10.1%",
-    deltaType: "moderateDecrease",
-  },
-];
 
 export type DailyPerformance = {
   date: string;
@@ -125,30 +84,9 @@ export const DashboardExample = () => {
       </Text>
       <TabGroup className="mt-6">
         <TabList>
-          <Tab>Overview</Tab>
-          <Tab>Detail</Tab>
+          <Tab>Repositories</Tab>
         </TabList>
         <TabPanels>
-          <TabPanel>
-            <Grid numItemsLg={3} className="mt-6 gap-6">
-              {kpiData.map((item) => (
-                <KpiCard
-                  key={item.title}
-                  title={item.title}
-                  metric={item.metric}
-                  progress={item.progress}
-                  target={item.target}
-                  delta={item.delta}
-                  deltaType={item.deltaType}
-                />
-              ))}
-            </Grid>
-            <div className="mt-6">
-              <Card>
-                <ChartView />
-              </Card>
-            </div>
-          </TabPanel>
           <TabPanel>
             <RepositoriesTable />
           </TabPanel>
