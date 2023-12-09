@@ -10,47 +10,46 @@ Monitor open source health across different projects to have a high level view t
 
 Issue Project  [here](https://github.com/github/SI-skills-based-volunteering/issues/147#issuecomment-1472370039)
 
-
 ## Team
 <table>
   <tr valign="top">
-  <td colspan=3 align=center>
+  <td align=center>
     <img src="https://avatars.githubusercontent.com/u/12959012?v=4" width="110" height="110"><br/>
       <a href="https://github.com/liliana3186">@liliana3186</a><br/>
      Liliana Torres<br/>
       <b>Project Lead, Senior Data Analyst </b>
     </td>
-    <td colspan=3 align=center>
+    <td align=center>
     <img src="https://avatars.githubusercontent.com/u/34780972?v=4" width="110" height="110"><br/>
       <a href="https://github.com/hasan-dot">@hasan-dot</a><br/>
       Hassan Hawache<br/>
       <b>Sofware Engineer III</b>
     </td>
-    <td colspan=3 align=center>
+    <td align=center>
     <img src="https://avatars.githubusercontent.com/u/61184284?v=4" width="110" height="110"><br/>
       <a href="https://github.com/darostegui">@darostegui</a><br/>
       Diego Arostegui<br/>
       <b>Customer Reliability Engineer III</b>
     </td>
-    <td colspan=3 align=center>
+    <td align=center>
     <img src="https://avatars.githubusercontent.com/u/24923406?v=4" width="110" height="110"><br/>
       <a href="https://github.com/ajhenry">@ajhenry</a><br/>
       Andrew Henry<br/>
       <b> Senior Software Engineer </b>
     </td>
-    <td colspan=3 align=center>
+    <td align=center>
     <img src="https://avatars.githubusercontent.com/u/67866556?v=4" width="110" height="110"><br/>
       <a href="https://github.com/joannaakl">@joannaakl</a><br/>
       Joanna Krzek-Lubowiecka<br/>
       <b> Software Engineer III </br>
     </td>
-    <td colspan=3 align=center>
+    <td align=center>
     <img src="https://avatars.githubusercontent.com/u/22037769?v=4" width="110" height="110"><br/>
       <a href="https://github.com/dmgardiner25">@dmgardiner25</a><br/>
       David Gardiner<br/>
       <b> Software Engineer II</b>
     </td>
-    <td colspan=3 align=center>
+    <td align=center>
     <img src="https://github.com/ipc103.png?v=4" width="110" height="110"><br/>
       <a href="https://github.com/ipc103">@ipc103</a><br/>
       Ian Candy<br/>
@@ -58,9 +57,6 @@ Issue Project  [here](https://github.com/github/SI-skills-based-volunteering/iss
     </td>
    </tr>
 </table>
-
-
-
 
 
 
