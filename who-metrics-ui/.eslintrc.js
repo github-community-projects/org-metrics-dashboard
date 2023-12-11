@@ -63,6 +63,7 @@ const baseConfig = {
   },
   ignorePatterns: ["*__generated__*"],
   rules: {
+    "prettier/prettier": 0, // Sorry but prettier/prettier is quite problematic
     "import/no-unresolved": [
       "error",
       {
