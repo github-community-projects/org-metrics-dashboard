@@ -1,31 +1,49 @@
 import { InfoIcon } from "@primer/octicons-react";
 import { Tooltip } from "@primer/react";
 import { Flex, Text } from "@tremor/react";
-import DataGrid, { type SortColumn } from "react-data-grid";
+import DataGrid, { Column, type RenderHeaderCellProps, type SortColumn } from "react-data-grid";
 
+import { createContext, useContext, useState } from "react";
 import Data from "../data/data.json";
-import { useState } from "react";
 const repos = Object.values(Data["repositories"]);
 type Repo = (typeof repos)[0];
 
-const Labels: Record<string, keyof Repo> = {
-  Name: "repositoryName",
-  Collaborators: "collaboratorsCount",
-  License: "licenseName",
-  Watchers: "watchersCount",
-  "Open Issues": "openIssuesCount",
-  "Closed Issues": "closedIssuesCount",
-  "Open PRs": "openPullRequestsCount",
-  "Merged PRs": "mergedPullRequestsCount",
-  Forks: "forksCount",
-} as const;
+function inputStopPropagation(event: React.KeyboardEvent<HTMLInputElement>) {
+  event.stopPropagation();
+}
 
-const DataGridColumns = Object.keys(Labels).map((label) => {
-  return {
-    key: Labels[label],
-    name: label,
-  };
-});
+function selectStopPropagation(event: React.KeyboardEvent<HTMLSelectElement>) {
+  if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) {
+    event.stopPropagation();
+  }
+}
+
+
+type Filter = Repo
+
+function FilterRenderer<R>({
+  tabIndex,
+  column,
+  children
+}: RenderHeaderCellProps<R> & {
+  children: (args: { tabIndex: number; filters: Filter }) => React.ReactElement;
+}) {
+  const filters = useContext(FilterContext)!;
+  return (
+    <div className='h-32'>
+      <div>{column.name}</div>
+      Hello
+      <div>{children({ tabIndex, filters })}</div>
+    </div>
+  );
+}
+
+// Context is needed to read filter values otherwise columns are
+// re-created when filters are changed and filter loses focus
+const FilterContext = createContext<Filter | undefined>(undefined);
+
+type Row = Record<keyof Repo, string>
+
 
 type Comparator = (a: Repo, b: Repo) => number;
 
@@ -67,9 +85,60 @@ const getComparator = (sortColumn: keyof Repo): Comparator => {
 };
 
 const RepositoriesTable = () => {
+  const [globalFilters, setGlobalFilters] = useState<Filter>(
+    {} as Filter
+  );
+
+
+  // This needs a type, technically it's a Column but needs to be typed
+  const labels: Record<string, Column<Repo>> = {
+    Name: {
+      key: "repositoryName",
+      name: "Name",
+      headerCellClass: "h-32",
+      renderHeaderCell: (p) => {
+        console.log(p)
+        return <FilterRenderer<Row> {...(p as any)}>
+          {({ filters, ...rest }) => (
+            <input
+              {...rest}
+              value={filters["repositoryName"]}
+              onChange={(e) =>
+                setGlobalFilters((otherFilters) => ({
+                  ...otherFilters,
+                  repositoryName: e.target.value
+                }))
+              }
+              onKeyDown={inputStopPropagation}
+              onClick={e => e.stopPropagation()}
+            />
+          )}
+        </FilterRenderer>
+      }
+    },
+    // Collaborators: "collaboratorsCount",
+    // License: "licenseName",
+    // Watchers: "watchersCount",
+    // "Open Issues": "openIssuesCount",
+    // "Closed Issues": "closedIssuesCount",
+    // "Open PRs": "openPullRequestsCount",
+    // "Merged PRs": "mergedPullRequestsCount",
+    // Forks: "forksCount",
+  } as const;
+
+
+  const dataGridColumns = Object.entries(labels).map(([_, columnProps]) => columnProps);
+
   const subTitle = () => {
     return `${repos.length} total repositories`;
   };
+
+  // This selects a field to populate a dropdown with
+  const dropdownOptions = (field: keyof Repo) =>
+    Array.from(new Set(repos.map((r) => r[field]))).map((d) => ({
+      label: d,
+      value: d,
+    }));
 
   const [sortColumns, setSortColumns] = useState<SortColumn[]>([]);
 
@@ -104,20 +173,21 @@ const RepositoriesTable = () => {
           <Text>{subTitle()}</Text>
         </Flex>
       </div>
-      <div className="h-full sm:max-h-140">
-        <DataGrid
-          columns={DataGridColumns}
-          rows={sortedRepos()}
-          rowKeyGetter={(repo) => repo.repoName}
-          defaultColumnOptions={{
-            sortable: true,
-            resizable: true,
-          }}
-          sortColumns={sortColumns}
-          onSortColumnsChange={setSortColumns}
-          style={{ height: "100%", width: "100%" }}
-        />
-      </div>
+      <FilterContext.Provider value={globalFilters}>
+        <div className="h-full sm:max-h-140">
+          <DataGrid
+            columns={dataGridColumns}
+            rows={sortedRepos()}
+            rowKeyGetter={(repo) => repo.repoName}
+            defaultColumnOptions={{
+              sortable: true,
+              resizable: true,
+            }}
+            sortColumns={sortColumns}
+            onSortColumnsChange={setSortColumns}
+            style={{ height: "100%", width: "100%" }}
+          />
+        </div></FilterContext.Provider>
     </div>
   );
 };
