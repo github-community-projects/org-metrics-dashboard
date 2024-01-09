@@ -1,8 +1,6 @@
 "use client";
 
 import {
-  Card,
-  Grid,
   Title,
   Text,
   Tab,
@@ -10,52 +8,15 @@ import {
   TabGroup,
   TabPanel,
   TabPanels,
-  DeltaType,
 } from "@tremor/react";
 
-import { Box } from "@primer/react";
+import { Box, useTheme as primerUseTheme } from "@primer/react";
 import Image from "next/image";
 import logo from "@/images/who-logo-wide.svg";
-import { ChartView } from "./";
 
-import KpiCard from "./KpiCard";
-import { PerformanceHistoryTable } from "./PerformanceHistoryTable";
-
-type Kpi = {
-  title: string;
-  metric: string;
-  progress: number;
-  target: string;
-  delta: string;
-  deltaType: DeltaType;
-};
-
-const kpiData: Kpi[] = [
-  {
-    title: "Sales",
-    metric: "$ 12,699",
-    progress: 15.9,
-    target: "$ 80,000",
-    delta: "13.2%",
-    deltaType: "moderateIncrease",
-  },
-  {
-    title: "Profit",
-    metric: "$ 45,564",
-    progress: 36.5,
-    target: "$ 125,000",
-    delta: "23.9%",
-    deltaType: "increase",
-  },
-  {
-    title: "Customers",
-    metric: "1,072",
-    progress: 53.6,
-    target: "2,000",
-    delta: "10.1%",
-    deltaType: "moderateDecrease",
-  },
-];
+import RepositoriesTable from "./RepositoriesTable";
+import Data from "../data/data.json";
+import { useTheme } from "next-themes";
 
 export type DailyPerformance = {
   date: string;
@@ -92,6 +53,16 @@ export const performance: DailyPerformance[] = [
 ];
 
 export const DashboardExample = () => {
+  const { theme, systemTheme } = useTheme();
+  const { setColorMode } = primerUseTheme();
+  if (theme === "light" || theme === "dark" || theme === "auto") {
+    setColorMode(theme);
+  }
+
+  if (theme === "system" && systemTheme) {
+    setColorMode(systemTheme);
+  }
+
   return (
     <main className="px-18 py-18">
       <Box
@@ -103,39 +74,21 @@ export const DashboardExample = () => {
           src={logo}
           height={50}
           width={150}
-          alt="who logo"
+          alt="World Health Organization logo"
         />
-        <Title>Dashboard</Title>
+        <Title>{Data.orgInfo.name} Open Source Dashboard</Title>
       </Box>
-      <Text>Lorem ipsum dolor sit amet, consetetur sadipscing elitr.</Text>
+      <Text>
+        This project includes metrics about the Open Source repositories for the
+        {Data.orgInfo.name}.
+      </Text>
       <TabGroup className="mt-6">
         <TabList>
-          <Tab>Overview</Tab>
-          <Tab>Detail</Tab>
+          <Tab>Repositories</Tab>
         </TabList>
         <TabPanels>
           <TabPanel>
-            <Grid numItemsLg={3} className="mt-6 gap-6">
-              {kpiData.map((item) => (
-                <KpiCard
-                  key={item.title}
-                  title={item.title}
-                  metric={item.metric}
-                  progress={item.progress}
-                  target={item.target}
-                  delta={item.delta}
-                  deltaType={item.deltaType}
-                />
-              ))}
-            </Grid>
-            <div className="mt-6">
-              <Card>
-                <ChartView />
-              </Card>
-            </div>
-          </TabPanel>
-          <TabPanel>
-            <PerformanceHistoryTable />
+            <RepositoriesTable />
           </TabPanel>
         </TabPanels>
       </TabGroup>

@@ -10,6 +10,15 @@ module.exports = {
     transparent: 'transparent',
     current: 'currentColor',
     extend: {
+      minHeight: (theme) => ({
+        ...theme('height'),
+      }),
+      height: {
+        100: '24rem',
+        120: '30rem',
+        140: '36rem',
+        160: '42rem',
+      },
       colors: {
         // light mode
         tremor: {
