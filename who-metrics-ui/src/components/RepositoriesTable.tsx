@@ -1,11 +1,11 @@
-import { InfoIcon } from "@primer/octicons-react";
-import { Tooltip } from "@primer/react";
-import { Flex, Text } from "@tremor/react";
-import DataGrid, { Column, type RenderHeaderCellProps, type SortColumn } from "react-data-grid";
+import { InfoIcon } from '@primer/octicons-react';
+import { Tooltip } from '@primer/react';
+import { Flex, Text } from '@tremor/react';
+import DataGrid, { Column, type RenderHeaderCellProps, type SortColumn } from 'react-data-grid';
 
-import { createContext, useContext, useState } from "react";
-import Data from "../data/data.json";
-const repos = Object.values(Data["repositories"]);
+import { createContext, useCallback, useContext, useState } from 'react';
+import Data from '../data/data.json';
+const repos = Object.values(Data['repositories']);
 type Repo = (typeof repos)[0];
 
 function inputStopPropagation(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -18,19 +18,20 @@ function selectStopPropagation(event: React.KeyboardEvent<HTMLSelectElement>) {
   }
 }
 
-
-type Filter = Repo
+type Filter = {
+  repositoryName?: string;
+};
 
 function FilterRenderer<R>({
   tabIndex,
   column,
-  children
+  children,
 }: RenderHeaderCellProps<R> & {
   children: (args: { tabIndex: number; filters: Filter }) => React.ReactElement;
 }) {
   const filters = useContext(FilterContext)!;
   return (
-    <div className='h-32'>
+    <div>
       <div>{column.name}</div>
       Hello
       <div>{children({ tabIndex, filters })}</div>
@@ -42,24 +43,23 @@ function FilterRenderer<R>({
 // re-created when filters are changed and filter loses focus
 const FilterContext = createContext<Filter | undefined>(undefined);
 
-type Row = Record<keyof Repo, string>
-
+type Row = Record<keyof Repo, string>;
 
 type Comparator = (a: Repo, b: Repo) => number;
 
 const getComparator = (sortColumn: keyof Repo): Comparator => {
   switch (sortColumn) {
     // number based sorting
-    case "closedIssuesCount":
-    case "collaboratorsCount":
-    case "discussionsCount":
-    case "forksCount":
-    case "issuesCount":
-    case "mergedPullRequestsCount":
-    case "openIssuesCount":
-    case "openPullRequestsCount":
-    case "projectsCount":
-    case "watchersCount":
+    case 'closedIssuesCount':
+    case 'collaboratorsCount':
+    case 'discussionsCount':
+    case 'forksCount':
+    case 'issuesCount':
+    case 'mergedPullRequestsCount':
+    case 'openIssuesCount':
+    case 'openPullRequestsCount':
+    case 'projectsCount':
+    case 'watchersCount':
       return (a, b) => {
         if (a[sortColumn] === b[sortColumn]) {
           return 0;
@@ -73,11 +73,11 @@ const getComparator = (sortColumn: keyof Repo): Comparator => {
       };
 
     // alphabetical sorting
-    case "licenseName":
-    case "repoName":
-    case "repositoryName":
+    case 'licenseName':
+    case 'repoName':
+    case 'repositoryName':
       return (a, b) => {
-        return a[sortColumn].localeCompare(b[sortColumn]);
+        return a[sortColumn].toLowerCase().localeCompare(b[sortColumn].toLowerCase());
       };
     default:
       throw new Error(`unsupported sortColumn: "${sortColumn}"`);
@@ -85,36 +85,37 @@ const getComparator = (sortColumn: keyof Repo): Comparator => {
 };
 
 const RepositoriesTable = () => {
-  const [globalFilters, setGlobalFilters] = useState<Filter>(
-    {} as Filter
-  );
-
+  const [globalFilters, setGlobalFilters] = useState<Filter>({
+    repositoryName: undefined,
+  } as Filter);
 
   // This needs a type, technically it's a Column but needs to be typed
   const labels: Record<string, Column<Repo>> = {
     Name: {
-      key: "repositoryName",
-      name: "Name",
-      headerCellClass: "h-32",
-      renderHeaderCell: (p) => {
-        console.log(p)
-        return <FilterRenderer<Row> {...(p as any)}>
-          {({ filters, ...rest }) => (
-            <input
-              {...rest}
-              value={filters["repositoryName"]}
-              onChange={(e) =>
-                setGlobalFilters((otherFilters) => ({
-                  ...otherFilters,
-                  repositoryName: e.target.value
-                }))
-              }
-              onKeyDown={inputStopPropagation}
-              onClick={e => e.stopPropagation()}
-            />
-          )}
-        </FilterRenderer>
-      }
+      key: 'repositoryName',
+      name: 'Name',
+      headerCellClass: 'h-32',
+      // renderHeaderCell: (p) => {
+      //   console.log(p);
+      //   return (
+      //     <FilterRenderer<Row> {...(p as any)}>
+      //       {({ filters, ...rest }) => (
+      //         <input
+      //           {...rest}
+      //           value={filters['repositoryName']}
+      //           onChange={(e) =>
+      //             setGlobalFilters((otherFilters) => ({
+      //               ...otherFilters,
+      //               repositoryName: e.target.value,
+      //             }))
+      //           }
+      //           onKeyDown={inputStopPropagation}
+      //           onClick={(e) => e.stopPropagation()}
+      //         />
+      //       )}
+      //     </FilterRenderer>
+      //   );
+      // },
     },
     // Collaborators: "collaboratorsCount",
     // License: "licenseName",
@@ -125,7 +126,6 @@ const RepositoriesTable = () => {
     // "Merged PRs": "mergedPullRequestsCount",
     // Forks: "forksCount",
   } as const;
-
 
   const dataGridColumns = Object.entries(labels).map(([_, columnProps]) => columnProps);
 
@@ -142,15 +142,17 @@ const RepositoriesTable = () => {
 
   const [sortColumns, setSortColumns] = useState<SortColumn[]>([]);
 
-  const sortedRepos = () => {
-    if (sortColumns.length === 0) return repos;
+  const sortRepos = (inputRepos: Repo[]) => {
+    if (sortColumns.length === 0) {
+      return repos;
+    }
 
-    const sortedRows = [...repos].sort((a, b) => {
+    const sortedRows = [...inputRepos].sort((a, b) => {
       for (const sort of sortColumns) {
         const comparator = getComparator(sort.columnKey as keyof Repo);
         const compResult = comparator(a, b);
         if (compResult !== 0) {
-          return sort.direction === "ASC" ? compResult : -compResult;
+          return sort.direction === 'ASC' ? compResult : -compResult;
         }
       }
       return 0;
@@ -159,14 +161,21 @@ const RepositoriesTable = () => {
     return sortedRows;
   };
 
+  const filterRepos = useCallback(
+    (inputRepos: Repo[]) => {
+      const result = inputRepos.filter((repo) => {
+        return globalFilters.repositoryName ? repo.repositoryName.includes(globalFilters.repositoryName) : true;
+      });
+
+      return result;
+    },
+    [globalFilters],
+  );
+
   return (
     <div>
       <div>
-        <Flex
-          className="space-x-0.5"
-          justifyContent="start"
-          alignItems="center"
-        >
+        <Flex className="space-x-0.5" justifyContent="start" alignItems="center">
           <Tooltip aria-label="All of the repositories in this organization">
             <InfoIcon size={24} />
           </Tooltip>
@@ -176,8 +185,9 @@ const RepositoriesTable = () => {
       <FilterContext.Provider value={globalFilters}>
         <div className="h-full sm:max-h-140">
           <DataGrid
+            className="h-full sm:min-h-40"
             columns={dataGridColumns}
-            rows={sortedRepos()}
+            rows={filterRepos(sortRepos(repos))}
             rowKeyGetter={(repo) => repo.repoName}
             defaultColumnOptions={{
               sortable: true,
@@ -185,9 +195,10 @@ const RepositoriesTable = () => {
             }}
             sortColumns={sortColumns}
             onSortColumnsChange={setSortColumns}
-            style={{ height: "100%", width: "100%" }}
+            style={{ height: '100%', width: '100%' }}
           />
-        </div></FilterContext.Provider>
+        </div>
+      </FilterContext.Provider>
     </div>
   );
 };
