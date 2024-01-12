@@ -20,30 +20,40 @@ function selectStopPropagation(event: React.KeyboardEvent<HTMLSelectElement>) {
 
 type Filter = {
   repositoryName?: string;
+  licenseName?: string[];
 };
 
-function FilterRenderer<R>({
+/**
+ * Wrapper for rendering column header cell
+ * @param {
+ * tabIndex: number;
+ * column: Column<Row>;
+ * children: (args: { tabIndex: number; filters: Filter }) => React.ReactElement;
+ * } props
+ * @returns
+ */
+const FilterRenderer = <R = unknown,>({
   tabIndex,
   column,
-  children,
+  children: filterFunction,
+  sortDirection,
 }: RenderHeaderCellProps<R> & {
   children: (args: { tabIndex: number; filters: Filter }) => React.ReactElement;
-}) {
+}) => {
   const filters = useContext(FilterContext)!;
+
   return (
     <div>
       <div>{column.name}</div>
-      Hello
-      <div>{children({ tabIndex, filters })}</div>
+      <div>{sortDirection === 'ASC' ? 'UP' : sortDirection === 'DESC' ? 'DOWN' : null}</div>
+      <div>{filterFunction({ tabIndex, filters })}</div>
     </div>
   );
-}
+};
 
 // Context is needed to read filter values otherwise columns are
 // re-created when filters are changed and filter loses focus
 const FilterContext = createContext<Filter | undefined>(undefined);
-
-type Row = Record<keyof Repo, string>;
 
 type Comparator = (a: Repo, b: Repo) => number;
 
@@ -87,6 +97,7 @@ const getComparator = (sortColumn: keyof Repo): Comparator => {
 const RepositoriesTable = () => {
   const [globalFilters, setGlobalFilters] = useState<Filter>({
     repositoryName: undefined,
+    licenseName: [],
   } as Filter);
 
   // This needs a type, technically it's a Column but needs to be typed
@@ -95,30 +106,74 @@ const RepositoriesTable = () => {
       key: 'repositoryName',
       name: 'Name',
       headerCellClass: 'h-32',
-      // renderHeaderCell: (p) => {
-      //   console.log(p);
-      //   return (
-      //     <FilterRenderer<Row> {...(p as any)}>
-      //       {({ filters, ...rest }) => (
-      //         <input
-      //           {...rest}
-      //           value={filters['repositoryName']}
-      //           onChange={(e) =>
-      //             setGlobalFilters((otherFilters) => ({
-      //               ...otherFilters,
-      //               repositoryName: e.target.value,
-      //             }))
-      //           }
-      //           onKeyDown={inputStopPropagation}
-      //           onClick={(e) => e.stopPropagation()}
-      //         />
-      //       )}
-      //     </FilterRenderer>
-      //   );
-      // },
+      renderHeaderCell: (p) => {
+        return (
+          <FilterRenderer<Repo> {...p}>
+            {({ filters, ...rest }) => (
+              <input
+                {...rest}
+                value={filters['repositoryName']}
+                onChange={(e) =>
+                  setGlobalFilters((otherFilters) => ({
+                    ...otherFilters,
+                    repositoryName: e.target.value,
+                  }))
+                }
+                onKeyDown={inputStopPropagation}
+                onClick={(e) => e.stopPropagation()}
+              />
+            )}
+          </FilterRenderer>
+        );
+      },
+    },
+    License: {
+      key: 'licenseName',
+      name: 'License',
+      headerCellClass: 'h-32',
+      renderHeaderCell: (p) => {
+        return (
+          <FilterRenderer<Repo> {...p}>
+            {({ filters, ...rest }) => (
+              <select
+                {...rest}
+                multiple
+                value={filters['licenseName']}
+                onChange={(e) => {
+                  const selectedOptions = Array.from(e.target.selectedOptions).map((o) => o.value);
+                  setGlobalFilters((otherFilters) => ({
+                    ...otherFilters,
+                    licenseName: selectedOptions,
+                  }));
+                }}
+                onKeyDown={selectStopPropagation}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <option value="all" defaultChecked={globalFilters.licenseName?.includes('all')}>
+                  All
+                </option>
+                {dropdownOptions('licenseName').map((d) => {
+                  if (d.value === '') {
+                    return (
+                      <option key={d.value} value={d.value}>
+                        No License
+                      </option>
+                    );
+                  }
+
+                  return (
+                    <option key={d.value} value={d.value}>
+                      {d.label}
+                    </option>
+                  );
+                })}
+              </select>
+            )}
+          </FilterRenderer>
+        );
+      },
     },
     // Collaborators: "collaboratorsCount",
-    // License: "licenseName",
     // Watchers: "watchersCount",
     // "Open Issues": "openIssuesCount",
     // "Closed Issues": "closedIssuesCount",
@@ -161,10 +216,22 @@ const RepositoriesTable = () => {
     return sortedRows;
   };
 
+  /**
+   * Uses globalFilters to filter the repos that are then passed to sortRepos
+   *
+   * NOTE: We use some hacks like addings 'all' to the licenseName filter to
+   *      make it easier to filter the repos.
+   */
   const filterRepos = useCallback(
     (inputRepos: Repo[]) => {
       const result = inputRepos.filter((repo) => {
-        return globalFilters.repositoryName ? repo.repositoryName.includes(globalFilters.repositoryName) : true;
+        return (
+          (globalFilters.repositoryName ? repo.repositoryName.includes(globalFilters.repositoryName) : true) &&
+          ((globalFilters.licenseName?.length ?? 0 > 0
+            ? globalFilters.licenseName?.includes(repo.licenseName)
+            : true) ||
+            globalFilters.licenseName?.includes('all'))
+        );
       });
 
       return result;
