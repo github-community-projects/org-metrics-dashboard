@@ -21,6 +21,7 @@ function selectStopPropagation(event: React.KeyboardEvent<HTMLSelectElement>) {
 type Filter = {
   repositoryName?: string;
   licenseName?: string[];
+  collaboratorsCount?: Array<number | undefined>;
 };
 
 /**
@@ -173,7 +174,52 @@ const RepositoriesTable = () => {
         );
       },
     },
-    // Collaborators: "collaboratorsCount",
+    Collaborators: {
+      key: 'collaboratorsCount',
+      name: 'Collaborator Count',
+      headerCellClass: 'h-32',
+      renderHeaderCell: (p) => {
+        return (
+          <FilterRenderer<Repo> {...p}>
+            {({ filters, ...rest }) => (
+              <div>
+                <label htmlFor="collaboratorsCountMin">Min</label>
+                <input
+                  {...rest}
+                  id="collaboratorsCountMin"
+                  type="number"
+                  placeholder="0"
+                  onChange={(e) => {
+                    console.log(e.target.value);
+                    setGlobalFilters((otherFilters) => ({
+                      ...otherFilters,
+                      collaboratorsCount: [Number(e.target.value), otherFilters.collaboratorsCount?.[1]],
+                    }));
+                  }}
+                  onKeyDown={inputStopPropagation}
+                  onClick={(e) => e.stopPropagation()}
+                />
+                <label htmlFor="collaboratorsCountMax">Max</label>
+                <input
+                  {...rest}
+                  id="collaboratorsCountMax"
+                  type="number"
+                  placeholder="100"
+                  onChange={(e) =>
+                    setGlobalFilters((otherFilters) => ({
+                      ...otherFilters,
+                      collaboratorsCount: [0, Number(e.target.value)],
+                    }))
+                  }
+                  onKeyDown={inputStopPropagation}
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </div>
+            )}
+          </FilterRenderer>
+        );
+      },
+    },
     // Watchers: "watchersCount",
     // "Open Issues": "openIssuesCount",
     // "Closed Issues": "closedIssuesCount",
@@ -230,7 +276,11 @@ const RepositoriesTable = () => {
           ((globalFilters.licenseName?.length ?? 0 > 0
             ? globalFilters.licenseName?.includes(repo.licenseName)
             : true) ||
-            globalFilters.licenseName?.includes('all'))
+            globalFilters.licenseName?.includes('all')) &&
+          (globalFilters.collaboratorsCount
+            ? (globalFilters.collaboratorsCount?.[0] ?? 0) <= repo.collaboratorsCount &&
+            repo.collaboratorsCount <= (globalFilters.collaboratorsCount[1] ?? Infinity)
+            : true)
         );
       });
 
