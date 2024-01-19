@@ -29,6 +29,13 @@
           watchers {
             totalCount
           }
+          openIssues: issues(last:100, states:OPEN) {
+            edges {
+              node {
+                createdAt
+              }
+            }
+          }
         }
       }
     }
