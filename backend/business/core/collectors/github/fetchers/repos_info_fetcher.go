@@ -3,23 +3,25 @@ package fetchers
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/shurcooL/githubv4"
 )
 
 type RepoInfoResult struct {
-	RepoName                string `json:"repoName"`
-	CollaboratorsCount      int    `json:"collaboratorsCount"`
-	ProjectsCount           int    `json:"projectsCount"`
-	DiscussionsCount        int    `json:"discussionsCount"`
-	ForksCount              int    `json:"forksCount"`
-	IssuesCount             int    `json:"issuesCount"`
-	OpenIssuesCount         int    `json:"openIssuesCount"`
-	ClosedIssuesCount       int    `json:"closedIssuesCount"`
-	OpenPullRequestsCount   int    `json:"openPullRequestsCount"`
-	MergedPullRequestsCount int    `json:"mergedPullRequestsCount"`
-	LicenseName             string `json:"licenseName"`
-	WatchersCount           int    `json:"watchersCount"`
+	RepoName                string    `json:"repoName"`
+	CollaboratorsCount      int       `json:"collaboratorsCount"`
+	ProjectsCount           int       `json:"projectsCount"`
+	DiscussionsCount        int       `json:"discussionsCount"`
+	ForksCount              int       `json:"forksCount"`
+	IssuesCount             int       `json:"issuesCount"`
+	OpenIssuesCount         int       `json:"openIssuesCount"`
+	OpenIssuesCreatedAt     time.Time `json:openIssuesCreatedAt`
+	ClosedIssuesCount       int       `json:"closedIssuesCount"`
+	OpenPullRequestsCount   int       `json:"openPullRequestsCount"`
+	MergedPullRequestsCount int       `json:"mergedPullRequestsCount"`
+	LicenseName             string    `json:"licenseName"`
+	WatchersCount           int       `json:"watchersCount"`
 }
 
 type ReposInfoFetcher struct {
@@ -54,6 +56,11 @@ type repoInfo struct {
 		}
 		OpenIssues struct {
 			TotalCount githubv4.Int
+			Nodes      []struct {
+				Issue struct {
+					CreatedAt githubv4.DateTime
+				}
+			}
 		} `graphql:"openIssues: issues(states: OPEN)"`
 		ClosedIssues struct {
 			TotalCount githubv4.Int
@@ -124,6 +131,7 @@ func (f *ReposInfoFetcher) buildResult(data []repoInfo) *map[string]RepoInfoResu
 			ForksCount:              int(edge.Node.Forks.TotalCount),
 			IssuesCount:             int(edge.Node.Issues.TotalCount),
 			OpenIssuesCount:         int(edge.Node.OpenIssues.TotalCount),
+			OpenIssuesCreatedAt:     time.Time(edge.Node.OpenIssues.Nodes[len(edge.Node.OpenIssues.Nodes)-1].Issue.CreatedAt.Time),
 			ClosedIssuesCount:       int(edge.Node.ClosedIssues.TotalCount),
 			OpenPullRequestsCount:   int(edge.Node.OpenPullRequests.TotalCount),
 			MergedPullRequestsCount: int(edge.Node.MergedPullRequests.TotalCount),
