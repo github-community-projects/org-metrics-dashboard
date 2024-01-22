@@ -1,9 +1,15 @@
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+/* eslint-disable primer-react/no-system-props */
+/* eslint-disable react/jsx-no-comment-textnodes */
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable react/no-unescaped-entities */
 import { InfoIcon } from '@primer/octicons-react';
-import { Tooltip } from '@primer/react';
+import { Button, Tooltip } from '@primer/react';
 import { Flex, Text } from '@tremor/react';
 import DataGrid, { Column, type RenderHeaderCellProps, type SortColumn } from 'react-data-grid';
+import { Popover } from 'react-tiny-popover';
 
-import { createContext, useCallback, useContext, useState } from 'react';
+import { createContext, FC, useCallback, useContext, useRef, useState } from 'react';
 import Data from '../data/data.json';
 const repos = Object.values(Data['repositories']);
 type Repo = (typeof repos)[0];
@@ -22,6 +28,58 @@ type Filter = {
   repositoryName?: string;
   licenseName?: string[];
   collaboratorsCount?: Array<number | undefined>;
+  watchersCount?: Array<number | undefined>;
+  openIssuesCount?: Array<number | undefined>;
+  openPullRequestsCount?: Array<number | undefined>;
+  closedIssuesCount?: Array<number | undefined>;
+  mergedPullRequestsCount?: Array<number | undefined>;
+  forksCount?: Array<number | undefined>;
+};
+
+const MinMaxRenderer: FC<{
+  headerCellProps: RenderHeaderCellProps<Repo>;
+  filters: Filter;
+  updateFilters: ((filters: Filter) => void) & ((filters: (filters: Filter) => Filter) => void);
+  filterName: keyof Filter;
+}> = ({ headerCellProps, filters, updateFilters, filterName }) => {
+  return (
+    <FilterRenderer<Repo> {...headerCellProps}>
+      {({ ...rest }) => (
+        <div>
+          <label htmlFor={`${filterName}Min`}>Min</label>
+          <input
+            {...rest}
+            id={`${filterName}Min`}
+            type="number"
+            placeholder="0"
+            onChange={(e) => {
+              updateFilters((globalFilters) => ({
+                ...globalFilters,
+                [filterName]: [Number(e.target.value), globalFilters[filterName]?.[1]],
+              }));
+            }}
+            onKeyDown={inputStopPropagation}
+            onClick={(e) => e.stopPropagation()}
+          />
+          <label htmlFor={`${filterName}Max`}>Max</label>
+          <input
+            {...rest}
+            id={`${filterName}Max`}
+            type="number"
+            placeholder="100"
+            onChange={(e) =>
+              updateFilters({
+                ...filters,
+                [filterName]: [0, Number(e.target.value)],
+              })
+            }
+            onKeyDown={inputStopPropagation}
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
+    </FilterRenderer>
+  );
 };
 
 /**
@@ -42,12 +100,42 @@ const FilterRenderer = <R = unknown,>({
   children: (args: { tabIndex: number; filters: Filter }) => React.ReactElement;
 }) => {
   const filters = useContext(FilterContext)!;
+  const clickMeButtonRef = useRef<HTMLButtonElement | undefined>();
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
   return (
-    <div>
+    <div className="flex flex-row justify-between items-center">
       <div>{column.name}</div>
-      <div>{sortDirection === 'ASC' ? 'UP' : sortDirection === 'DESC' ? 'DOWN' : null}</div>
-      <div>{filterFunction({ tabIndex, filters })}</div>
+      <div className="flex flex-row items-center space-x-2">
+        <span>{sortDirection === 'ASC' ? 'UP' : sortDirection === 'DESC' ? 'DOWN' : null}</span>
+        <Popover
+          isOpen={isPopoverOpen}
+          positions={['bottom', 'top', 'right', 'left']}
+          padding={10}
+          onClickOutside={() => setIsPopoverOpen(false)}
+          ref={clickMeButtonRef} // if you'd like a ref to your popover's child, you can grab one here
+          content={() => (
+            <div className="w-64" onClick={(e) => e.stopPropagation()}>
+              <div className="bg-slate-500 p-2 w-full">
+                <h4>Filter {column.name}</h4>
+                {filterFunction({ tabIndex, filters })}
+              </div>
+            </div>
+          )}
+        >
+          <Button
+            color="primary"
+            variant="invisible"
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsPopoverOpen((isOpen) => !isOpen);
+            }}
+          >
+            Filters
+          </Button>
+        </Popover>
+      </div>
     </div>
   );
 };
@@ -106,7 +194,7 @@ const RepositoriesTable = () => {
     Name: {
       key: 'repositoryName',
       name: 'Name',
-      headerCellClass: 'h-32',
+
       renderHeaderCell: (p) => {
         return (
           <FilterRenderer<Repo> {...p}>
@@ -131,7 +219,7 @@ const RepositoriesTable = () => {
     License: {
       key: 'licenseName',
       name: 'License',
-      headerCellClass: 'h-32',
+
       renderHeaderCell: (p) => {
         return (
           <FilterRenderer<Repo> {...p}>
@@ -177,55 +265,107 @@ const RepositoriesTable = () => {
     Collaborators: {
       key: 'collaboratorsCount',
       name: 'Collaborator Count',
-      headerCellClass: 'h-32',
       renderHeaderCell: (p) => {
         return (
-          <FilterRenderer<Repo> {...p}>
-            {({ filters, ...rest }) => (
-              <div>
-                <label htmlFor="collaboratorsCountMin">Min</label>
-                <input
-                  {...rest}
-                  id="collaboratorsCountMin"
-                  type="number"
-                  placeholder="0"
-                  onChange={(e) => {
-                    console.log(e.target.value);
-                    setGlobalFilters((otherFilters) => ({
-                      ...otherFilters,
-                      collaboratorsCount: [Number(e.target.value), otherFilters.collaboratorsCount?.[1]],
-                    }));
-                  }}
-                  onKeyDown={inputStopPropagation}
-                  onClick={(e) => e.stopPropagation()}
-                />
-                <label htmlFor="collaboratorsCountMax">Max</label>
-                <input
-                  {...rest}
-                  id="collaboratorsCountMax"
-                  type="number"
-                  placeholder="100"
-                  onChange={(e) =>
-                    setGlobalFilters((otherFilters) => ({
-                      ...otherFilters,
-                      collaboratorsCount: [0, Number(e.target.value)],
-                    }))
-                  }
-                  onKeyDown={inputStopPropagation}
-                  onClick={(e) => e.stopPropagation()}
-                />
-              </div>
-            )}
-          </FilterRenderer>
+          <MinMaxRenderer
+            headerCellProps={p}
+            filters={globalFilters}
+            updateFilters={setGlobalFilters}
+            filterName="collaboratorsCount"
+          />
         );
       },
     },
-    // Watchers: "watchersCount",
-    // "Open Issues": "openIssuesCount",
-    // "Closed Issues": "closedIssuesCount",
-    // "Open PRs": "openPullRequestsCount",
-    // "Merged PRs": "mergedPullRequestsCount",
-    // Forks: "forksCount",
+    Watchers: {
+      key: 'watchersCount',
+      name: 'Watchers Count',
+
+      renderHeaderCell: (p) => {
+        return (
+          <MinMaxRenderer
+            headerCellProps={p}
+            filters={globalFilters}
+            updateFilters={setGlobalFilters}
+            filterName="watchersCount"
+          />
+        );
+      },
+    },
+    'Open Issues': {
+      key: 'openIssuesCount',
+      name: 'Issues Count',
+
+      renderHeaderCell: (p) => {
+        return (
+          <MinMaxRenderer
+            headerCellProps={p}
+            filters={globalFilters}
+            updateFilters={setGlobalFilters}
+            filterName="openIssuesCount"
+          />
+        );
+      },
+    },
+    'Closed Issues': {
+      key: 'closedIssuesCount',
+      name: 'Closed Issues Count',
+
+      renderHeaderCell: (p) => {
+        return (
+          <MinMaxRenderer
+            headerCellProps={p}
+            filters={globalFilters}
+            updateFilters={setGlobalFilters}
+            filterName="closedIssuesCount"
+          />
+        );
+      },
+    },
+    'Open PRs': {
+      key: 'openPullRequestsCount',
+      name: 'Open PRs Count',
+
+      renderHeaderCell: (p) => {
+        return (
+          <MinMaxRenderer
+            headerCellProps={p}
+            filters={globalFilters}
+            updateFilters={setGlobalFilters}
+            filterName="openPullRequestsCount"
+          />
+        );
+      },
+    },
+    'Merged PRs': {
+      key: 'mergedPullRequestsCount',
+      name: 'Merged PRs Count',
+
+      renderHeaderCell: (p) => {
+        return (
+          <MinMaxRenderer
+            headerCellProps={p}
+            filters={globalFilters}
+            updateFilters={setGlobalFilters}
+            filterName="mergedPullRequestsCount"
+          />
+        );
+      },
+    },
+    Forks: {
+      key: 'forksCount',
+      name: 'Forks Count',
+
+      renderHeaderCell: (p) => {
+        return (
+          <MinMaxRenderer
+            headerCellProps={p}
+            filters={globalFilters}
+            updateFilters={setGlobalFilters}
+            filterName="forksCount"
+          />
+        );
+      },
+    },
   } as const;
 
   const dataGridColumns = Object.entries(labels).map(([_, columnProps]) => columnProps);
@@ -265,7 +405,7 @@ const RepositoriesTable = () => {
   /**
    * Uses globalFilters to filter the repos that are then passed to sortRepos
    *
-   * NOTE: We use some hacks like addings 'all' to the licenseName filter to
+   * NOTE: We use some hacks like adding 'all' to the licenseName filter to
    *      make it easier to filter the repos.
    */
   const filterRepos = useCallback(
@@ -280,6 +420,30 @@ const RepositoriesTable = () => {
           (globalFilters.collaboratorsCount
             ? (globalFilters.collaboratorsCount?.[0] ?? 0) <= repo.collaboratorsCount &&
             repo.collaboratorsCount <= (globalFilters.collaboratorsCount[1] ?? Infinity)
+            : true) &&
+          (globalFilters.watchersCount
+            ? (globalFilters.watchersCount?.[0] ?? 0) <= repo.watchersCount &&
+            repo.watchersCount <= (globalFilters.watchersCount[1] ?? Infinity)
+            : true) &&
+          (globalFilters.openIssuesCount
+            ? (globalFilters.openIssuesCount?.[0] ?? 0) <= repo.openIssuesCount &&
+            repo.openIssuesCount <= (globalFilters.openIssuesCount[1] ?? Infinity)
+            : true) &&
+          (globalFilters.closedIssuesCount
+            ? (globalFilters.closedIssuesCount?.[0] ?? 0) <= repo.closedIssuesCount &&
+            repo.closedIssuesCount <= (globalFilters.closedIssuesCount[1] ?? Infinity)
+            : true) &&
+          (globalFilters.openPullRequestsCount
+            ? (globalFilters.openPullRequestsCount?.[0] ?? 0) <= repo.openPullRequestsCount &&
+            repo.openPullRequestsCount <= (globalFilters.openPullRequestsCount[1] ?? Infinity)
+            : true) &&
+          (globalFilters.mergedPullRequestsCount
+            ? (globalFilters.mergedPullRequestsCount?.[0] ?? 0) <= repo.mergedPullRequestsCount &&
+            repo.mergedPullRequestsCount <= (globalFilters.mergedPullRequestsCount[1] ?? Infinity)
+            : true) &&
+          (globalFilters.forksCount
+            ? (globalFilters.forksCount?.[0] ?? 0) <= repo.forksCount &&
+            repo.forksCount <= (globalFilters.forksCount[1] ?? Infinity)
             : true)
         );
       });
@@ -300,7 +464,7 @@ const RepositoriesTable = () => {
         </Flex>
       </div>
       <FilterContext.Provider value={globalFilters}>
-        <div className="h-full sm:max-h-140">
+        <div className="h-full flex-1">
           <DataGrid
             className="h-full sm:min-h-40"
             columns={dataGridColumns}
