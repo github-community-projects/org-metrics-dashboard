@@ -26,7 +26,7 @@ export const OrganizationSheet = () => {
   }
 
   return (
-    <main className="px-18 py-18">
+    <main className="px-18 py-18 h-full flex flex-col">
       <Box
         className="flex"
         sx={{ flexDirection: "row", gap: 4, alignItems: "center", mb: 1 }}
@@ -44,12 +44,12 @@ export const OrganizationSheet = () => {
         This project includes metrics about the Open Source repositories for the
         {data.orgInfo.name}.
       </Text>
-      <TabGroup className="mt-6">
+      <TabGroup className="mt-6 flex-1 flex flex-col">
         <TabList>
           <Tab>Repositories</Tab>
         </TabList>
-        <TabPanels>
-          <TabPanel>
+        <TabPanels className="flex-1 flex flex-col">
+          <TabPanel className="flex-1">
             <RepositoriesTable />
           </TabPanel>
         </TabPanels>

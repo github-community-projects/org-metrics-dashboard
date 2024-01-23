@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/click-events-have-key-events */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
 import { InfoIcon, TriangleDownIcon, TriangleUpIcon, XIcon } from '@primer/octicons-react';
 import { ActionList, Box, Button, Checkbox, FormControl, TextInput, Tooltip } from '@primer/react';
 import { Text } from '@tremor/react';
@@ -35,7 +33,7 @@ const MinMaxRenderer: FC<{
   filterName: keyof Filter;
 }> = ({ headerCellProps, filters, updateFilters, filterName }) => {
   return (
-    <FilterRenderer<Repo> {...headerCellProps}>
+    <HeaderCellRenderer<Repo> {...headerCellProps}>
       {({ ...rest }) => (
         <div>
           <FormControl>
@@ -70,12 +68,12 @@ const MinMaxRenderer: FC<{
           </FormControl>
         </div>
       )}
-    </FilterRenderer>
+    </HeaderCellRenderer>
   );
 };
 
 // Wrapper for rendering column header cell
-const FilterRenderer = <R = unknown,>({
+const HeaderCellRenderer = <R = unknown,>({
   tabIndex,
   column,
   children: filterFunction,
@@ -103,6 +101,8 @@ const FilterRenderer = <R = unknown,>({
           onClickOutside={() => setIsPopoverOpen(false)}
           ref={clickMeButtonRef} // if you'd like a ref to your popover's child, you can grab one here
           content={() => (
+            // The click handler here is used to stop the header from being sorted
+            // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
             <div className="bg-white shadow-xl min-w-64 p-4 rounded" onClick={(e) => e.stopPropagation()}>
               <div className="w-full">
                 <FormControl>
@@ -190,7 +190,7 @@ const RepositoriesTable = () => {
 
       renderHeaderCell: (p) => {
         return (
-          <FilterRenderer<Repo> {...p}>
+          <HeaderCellRenderer<Repo> {...p}>
             {({ filters, ...rest }) => (
               <TextInput
                 {...rest}
@@ -205,7 +205,7 @@ const RepositoriesTable = () => {
                 onClick={(e) => e.stopPropagation()}
               />
             )}
-          </FilterRenderer>
+          </HeaderCellRenderer>
         );
       },
     },
@@ -219,7 +219,7 @@ const RepositoriesTable = () => {
         const [filteredOptions, setFilteredOptions] = useState<string>('');
 
         return (
-          <FilterRenderer<Repo> {...p}>
+          <HeaderCellRenderer<Repo> {...p}>
             {({ ...rest }) => (
               <Box>
                 <TextInput
@@ -300,7 +300,7 @@ const RepositoriesTable = () => {
                 </ActionList>
               </Box>
             )}
-          </FilterRenderer>
+          </HeaderCellRenderer>
         );
       },
     },
@@ -498,8 +498,8 @@ const RepositoriesTable = () => {
   );
 
   return (
-    <div>
-      <div className='my-2'>
+    <div className='h-full flex flex-col'>
+      <div className='py-2'>
         <div className="flex flex-row items-center justify-between">
           <div className="flex flex-row space-x-1 justify-start items-center">
             <Tooltip aria-label="All of the repositories in this organization">
@@ -523,9 +523,9 @@ const RepositoriesTable = () => {
         </div>
       </div>
       <FilterContext.Provider value={globalFilters}>
-        <div className="h-full flex-1">
+        { /* This is a weird hack to make the table fill the page */}
+        <div className="h-64 flex-grow">
           <DataGrid
-            className="h-full sm:min-h-40"
             columns={dataGridColumns}
             rows={filterRepos(sortRepos(repos))}
             rowKeyGetter={(repo) => repo.repoName}
