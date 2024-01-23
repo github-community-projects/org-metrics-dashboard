@@ -1,11 +1,8 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-/* eslint-disable primer-react/no-system-props */
-/* eslint-disable react/jsx-no-comment-textnodes */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
-/* eslint-disable react/no-unescaped-entities */
-import { InfoIcon } from '@primer/octicons-react';
-import { Button, Tooltip } from '@primer/react';
-import { Flex, Text } from '@tremor/react';
+import { InfoIcon, TriangleDownIcon, TriangleUpIcon, XIcon } from '@primer/octicons-react';
+import { ActionList, Box, Button, Checkbox, FormControl, TextInput, Tooltip } from '@primer/react';
+import { Text } from '@tremor/react';
 import DataGrid, { Column, type RenderHeaderCellProps, type SortColumn } from 'react-data-grid';
 import { Popover } from 'react-tiny-popover';
 
@@ -18,15 +15,9 @@ function inputStopPropagation(event: React.KeyboardEvent<HTMLInputElement>) {
   event.stopPropagation();
 }
 
-function selectStopPropagation(event: React.KeyboardEvent<HTMLSelectElement>) {
-  if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) {
-    event.stopPropagation();
-  }
-}
-
 type Filter = {
   repositoryName?: string;
-  licenseName?: string[];
+  licenseName?: Record<string, boolean>;
   collaboratorsCount?: Array<number | undefined>;
   watchersCount?: Array<number | undefined>;
   openIssuesCount?: Array<number | undefined>;
@@ -36,6 +27,7 @@ type Filter = {
   forksCount?: Array<number | undefined>;
 };
 
+// Renderer for the min/max filter inputs
 const MinMaxRenderer: FC<{
   headerCellProps: RenderHeaderCellProps<Repo>;
   filters: Filter;
@@ -46,51 +38,43 @@ const MinMaxRenderer: FC<{
     <FilterRenderer<Repo> {...headerCellProps}>
       {({ ...rest }) => (
         <div>
-          <label htmlFor={`${filterName}Min`}>Min</label>
-          <input
-            {...rest}
-            id={`${filterName}Min`}
-            type="number"
-            placeholder="0"
-            onChange={(e) => {
-              updateFilters((globalFilters) => ({
-                ...globalFilters,
-                [filterName]: [Number(e.target.value), globalFilters[filterName]?.[1]],
-              }));
-            }}
-            onKeyDown={inputStopPropagation}
-            onClick={(e) => e.stopPropagation()}
-          />
-          <label htmlFor={`${filterName}Max`}>Max</label>
-          <input
-            {...rest}
-            id={`${filterName}Max`}
-            type="number"
-            placeholder="100"
-            onChange={(e) =>
-              updateFilters({
-                ...filters,
-                [filterName]: [0, Number(e.target.value)],
-              })
-            }
-            onKeyDown={inputStopPropagation}
-            onClick={(e) => e.stopPropagation()}
-          />
+          <FormControl>
+            <FormControl.Label htmlFor={`${filterName}Min`}>Min</FormControl.Label>
+            <TextInput  {...rest}
+              id={`${filterName}Min`}
+              type="number"
+              placeholder="0"
+              onChange={(e) => {
+                updateFilters((globalFilters) => ({
+                  ...globalFilters,
+                  [filterName]: [Number(e.target.value), (globalFilters[filterName] as Array<number | undefined>)?.[1]],
+                }));
+              }}
+              onKeyDown={inputStopPropagation}
+              onClick={(e) => e.stopPropagation()} />
+          </FormControl>
+          <FormControl>
+            <FormControl.Label htmlFor={`${filterName}Max`}>Max</FormControl.Label>
+            <TextInput   {...rest}
+              id={`${filterName}Max`}
+              type="number"
+              placeholder="100"
+              onChange={(e) =>
+                updateFilters({
+                  ...filters,
+                  [filterName]: [0, Number(e.target.value)],
+                })
+              }
+              onKeyDown={inputStopPropagation}
+              onClick={(e) => e.stopPropagation()} />
+          </FormControl>
         </div>
       )}
     </FilterRenderer>
   );
 };
 
-/**
- * Wrapper for rendering column header cell
- * @param {
- * tabIndex: number;
- * column: Column<Row>;
- * children: (args: { tabIndex: number; filters: Filter }) => React.ReactElement;
- * } props
- * @returns
- */
+// Wrapper for rendering column header cell
 const FilterRenderer = <R = unknown,>({
   tabIndex,
   column,
@@ -100,14 +84,18 @@ const FilterRenderer = <R = unknown,>({
   children: (args: { tabIndex: number; filters: Filter }) => React.ReactElement;
 }) => {
   const filters = useContext(FilterContext)!;
-  const clickMeButtonRef = useRef<HTMLButtonElement | undefined>();
+  const clickMeButtonRef = useRef<HTMLButtonElement | null>(null);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
   return (
     <div className="flex flex-row justify-between items-center">
       <div>{column.name}</div>
       <div className="flex flex-row items-center space-x-2">
-        <span>{sortDirection === 'ASC' ? 'UP' : sortDirection === 'DESC' ? 'DOWN' : null}</span>
+        {sortDirection === 'DESC' ? (
+          <TriangleDownIcon size={24} />
+        ) : sortDirection === 'ASC' ? (
+          <TriangleUpIcon size={24} />
+        ) : <TriangleUpIcon size={24} className="opacity-0" />}
         <Popover
           isOpen={isPopoverOpen}
           positions={['bottom', 'top', 'right', 'left']}
@@ -115,16 +103,17 @@ const FilterRenderer = <R = unknown,>({
           onClickOutside={() => setIsPopoverOpen(false)}
           ref={clickMeButtonRef} // if you'd like a ref to your popover's child, you can grab one here
           content={() => (
-            <div className="w-64" onClick={(e) => e.stopPropagation()}>
-              <div className="bg-slate-500 p-2 w-full">
-                <h4>Filter {column.name}</h4>
-                {filterFunction({ tabIndex, filters })}
+            <div className="bg-white shadow-xl min-w-64 p-4 rounded" onClick={(e) => e.stopPropagation()}>
+              <div className="w-full">
+                <FormControl>
+                  <FormControl.Label>Filter by {column.name}</FormControl.Label>
+                  {filterFunction({ tabIndex, filters })}
+                </FormControl>
               </div>
             </div>
           )}
         >
           <Button
-            color="primary"
             variant="invisible"
             size="small"
             onClick={(e) => {
@@ -135,8 +124,8 @@ const FilterRenderer = <R = unknown,>({
             Filters
           </Button>
         </Popover>
-      </div>
-    </div>
+      </div >
+    </div >
   );
 };
 
@@ -183,11 +172,15 @@ const getComparator = (sortColumn: keyof Repo): Comparator => {
   }
 };
 
+// Default set of filters
+const defaultFilters: Filter = {
+  licenseName: {
+    all: true,
+  }
+}
+
 const RepositoriesTable = () => {
-  const [globalFilters, setGlobalFilters] = useState<Filter>({
-    repositoryName: undefined,
-    licenseName: [],
-  } as Filter);
+  const [globalFilters, setGlobalFilters] = useState<Filter>(defaultFilters);
 
   // This needs a type, technically it's a Column but needs to be typed
   const labels: Record<string, Column<Repo>> = {
@@ -199,7 +192,7 @@ const RepositoriesTable = () => {
         return (
           <FilterRenderer<Repo> {...p}>
             {({ filters, ...rest }) => (
-              <input
+              <TextInput
                 {...rest}
                 value={filters['repositoryName']}
                 onChange={(e) =>
@@ -221,42 +214,91 @@ const RepositoriesTable = () => {
       name: 'License',
 
       renderHeaderCell: (p) => {
+        // This is fine because we know it's going to be rendered as a component
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const [filteredOptions, setFilteredOptions] = useState<string>('');
+
         return (
           <FilterRenderer<Repo> {...p}>
-            {({ filters, ...rest }) => (
-              <select
-                {...rest}
-                multiple
-                value={filters['licenseName']}
-                onChange={(e) => {
-                  const selectedOptions = Array.from(e.target.selectedOptions).map((o) => o.value);
-                  setGlobalFilters((otherFilters) => ({
-                    ...otherFilters,
-                    licenseName: selectedOptions,
-                  }));
-                }}
-                onKeyDown={selectStopPropagation}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <option value="all" defaultChecked={globalFilters.licenseName?.includes('all')}>
-                  All
-                </option>
-                {dropdownOptions('licenseName').map((d) => {
-                  if (d.value === '') {
-                    return (
-                      <option key={d.value} value={d.value}>
-                        No License
-                      </option>
-                    );
+            {({ ...rest }) => (
+              <Box>
+                <TextInput
+                  {...rest}
+                  className="w-full"
+                  value={filteredOptions}
+                  onChange={(e) => setFilteredOptions(e.target.value)}
+                  trailingAction={
+                    <TextInput.Action
+                      onClick={() => {
+                        setFilteredOptions('');
+                      }}
+                      icon={XIcon}
+                      aria-label="Clear input"
+                      sx={{ color: 'fg.subtle' }}
+                    />
                   }
+                />
+                <ActionList>
+                  <ActionList.Item
+                    onClick={() => {
+                      setGlobalFilters((otherFilters) => ({
+                        ...otherFilters,
+                        licenseName: { ...otherFilters.licenseName, all: !otherFilters.licenseName?.['all'] },
+                      }));
+                    }}
+                  >
+                    <ActionList.LeadingVisual>
+                      <Checkbox type="checkbox" checked={globalFilters.licenseName?.['all'] ?? true} />
+                    </ActionList.LeadingVisual>
+                    <Box>All</Box>
+                  </ActionList.Item>
+                  {dropdownOptions('licenseName', filteredOptions).map((d) => {
+                    if (d.value === '') {
+                      return (
+                        <>
+                          <ActionList.Item
+                            onClick={() => {
+                              setGlobalFilters((otherFilters) => ({
+                                ...otherFilters,
+                                licenseName: {
+                                  ...otherFilters.licenseName,
+                                  [d.value]: !otherFilters.licenseName?.[d.value],
+                                },
+                              }));
+                            }}
+                          >
+                            <ActionList.LeadingVisual>
+                              <Checkbox type="checkbox" checked={globalFilters.licenseName?.[d.value] ?? false} />
+                            </ActionList.LeadingVisual>
+                            <Box>No License</Box>
+                          </ActionList.Item>
+                        </>
+                      );
+                    }
 
-                  return (
-                    <option key={d.value} value={d.value}>
-                      {d.label}
-                    </option>
-                  );
-                })}
-              </select>
+                    return (
+                      <>
+                        <ActionList.Item
+                          onClick={() => {
+                            setGlobalFilters((otherFilters) => ({
+                              ...otherFilters,
+                              licenseName: {
+                                ...otherFilters.licenseName,
+                                [d.value]: !otherFilters.licenseName?.[d.value],
+                              },
+                            }));
+                          }}
+                        >
+                          <ActionList.LeadingVisual>
+                            <Checkbox type="checkbox" checked={globalFilters.licenseName?.[d.value] ?? false} />
+                          </ActionList.LeadingVisual>
+                          <Box>{d.value}</Box>
+                        </ActionList.Item>
+                      </>
+                    );
+                  })}
+                </ActionList>
+              </Box>
             )}
           </FilterRenderer>
         );
@@ -264,7 +306,7 @@ const RepositoriesTable = () => {
     },
     Collaborators: {
       key: 'collaboratorsCount',
-      name: 'Collaborator Count',
+      name: 'Collaborators',
       renderHeaderCell: (p) => {
         return (
           <MinMaxRenderer
@@ -278,7 +320,7 @@ const RepositoriesTable = () => {
     },
     Watchers: {
       key: 'watchersCount',
-      name: 'Watchers Count',
+      name: 'Watchers',
 
       renderHeaderCell: (p) => {
         return (
@@ -293,7 +335,7 @@ const RepositoriesTable = () => {
     },
     'Open Issues': {
       key: 'openIssuesCount',
-      name: 'Issues Count',
+      name: 'Open Issues',
 
       renderHeaderCell: (p) => {
         return (
@@ -308,7 +350,7 @@ const RepositoriesTable = () => {
     },
     'Closed Issues': {
       key: 'closedIssuesCount',
-      name: 'Closed Issues Count',
+      name: 'Closed Issues',
 
       renderHeaderCell: (p) => {
         return (
@@ -323,7 +365,7 @@ const RepositoriesTable = () => {
     },
     'Open PRs': {
       key: 'openPullRequestsCount',
-      name: 'Open PRs Count',
+      name: 'Open PRs',
 
       renderHeaderCell: (p) => {
         return (
@@ -338,7 +380,7 @@ const RepositoriesTable = () => {
     },
     'Merged PRs': {
       key: 'mergedPullRequestsCount',
-      name: 'Merged PRs Count',
+      name: 'Merged PRs',
 
       renderHeaderCell: (p) => {
         return (
@@ -353,7 +395,7 @@ const RepositoriesTable = () => {
     },
     Forks: {
       key: 'forksCount',
-      name: 'Forks Count',
+      name: 'Total Forks',
 
       renderHeaderCell: (p) => {
         return (
@@ -368,6 +410,7 @@ const RepositoriesTable = () => {
     },
   } as const;
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const dataGridColumns = Object.entries(labels).map(([_, columnProps]) => columnProps);
 
   const subTitle = () => {
@@ -375,11 +418,13 @@ const RepositoriesTable = () => {
   };
 
   // This selects a field to populate a dropdown with
-  const dropdownOptions = (field: keyof Repo) =>
-    Array.from(new Set(repos.map((r) => r[field]))).map((d) => ({
-      label: d,
-      value: d,
-    }));
+  const dropdownOptions = (field: keyof Repo, filter = '') =>
+    Array.from(new Set(repos.map((r) => r[field])))
+      .map((d) => ({
+        label: d,
+        value: d,
+      }))
+      .filter((d) => (d.value as string).toLowerCase().includes(filter.toLowerCase()));
 
   const [sortColumns, setSortColumns] = useState<SortColumn[]>([]);
 
@@ -407,16 +452,15 @@ const RepositoriesTable = () => {
    *
    * NOTE: We use some hacks like adding 'all' to the licenseName filter to
    *      make it easier to filter the repos.
+   * 
+   * This is kind of a mess, but it works
    */
   const filterRepos = useCallback(
     (inputRepos: Repo[]) => {
       const result = inputRepos.filter((repo) => {
         return (
           (globalFilters.repositoryName ? repo.repositoryName.includes(globalFilters.repositoryName) : true) &&
-          ((globalFilters.licenseName?.length ?? 0 > 0
-            ? globalFilters.licenseName?.includes(repo.licenseName)
-            : true) ||
-            globalFilters.licenseName?.includes('all')) &&
+          ((globalFilters.licenseName?.[repo.licenseName] ?? false) || (globalFilters.licenseName?.['all'] ?? false)) &&
           (globalFilters.collaboratorsCount
             ? (globalFilters.collaboratorsCount?.[0] ?? 0) <= repo.collaboratorsCount &&
             repo.collaboratorsCount <= (globalFilters.collaboratorsCount[1] ?? Infinity)
@@ -455,13 +499,28 @@ const RepositoriesTable = () => {
 
   return (
     <div>
-      <div>
-        <Flex className="space-x-0.5" justifyContent="start" alignItems="center">
-          <Tooltip aria-label="All of the repositories in this organization">
-            <InfoIcon size={24} />
-          </Tooltip>
-          <Text>{subTitle()}</Text>
-        </Flex>
+      <div className='my-2'>
+        <div className="flex flex-row items-center justify-between">
+          <div className="flex flex-row space-x-1 justify-start items-center">
+            <Tooltip aria-label="All of the repositories in this organization">
+              <InfoIcon size={24} />
+            </Tooltip>
+            <Text>{subTitle()}</Text>
+          </div>
+          <div>
+            <Button
+              variant="invisible"
+              onClick={() => {
+                setGlobalFilters(defaultFilters);
+              }}
+              className={globalFilters !== defaultFilters ? '' : 'opacity-0'}
+            >
+              Clear All Filters
+            </Button>
+
+
+          </div>
+        </div>
       </div>
       <FilterContext.Provider value={globalFilters}>
         <div className="h-full flex-1">
@@ -480,7 +539,7 @@ const RepositoriesTable = () => {
           />
         </div>
       </FilterContext.Provider>
-    </div>
+    </div >
   );
 };
 
