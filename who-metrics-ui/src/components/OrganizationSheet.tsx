@@ -1,27 +1,31 @@
-"use client";
+'use client';
 
 import {
-  Tab, TabGroup, TabList, TabPanel,
-  TabPanels, Text, Title
-} from "@tremor/react";
+  Tab,
+  TabGroup,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Text,
+  Title
+} from '@tremor/react';
 
-import logo from "@/images/who-logo-wide.svg";
-import { Box, useTheme as primerUseTheme } from "@primer/react";
-import Image from "next/image";
+import logo from '@/images/who-logo-wide.svg';
+import { Box, useTheme as primerUseTheme } from '@primer/react';
+import Image from 'next/image';
 
-import { useTheme } from "next-themes";
-import data from "../data/data.json";
-import RepositoriesTable from "./RepositoriesTable";
-
+import { useTheme } from 'next-themes';
+import data from '../data/data.json';
+import RepositoriesTable from './RepositoriesTable';
 
 export const OrganizationSheet = () => {
   const { theme, systemTheme } = useTheme();
   const { setColorMode } = primerUseTheme();
-  if (theme === "light" || theme === "dark" || theme === "auto") {
+  if (theme === 'light' || theme === 'dark' || theme === 'auto') {
     setColorMode(theme);
   }
 
-  if (theme === "system" && systemTheme) {
+  if (theme === 'system' && systemTheme) {
     setColorMode(systemTheme);
   }
 
@@ -29,7 +33,7 @@ export const OrganizationSheet = () => {
     <main className="px-18 py-18 h-full flex flex-col">
       <Box
         className="flex"
-        sx={{ flexDirection: "row", gap: 4, alignItems: "center", mb: 1 }}
+        sx={{ flexDirection: 'row', gap: 4, alignItems: 'center', mb: 1 }}
       >
         <Image
           className="block h-8 w-auto"
