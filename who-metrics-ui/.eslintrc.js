@@ -63,7 +63,7 @@ const baseConfig = {
   },
   ignorePatterns: ["*__generated__*"],
   rules: {
-    "prettier/prettier": 0, // Sorry but prettier/prettier is quite problematic
+    "prettier/prettier": 0, // We use prettier for formatting instead of ESLint
     "import/no-unresolved": [
       "error",
       {
