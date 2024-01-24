@@ -49,8 +49,13 @@ type Filter = {
   forksCount?: Array<number | undefined>;
 };
 
+type SelectOption = {
+  label: string | number;
+  value: string | number;
+};
+
 // This selects a field to populate a dropdown with
-const dropdownOptions = (field: keyof Repo, filter = '') =>
+const dropdownOptions = (field: keyof Repo, filter = ''): SelectOption[] =>
   Array.from(new Set(repos.map((r) => r[field])))
     .map((d) => ({
       label: d,
