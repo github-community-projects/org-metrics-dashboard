@@ -56,13 +56,13 @@ type SelectOption = {
 
 // This selects a field to populate a dropdown with
 const dropdownOptions = (field: keyof Repo, filter = ''): SelectOption[] =>
-  Array.from(new Set(repos.map((r) => r[field])))
-    .map((d) => ({
-      label: d,
-      value: d,
+  Array.from(new Set(repos.map((repo) => repo[field])))
+    .map((fieldName) => ({
+      label: fieldName,
+      value: fieldName,
     }))
-    .filter((d) =>
-      (d.value as string).toLowerCase().includes(filter.toLowerCase()),
+    .filter((fieldName) =>
+      (fieldName.value as string).toLowerCase().includes(filter.toLowerCase()),
     );
 
 // Helper function to get the selected option value from a filter and field
