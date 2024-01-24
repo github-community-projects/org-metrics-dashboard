@@ -14,6 +14,7 @@ import {
   Tooltip
 } from '@primer/react';
 import { Text } from '@tremor/react';
+import { json2csv } from 'json-2-csv';
 import DataGrid, {
   Column,
   type RenderHeaderCellProps,
@@ -21,6 +22,7 @@ import DataGrid, {
 } from 'react-data-grid';
 import { Popover } from 'react-tiny-popover';
 
+import { saveAs } from 'file-saver';
 import {
   createContext,
   FC,
@@ -30,6 +32,7 @@ import {
   useState
 } from 'react';
 import Data from '../data/data.json';
+
 const repos = Object.values(Data['repositories']);
 type Repo = (typeof repos)[0];
 
@@ -388,6 +391,12 @@ const defaultFilters: Filter = {
   },
 };
 
+// Helper for generating the csv blob
+const generateCSV = (data: Repo[]): Blob => {
+  const output = json2csv(data);
+  return new Blob([output], { type: 'text/csv' });
+};
+
 const RepositoriesTable = () => {
   const [globalFilters, setGlobalFilters] = useState<Filter>(defaultFilters);
 
@@ -617,6 +626,8 @@ const RepositoriesTable = () => {
     [globalFilters],
   );
 
+  const displayRows = filterRepos(sortRepos(repos));
+
   return (
     <div className="h-full flex flex-col">
       <div className="py-2">
@@ -627,7 +638,7 @@ const RepositoriesTable = () => {
             </Tooltip>
             <Text>{subTitle()}</Text>
           </div>
-          <div>
+          <div className="flex flex-row items-center space-x-2">
             <Button
               variant="invisible"
               onClick={() => {
@@ -637,6 +648,14 @@ const RepositoriesTable = () => {
             >
               Clear All Filters
             </Button>
+            <Button
+              variant="invisible"
+              onClick={() => {
+                saveAs(generateCSV(displayRows), "output.csv");
+              }}
+            >
+              Download CSV
+            </Button>
           </div>
         </div>
       </div>
@@ -645,7 +664,7 @@ const RepositoriesTable = () => {
         <div className="h-64 flex-grow">
           <DataGrid
             columns={dataGridColumns}
-            rows={filterRepos(sortRepos(repos))}
+            rows={displayRows}
             rowKeyGetter={(repo) => repo.repoName}
             defaultColumnOptions={{
               sortable: true,
