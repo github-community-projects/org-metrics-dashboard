@@ -229,7 +229,7 @@ const defaultFilters: Filter = {
 const generateCSV = (data: Repo[]): Blob => {
   const output = json2csv(data);
   return new Blob([output], { type: 'text/csv' });
-}
+};
 
 // Helper for downloading the csv
 // There are warnings for Opera Mini incompatibility, but only 0.07% of users use that browser
@@ -244,8 +244,6 @@ const saveFile = async (contents: Blob) => {
   });
   a.click();
 };
-
-
 
 const RepositoriesTable = () => {
   const [globalFilters, setGlobalFilters] = useState<Filter>(defaultFilters);
@@ -599,7 +597,7 @@ const RepositoriesTable = () => {
     [globalFilters],
   );
 
-  const displayRows = filterRepos(sortRepos(repos))
+  const displayRows = filterRepos(sortRepos(repos));
 
   return (
     <div className="h-full flex flex-col">
@@ -611,7 +609,7 @@ const RepositoriesTable = () => {
             </Tooltip>
             <Text>{subTitle()}</Text>
           </div>
-          <div className='flex flex-row items-center space-x-2'>
+          <div className="flex flex-row items-center space-x-2">
             <Button
               variant="invisible"
               onClick={() => {
@@ -624,7 +622,7 @@ const RepositoriesTable = () => {
             <Button
               variant="invisible"
               onClick={() => {
-                saveFile(generateCSV(displayRows))
+                saveFile(generateCSV(displayRows));
               }}
             >
               Download CSV
