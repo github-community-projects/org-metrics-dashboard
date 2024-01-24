@@ -22,6 +22,7 @@ import DataGrid, {
 } from 'react-data-grid';
 import { Popover } from 'react-tiny-popover';
 
+import { saveAs } from 'file-saver';
 import {
   createContext,
   FC,
@@ -31,6 +32,7 @@ import {
   useState
 } from 'react';
 import Data from '../data/data.json';
+
 const repos = Object.values(Data['repositories']);
 type Repo = (typeof repos)[0];
 
@@ -229,24 +231,6 @@ const defaultFilters: Filter = {
 const generateCSV = (data: Repo[]): Blob => {
   const output = json2csv(data);
   return new Blob([output], { type: 'text/csv' });
-};
-
-// Helper for downloading the csv
-// There are warnings for Opera Mini incompatibility, but only 0.07% of users use that browser
-const saveFile = async (contents: Blob) => {
-  const a = document.createElement('a');
-  a.id = 'downloadCVSAnchor';
-  a.download = 'output.csv';
-  // eslint-disable-next-line compat/compat
-  a.href = URL.createObjectURL(contents);
-  a.addEventListener('click', () => {
-    setTimeout(() => {
-      // eslint-disable-next-line compat/compat
-      URL.revokeObjectURL(a.href);
-      document.getElementById('downloadCVSAnchor')?.remove();
-    }, 30 * 1000);
-  });
-  a.click();
 };
 
 const RepositoriesTable = () => {
@@ -626,7 +610,7 @@ const RepositoriesTable = () => {
             <Button
               variant="invisible"
               onClick={() => {
-                saveFile(generateCSV(displayRows));
+                saveAs(generateCSV(displayRows), "output.csv");
               }}
             >
               Download CSV
