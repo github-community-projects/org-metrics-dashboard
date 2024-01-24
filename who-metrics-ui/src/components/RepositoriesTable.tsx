@@ -41,7 +41,7 @@ function inputStopPropagation(event: React.KeyboardEvent<HTMLInputElement>) {
 }
 
 type Filter = {
-  repositoryName?: string;
+  repositoryName?: Record<string, boolean>;
   licenseName?: Record<string, boolean>;
   collaboratorsCount?: Array<number | undefined>;
   watchersCount?: Array<number | undefined>;
@@ -51,6 +51,31 @@ type Filter = {
   mergedPullRequestsCount?: Array<number | undefined>;
   forksCount?: Array<number | undefined>;
 };
+
+type SelectOption = {
+  label: string | number;
+  value: string | number;
+};
+
+// This selects a field to populate a dropdown with
+const dropdownOptions = (field: keyof Repo, filter = ''): SelectOption[] =>
+  Array.from(new Set(repos.map((repo) => repo[field])))
+    .map((fieldName) => ({
+      label: fieldName,
+      value: fieldName,
+    }))
+    .filter((fieldName) =>
+      (fieldName.value as string).toLowerCase().includes(filter.toLowerCase()),
+    );
+
+// Helper function to get the selected option value from a filter and field
+const getSelectedOption = (
+  filters: Filter,
+  filterName: keyof Filter,
+  filterField: string | number,
+  defaultValue = false,
+) =>
+  (filters[filterName] as Record<string, boolean>)[filterField] ?? defaultValue;
 
 // Renderer for the min/max filter inputs
 const MinMaxRenderer: FC<{
@@ -63,7 +88,7 @@ const MinMaxRenderer: FC<{
   return (
     <HeaderCellRenderer<Repo> {...headerCellProps}>
       {({ ...rest }) => (
-        <div>
+        <Box className="w-full">
           <FormControl>
             <FormControl.Label htmlFor={`${filterName}Min`}>
               Min
@@ -71,6 +96,7 @@ const MinMaxRenderer: FC<{
             <TextInput
               {...rest}
               id={`${filterName}Min`}
+              className="w-full"
               type="number"
               placeholder="0"
               onChange={(e) => {
@@ -95,6 +121,7 @@ const MinMaxRenderer: FC<{
             <TextInput
               {...rest}
               id={`${filterName}Max`}
+              className="w-full"
               type="number"
               placeholder="100"
               onChange={(e) =>
@@ -107,7 +134,139 @@ const MinMaxRenderer: FC<{
               onClick={(e) => e.stopPropagation()}
             />
           </FormControl>
-        </div>
+        </Box>
+      )}
+    </HeaderCellRenderer>
+  );
+};
+
+// Renderer for the searchable select filter
+const SearchableSelectRenderer: FC<{
+  headerCellProps: RenderHeaderCellProps<Repo>;
+  filters: Filter;
+  updateFilters: ((filters: Filter) => void) &
+  ((filters: (filters: Filter) => Filter) => void);
+  filterName: keyof Filter;
+}> = ({ headerCellProps, filters, updateFilters, filterName }) => {
+  const [filteredOptions, setFilteredOptions] = useState<string>('');
+  const allSelectOptions = dropdownOptions(filterName, filteredOptions);
+
+  return (
+    <HeaderCellRenderer<Repo> {...headerCellProps}>
+      {({ ...rest }) => (
+        <Box>
+          <TextInput
+            {...rest}
+            className="w-full"
+            value={filteredOptions}
+            onChange={(e) => setFilteredOptions(e.target.value)}
+            trailingAction={
+              <TextInput.Action
+                onClick={() => {
+                  setFilteredOptions('');
+                }}
+                icon={XIcon}
+                aria-label="Clear input"
+                sx={{ color: 'fg.subtle' }}
+              />
+            }
+          />
+          <Box className="h-80 overflow-auto w-100 mt-2">
+            <ActionList>
+              <ActionList.Item
+                onClick={() => {
+                  updateFilters((otherFilters) => ({
+                    ...otherFilters,
+                    [filterName]: {
+                      ...otherFilters[filterName],
+                      all: !getSelectedOption(filters, filterName, 'all', true),
+                    },
+                  }));
+                }}
+              >
+                <ActionList.LeadingVisual>
+                  <Checkbox
+                    type="checkbox"
+                    checked={getSelectedOption(
+                      filters,
+                      filterName,
+                      'all',
+                      true,
+                    )}
+                  />
+                </ActionList.LeadingVisual>
+                <Box>All</Box>
+              </ActionList.Item>
+              {allSelectOptions.map((selectOption) => {
+                if (selectOption.value === '') {
+                  return (
+                    <>
+                      <ActionList.Item
+                        onClick={() => {
+                          updateFilters((otherFilters) => ({
+                            ...otherFilters,
+                            [filterName]: {
+                              ...otherFilters[filterName],
+                              [selectOption.value]: !getSelectedOption(
+                                filters,
+                                filterName,
+                                selectOption.value,
+                              ),
+                            },
+                          }));
+                        }}
+                      >
+                        <ActionList.LeadingVisual>
+                          <Checkbox
+                            type="checkbox"
+                            checked={
+                              (
+                                filters[filterName] as Record<string, boolean>
+                              )?.[selectOption.value] ?? false
+                            }
+                          />
+                        </ActionList.LeadingVisual>
+                        <Box>No License</Box>
+                      </ActionList.Item>
+                    </>
+                  );
+                }
+
+                return (
+                  <>
+                    <ActionList.Item
+                      onClick={() => {
+                        updateFilters((otherFilters) => ({
+                          ...otherFilters,
+                          [filterName]: {
+                            ...otherFilters[filterName],
+                            [selectOption.value]: !getSelectedOption(
+                              filters,
+                              filterName,
+                              selectOption.value,
+                            ),
+                          },
+                        }));
+                      }}
+                    >
+                      <ActionList.LeadingVisual>
+                        <Checkbox
+                          type="checkbox"
+                          checked={getSelectedOption(
+                            filters,
+                            filterName,
+                            selectOption.value,
+                          )}
+                        />
+                      </ActionList.LeadingVisual>
+                      <Box>{selectOption.value}</Box>
+                    </ActionList.Item>
+                  </>
+                );
+              })}
+            </ActionList>
+          </Box>
+        </Box>
       )}
     </HeaderCellRenderer>
   );
@@ -145,18 +304,20 @@ const HeaderCellRenderer = <R = unknown,>({
           ref={clickMeButtonRef} // if you'd like a ref to your popover's child, you can grab one here
           content={() => (
             // The click handler here is used to stop the header from being sorted
-            // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-            <div
-              className="bg-white shadow-xl min-w-64 p-4 rounded"
+            <Box
+              className="shadow-xl min-w-64 p-4 rounded"
               onClick={(e) => e.stopPropagation()}
+              sx={{
+                backgroundColor: 'Background',
+                border: '1px solid',
+                borderColor: 'border.default',
+              }}
             >
-              <div className="w-full">
-                <FormControl>
-                  <FormControl.Label>Filter by {column.name}</FormControl.Label>
-                  {filterFunction({ tabIndex, filters })}
-                </FormControl>
-              </div>
-            </div>
+              <FormControl>
+                <FormControl.Label>Filter by {column.name}</FormControl.Label>
+                {filterFunction({ tabIndex, filters })}
+              </FormControl>
+            </Box>
           )}
         >
           <Button
@@ -222,6 +383,9 @@ const getComparator = (sortColumn: keyof Repo): Comparator => {
 
 // Default set of filters
 const defaultFilters: Filter = {
+  repositoryName: {
+    all: true,
+  },
   licenseName: {
     all: true,
   },
@@ -242,138 +406,27 @@ const RepositoriesTable = () => {
       key: 'repositoryName',
       name: 'Name',
 
-      renderHeaderCell: (p) => {
-        return (
-          <HeaderCellRenderer<Repo> {...p}>
-            {({ filters, ...rest }) => (
-              <TextInput
-                {...rest}
-                value={filters['repositoryName']}
-                onChange={(e) =>
-                  setGlobalFilters((otherFilters) => ({
-                    ...otherFilters,
-                    repositoryName: e.target.value,
-                  }))
-                }
-                onKeyDown={inputStopPropagation}
-                onClick={(e) => e.stopPropagation()}
-              />
-            )}
-          </HeaderCellRenderer>
-        );
-      },
+      renderHeaderCell: (p) => (
+        <SearchableSelectRenderer
+          headerCellProps={p}
+          filterName="repositoryName"
+          filters={globalFilters}
+          updateFilters={setGlobalFilters}
+        />
+      ),
     },
     License: {
       key: 'licenseName',
       name: 'License',
 
-      renderHeaderCell: (p) => {
-        // This is fine because we know it's going to be rendered as a component
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        const [filteredOptions, setFilteredOptions] = useState<string>('');
-
-        return (
-          <HeaderCellRenderer<Repo> {...p}>
-            {({ ...rest }) => (
-              <Box>
-                <TextInput
-                  {...rest}
-                  className="w-full"
-                  value={filteredOptions}
-                  onChange={(e) => setFilteredOptions(e.target.value)}
-                  trailingAction={
-                    <TextInput.Action
-                      onClick={() => {
-                        setFilteredOptions('');
-                      }}
-                      icon={XIcon}
-                      aria-label="Clear input"
-                      sx={{ color: 'fg.subtle' }}
-                    />
-                  }
-                />
-                <ActionList>
-                  <ActionList.Item
-                    onClick={() => {
-                      setGlobalFilters((otherFilters) => ({
-                        ...otherFilters,
-                        licenseName: {
-                          ...otherFilters.licenseName,
-                          all: !otherFilters.licenseName?.['all'],
-                        },
-                      }));
-                    }}
-                  >
-                    <ActionList.LeadingVisual>
-                      <Checkbox
-                        type="checkbox"
-                        checked={globalFilters.licenseName?.['all'] ?? true}
-                      />
-                    </ActionList.LeadingVisual>
-                    <Box>All</Box>
-                  </ActionList.Item>
-                  {dropdownOptions('licenseName', filteredOptions).map((d) => {
-                    if (d.value === '') {
-                      return (
-                        <>
-                          <ActionList.Item
-                            onClick={() => {
-                              setGlobalFilters((otherFilters) => ({
-                                ...otherFilters,
-                                licenseName: {
-                                  ...otherFilters.licenseName,
-                                  [d.value]:
-                                    !otherFilters.licenseName?.[d.value],
-                                },
-                              }));
-                            }}
-                          >
-                            <ActionList.LeadingVisual>
-                              <Checkbox
-                                type="checkbox"
-                                checked={
-                                  globalFilters.licenseName?.[d.value] ?? false
-                                }
-                              />
-                            </ActionList.LeadingVisual>
-                            <Box>No License</Box>
-                          </ActionList.Item>
-                        </>
-                      );
-                    }
-
-                    return (
-                      <>
-                        <ActionList.Item
-                          onClick={() => {
-                            setGlobalFilters((otherFilters) => ({
-                              ...otherFilters,
-                              licenseName: {
-                                ...otherFilters.licenseName,
-                                [d.value]: !otherFilters.licenseName?.[d.value],
-                              },
-                            }));
-                          }}
-                        >
-                          <ActionList.LeadingVisual>
-                            <Checkbox
-                              type="checkbox"
-                              checked={
-                                globalFilters.licenseName?.[d.value] ?? false
-                              }
-                            />
-                          </ActionList.LeadingVisual>
-                          <Box>{d.value}</Box>
-                        </ActionList.Item>
-                      </>
-                    );
-                  })}
-                </ActionList>
-              </Box>
-            )}
-          </HeaderCellRenderer>
-        );
-      },
+      renderHeaderCell: (p) => (
+        <SearchableSelectRenderer
+          headerCellProps={p}
+          filterName="licenseName"
+          filters={globalFilters}
+          updateFilters={setGlobalFilters}
+        />
+      ),
     },
     Collaborators: {
       key: 'collaboratorsCount',
@@ -490,17 +543,6 @@ const RepositoriesTable = () => {
     return `${repos.length} total repositories`;
   };
 
-  // This selects a field to populate a dropdown with
-  const dropdownOptions = (field: keyof Repo, filter = '') =>
-    Array.from(new Set(repos.map((r) => r[field])))
-      .map((d) => ({
-        label: d,
-        value: d,
-      }))
-      .filter((d) =>
-        (d.value as string).toLowerCase().includes(filter.toLowerCase()),
-      );
-
   const [sortColumns, setSortColumns] = useState<SortColumn[]>([]);
 
   const sortRepos = (inputRepos: Repo[]) => {
@@ -534,9 +576,8 @@ const RepositoriesTable = () => {
     (inputRepos: Repo[]) => {
       const result = inputRepos.filter((repo) => {
         return (
-          (globalFilters.repositoryName
-            ? repo.repositoryName.includes(globalFilters.repositoryName)
-            : true) &&
+          ((globalFilters.repositoryName?.[repo.repositoryName] ?? false) ||
+            (globalFilters.repositoryName?.['all'] ?? false)) &&
           ((globalFilters.licenseName?.[repo.licenseName] ?? false) ||
             (globalFilters.licenseName?.['all'] ?? false)) &&
           (globalFilters.collaboratorsCount
