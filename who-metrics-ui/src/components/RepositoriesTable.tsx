@@ -14,6 +14,7 @@ import {
   Tooltip
 } from '@primer/react';
 import { Text } from '@tremor/react';
+import { json2csv } from 'json-2-csv';
 import DataGrid, {
   Column,
   type RenderHeaderCellProps,
@@ -223,6 +224,28 @@ const defaultFilters: Filter = {
     all: true,
   },
 };
+
+// Helper for generating the csv blob
+const generateCSV = (data: Repo[]): Blob => {
+  const output = json2csv(data);
+  return new Blob([output], { type: 'text/csv' });
+}
+
+// Helper for downloading the csv
+// There are warnings for Opera Mini incompatibility, but only 0.07% of users use that browser
+const saveFile = async (contents: Blob) => {
+  const a = document.createElement('a');
+  a.download = 'output.csv';
+  // eslint-disable-next-line compat/compat
+  a.href = URL.createObjectURL(contents);
+  a.addEventListener('click', () => {
+    // eslint-disable-next-line compat/compat
+    setTimeout(() => URL.revokeObjectURL(a.href), 30 * 1000);
+  });
+  a.click();
+};
+
+
 
 const RepositoriesTable = () => {
   const [globalFilters, setGlobalFilters] = useState<Filter>(defaultFilters);
@@ -576,6 +599,8 @@ const RepositoriesTable = () => {
     [globalFilters],
   );
 
+  const displayRows = filterRepos(sortRepos(repos))
+
   return (
     <div className="h-full flex flex-col">
       <div className="py-2">
@@ -586,7 +611,7 @@ const RepositoriesTable = () => {
             </Tooltip>
             <Text>{subTitle()}</Text>
           </div>
-          <div>
+          <div className='flex flex-row items-center space-x-2'>
             <Button
               variant="invisible"
               onClick={() => {
@@ -596,6 +621,14 @@ const RepositoriesTable = () => {
             >
               Clear All Filters
             </Button>
+            <Button
+              variant="invisible"
+              onClick={() => {
+                saveFile(generateCSV(displayRows))
+              }}
+            >
+              Download CSV
+            </Button>
           </div>
         </div>
       </div>
@@ -604,7 +637,7 @@ const RepositoriesTable = () => {
         <div className="h-64 flex-grow">
           <DataGrid
             columns={dataGridColumns}
-            rows={filterRepos(sortRepos(repos))}
+            rows={displayRows}
             rowKeyGetter={(repo) => repo.repoName}
             defaultColumnOptions={{
               sortable: true,
