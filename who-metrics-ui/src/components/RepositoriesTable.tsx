@@ -60,6 +60,15 @@ const dropdownOptions = (field: keyof Repo, filter = '') =>
       (d.value as string).toLowerCase().includes(filter.toLowerCase()),
     );
 
+// Helper function to get the selected option value from a filter and field
+const getSelectedOption = (
+  filters: Filter,
+  filterName: keyof Filter,
+  filterField: string | number,
+  defaultValue = false,
+) =>
+  (filters[filterName] as Record<string, boolean>)[filterField] ?? defaultValue;
+
 // Renderer for the min/max filter inputs
 const MinMaxRenderer: FC<{
   headerCellProps: RenderHeaderCellProps<Repo>;
@@ -71,7 +80,7 @@ const MinMaxRenderer: FC<{
   return (
     <HeaderCellRenderer<Repo> {...headerCellProps}>
       {({ ...rest }) => (
-        <Box className='w-full'>
+        <Box className="w-full">
           <FormControl>
             <FormControl.Label htmlFor={`${filterName}Min`}>
               Min
@@ -155,16 +164,14 @@ const SearchableSelectRenderer: FC<{
             }
           />
           <Box className="h-80 overflow-auto w-100 mt-2">
-            <ActionList >
+            <ActionList>
               <ActionList.Item
                 onClick={() => {
                   updateFilters((otherFilters) => ({
                     ...otherFilters,
                     [filterName]: {
                       ...otherFilters[filterName],
-                      all: !(
-                        otherFilters[filterName] as Record<string, boolean>
-                      )?.['all'],
+                      all: !getSelectedOption(filters, filterName, 'all', true),
                     },
                   }));
                 }}
@@ -172,16 +179,18 @@ const SearchableSelectRenderer: FC<{
                 <ActionList.LeadingVisual>
                   <Checkbox
                     type="checkbox"
-                    checked={
-                      (filters[filterName] as Record<string, boolean>)?.['all'] ??
-                      true
-                    }
+                    checked={getSelectedOption(
+                      filters,
+                      filterName,
+                      'all',
+                      true,
+                    )}
                   />
                 </ActionList.LeadingVisual>
                 <Box>All</Box>
               </ActionList.Item>
-              {allSelectOptions.map((d) => {
-                if (d.value === '') {
+              {allSelectOptions.map((selectOption) => {
+                if (selectOption.value === '') {
                   return (
                     <>
                       <ActionList.Item
@@ -190,12 +199,11 @@ const SearchableSelectRenderer: FC<{
                             ...otherFilters,
                             [filterName]: {
                               ...otherFilters[filterName],
-                              [d.value]: !(
-                                otherFilters[filterName] as Record<
-                                  string,
-                                  boolean
-                                >
-                              )?.[d.value],
+                              [selectOption.value]: !getSelectedOption(
+                                filters,
+                                filterName,
+                                selectOption.value,
+                              ),
                             },
                           }));
                         }}
@@ -204,9 +212,9 @@ const SearchableSelectRenderer: FC<{
                           <Checkbox
                             type="checkbox"
                             checked={
-                              (filters[filterName] as Record<string, boolean>)?.[
-                              d.value
-                              ] ?? false
+                              (
+                                filters[filterName] as Record<string, boolean>
+                              )?.[selectOption.value] ?? false
                             }
                           />
                         </ActionList.LeadingVisual>
@@ -224,9 +232,11 @@ const SearchableSelectRenderer: FC<{
                           ...otherFilters,
                           [filterName]: {
                             ...otherFilters[filterName],
-                            [d.value]: !(
-                              otherFilters[filterName] as Record<string, boolean>
-                            )?.[d.value],
+                            [selectOption.value]: !getSelectedOption(
+                              filters,
+                              filterName,
+                              selectOption.value,
+                            ),
                           },
                         }));
                       }}
@@ -234,14 +244,14 @@ const SearchableSelectRenderer: FC<{
                       <ActionList.LeadingVisual>
                         <Checkbox
                           type="checkbox"
-                          checked={
-                            (filters[filterName] as Record<string, boolean>)?.[
-                            d.value
-                            ] ?? false
-                          }
+                          checked={getSelectedOption(
+                            filters,
+                            filterName,
+                            selectOption.value,
+                          )}
                         />
                       </ActionList.LeadingVisual>
-                      <Box>{d.value}</Box>
+                      <Box>{selectOption.value}</Box>
                     </ActionList.Item>
                   </>
                 );
