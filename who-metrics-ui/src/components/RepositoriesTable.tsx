@@ -235,12 +235,16 @@ const generateCSV = (data: Repo[]): Blob => {
 // There are warnings for Opera Mini incompatibility, but only 0.07% of users use that browser
 const saveFile = async (contents: Blob) => {
   const a = document.createElement('a');
+  a.id = 'downloadCVSAnchor';
   a.download = 'output.csv';
   // eslint-disable-next-line compat/compat
   a.href = URL.createObjectURL(contents);
   a.addEventListener('click', () => {
-    // eslint-disable-next-line compat/compat
-    setTimeout(() => URL.revokeObjectURL(a.href), 30 * 1000);
+    setTimeout(() => {
+      // eslint-disable-next-line compat/compat
+      URL.revokeObjectURL(a.href);
+      document.getElementById('downloadCVSAnchor')?.remove();
+    }, 30 * 1000);
   });
   a.click();
 };
