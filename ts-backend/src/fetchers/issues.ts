@@ -88,14 +88,14 @@ const calculateIssueAgePerRepo = async (
   octokit: CustomOctokit,
   config: Config
 ) => {
-  const result = await octokit.issues.listForRepo({
+  const result = await octokit.paginate(octokit.issues.listForRepo, {
     owner: config.organization,
     repo: repoName,
     state: "open",
   });
 
   // Calculate the median age of open issues per repo
-  const openIssues = result.data.filter((issue) => !issue.pull_request);
+  const openIssues = result.filter((issue) => !issue.pull_request);
   const openIssuesCount = openIssues.length;
   const openIssuesTotalAge = openIssues.reduce((acc, issue) => {
     const createdAt = new Date(issue.created_at);
