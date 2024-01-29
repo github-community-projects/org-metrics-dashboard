@@ -12,9 +12,15 @@ export const addRepositoriesToResult: Fetcher = async (
     type: "public",
   });
 
+  const filteredRepos = repos.filter(
+    (repo) =>
+      !(repo.archived && !config.includeArchived) ||
+      !(repo.fork && !config.includeForks)
+  );
+
   return {
     ...result,
-    repositories: repos.reduce((acc, repo) => {
+    repositories: filteredRepos.reduce((acc, repo) => {
       return {
         ...acc,
         [repo.name]: {
@@ -28,6 +34,7 @@ export const addRepositoriesToResult: Fetcher = async (
           licenseName: repo.license?.name || "No License",
           watchersCount: repo.watchers_count,
           issuesEnabled: repo.has_issues,
+          stars: repo.stargazers_count,
         } as RepositoryResult,
       };
     }, {} as Record<string, RepositoryResult>),

@@ -39,6 +39,7 @@ export interface RepositoryResult {
   licenseName: string;
   watchersCount: number;
   issuesEnabled: boolean;
+  stars: number;
 }
 
 export type Fetcher = (
@@ -49,6 +50,8 @@ export type Fetcher = (
 
 export interface Config {
   organization: string;
+  includeForks?: boolean;
+  includeArchived?: boolean;
 }
 
 // Check for the GRAPHQL_TOKEN environment variable
@@ -66,6 +69,8 @@ const octokit = personalOctokit(process.env.GRAPHQL_TOKEN!);
 // TODO: Figure this out
 const config: Config = {
   organization: "github",
+  includeForks: false,
+  includeArchived: false,
 };
 
 const pipeline =
