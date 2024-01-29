@@ -3,6 +3,7 @@ import fs from "fs-extra";
 import {
   addDiscussionData,
   addIssueAndPrData,
+  addIssueResponseTimeData,
   addMetaToResult,
   addOrganizationInfoToResult,
   addRepositoriesToResult,
@@ -48,6 +49,10 @@ export interface RepositoryResult {
   discussionsEnabled: boolean;
   projectsEnabled: boolean;
   issuesEnabled: boolean;
+
+  // Calculated metrics
+  openIssuesAverageAge: number;
+  openIssuesMedianAge: number;
 }
 
 export type Fetcher = (
@@ -106,7 +111,8 @@ const result = await pipeline(octokit, config)(
   addOrganizationInfoToResult,
   addRepositoriesToResult,
   addIssueAndPrData,
-  addDiscussionData
+  addDiscussionData,
+  addIssueResponseTimeData
 );
 
 console.log(result);
