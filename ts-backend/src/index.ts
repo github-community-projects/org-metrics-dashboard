@@ -53,6 +53,8 @@ export interface RepositoryResult {
   // Calculated metrics
   openIssuesAverageAge: number;
   openIssuesMedianAge: number;
+  closedIssuesAverageAge: number;
+  closedIssuesMedianAge: number;
 }
 
 export type Fetcher = (
@@ -65,6 +67,7 @@ export interface Config {
   organization: string;
   includeForks?: boolean;
   includeArchived?: boolean;
+  since?: string; // Used for limiting the date range of items to fetch
 }
 
 // Check for the GRAPHQL_TOKEN environment variable
@@ -84,6 +87,8 @@ const config: Config = {
   organization: "github",
   includeForks: false,
   includeArchived: false,
+  // Default since date is 180 days ago
+  since: new Date(Date.now() - 180 * (24 * 60 * 60 * 1000)).toISOString(),
 };
 
 const pipeline =

@@ -83,21 +83,24 @@ export const addIssueAndPrData: Fetcher = async (result, octokit, config) => {
   return result;
 };
 
-const calculateIssueAgePerRepo = async (
+const calculateIssueMetricsPerRepo = async (
   repoName: string,
+  state: "open" | "closed",
   octokit: CustomOctokit,
   config: Config
 ) => {
   const result = await octokit.paginate(octokit.issues.listForRepo, {
     owner: config.organization,
     repo: repoName,
-    state: "open",
+    state: state,
+    // Need to limit this query somehow, otherwise it will take forever/timeout
+    since: config.since,
   });
 
-  // Calculate the median age of open issues per repo
-  const openIssues = result.filter((issue) => !issue.pull_request);
-  const openIssuesCount = openIssues.length;
-  const openIssuesTotalAge = openIssues.reduce((acc, issue) => {
+  // Calculate the total age of open issues
+  const issues = result.filter((issue) => !issue.pull_request);
+  const issuesCount = issues.length;
+  const issuesTotalAge = issues.reduce((acc, issue) => {
     const createdAt = new Date(issue.created_at);
     const now = new Date();
     const age = now.getTime() - createdAt.getTime();
@@ -105,20 +108,17 @@ const calculateIssueAgePerRepo = async (
   }, 0);
 
   // Calculate the age of open issues
-  const openIssuesAverageAge =
-    openIssuesCount > 0 ? openIssuesTotalAge / openIssuesCount : 0;
-  const openIssuesMedianAge =
-    openIssues.length > 0
+  const issuesAverageAge = issuesCount > 0 ? issuesTotalAge / issuesCount : 0;
+  const issuesMedianAge =
+    issues.length > 0
       ? new Date().getTime() -
-        new Date(
-          openIssues[Math.floor(openIssues.length / 2)].created_at
-        ).getTime()
+        new Date(issues[Math.floor(issues.length / 2)].created_at).getTime()
       : 0;
 
   return {
-    openIssuesCount,
-    openIssuesAverageAge,
-    openIssuesMedianAge,
+    issuesCount,
+    issuesAverageAge,
+    issuesMedianAge,
   };
 };
 
@@ -128,12 +128,25 @@ export const addIssueResponseTimeData: Fetcher = async (
   config
 ) => {
   for (const repoName of Object.keys(result.repositories)) {
-    const { openIssuesCount, openIssuesAverageAge, openIssuesMedianAge } =
-      await calculateIssueAgePerRepo(repoName, octokit, config);
+    const {
+      issuesCount: openIssuesCount,
+      issuesAverageAge: openIssuesAverageAge,
+      issuesMedianAge: openIssuesMedianAge,
+    } = await calculateIssueMetricsPerRepo(repoName, "open", octokit, config);
+
+    const {
+      issuesCount: closedIssuesCount,
+      issuesAverageAge: closedIssuesAverageAge,
+      issuesMedianAge: closedIssuesMedianAge,
+    } = await calculateIssueMetricsPerRepo(repoName, "closed", octokit, config);
+
     const repo = result.repositories[repoName];
     repo.openIssuesCount = openIssuesCount;
     repo.openIssuesAverageAge = openIssuesAverageAge;
     repo.openIssuesMedianAge = openIssuesMedianAge;
+    repo.closedIssuesCount = closedIssuesCount;
+    repo.closedIssuesAverageAge = closedIssuesAverageAge;
+    repo.closedIssuesMedianAge = closedIssuesMedianAge;
   }
   return result;
 };
