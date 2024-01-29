@@ -6,7 +6,7 @@ import {
   addOrganizationInfoToResult,
   addRepositoriesToResult,
 } from "./fetchers";
-import { CustomOctokit, octokit } from "./lib/octokit";
+import { CustomOctokit, personalOctokit } from "./lib/octokit";
 
 export interface Result {
   meta: {
@@ -38,9 +38,16 @@ export interface RepositoryResult {
   mergedPullRequestsCount: number;
   licenseName: string;
   watchersCount: number;
+  issuesEnabled: boolean;
 }
 
-interface Config {
+export type Fetcher = (
+  result: Result,
+  octokit: CustomOctokit,
+  config: Config
+) => Promise<Result> | Result;
+
+export interface Config {
   organization: string;
 }
 
@@ -50,17 +57,16 @@ if (!process.env.GRAPHQL_TOKEN) {
   throw new Error("GRAPHQL_TOKEN environment variable is required!");
 }
 
+console.log("Starting GitHub organization metrics fetcher");
+console.log("🔑  Authenticating with GitHub");
+
+const octokit = personalOctokit(process.env.GRAPHQL_TOKEN!);
+
 // Read in configuration for the fetchers
 // TODO: Figure this out
 const config: Config = {
   organization: "github",
 };
-
-export type Fetcher = (
-  result: Result,
-  octokit: CustomOctokit,
-  config: Config
-) => Promise<Result> | Result;
 
 const pipeline =
   (octokit: CustomOctokit, config: Config) =>
@@ -68,14 +74,18 @@ const pipeline =
     let result = {} as Result;
 
     for (const fetcher of fetchers) {
+      console.log(`🔧  Running fetcher ${fetcher.name}`);
       result = await fetcher(result, octokit, config);
+      console.log(`✨  Finished ${fetcher.name}`);
     }
 
     return result;
   };
 
 const outputResult = async (result: Result) => {
-  fs.outputJSONSync("./data.json", result, { spaces: 2 });
+  const destination = "./data.json";
+  fs.outputJSONSync(destination, result, { spaces: 2 });
+  console.log(`📦  Wrote result to ${destination}`);
 };
 
 const result = await pipeline(octokit, config)(

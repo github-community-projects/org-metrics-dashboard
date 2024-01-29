@@ -1,6 +1,6 @@
 // Fetchers for issue & pull request data and metrics
 
-import { Fetcher } from "..";
+import { Config, Fetcher } from "..";
 import { CustomOctokit } from "../lib/octokit";
 
 interface IssueAndPRDataQueryResponse {
@@ -26,11 +26,13 @@ interface IssueAndPRDataQueryResponse {
 type IssueAndPRData = Record<string, { closedIssuesCount: number }>;
 
 const queryForIssuesAndPrs = async (
-  octokit: CustomOctokit
+  octokit: CustomOctokit,
+  config: Config
 ): Promise<IssueAndPRDataQueryResponse> => {
-  return (await octokit.graphql.paginate(`
-      query($cursor: String) {
-        organization(login:"github"){
+  return (await octokit.graphql.paginate(
+    `
+      query($cursor: String, $organization: String!) {
+        organization(login:$organization){
           repositories(privacy:PUBLIC, first:100, isFork:false, isArchived:false, after: $cursor) {
             totalCount
             pageInfo {
@@ -48,13 +50,18 @@ const queryForIssuesAndPrs = async (
           }
         }
       }
-    `)) as IssueAndPRDataQueryResponse;
+    `,
+    {
+      organization: config.organization,
+    }
+  )) as IssueAndPRDataQueryResponse;
 };
 
 const getIssueAndPrData = async (
-  octokit: CustomOctokit
+  octokit: CustomOctokit,
+  config: Config
 ): Promise<IssueAndPRData> => {
-  const queryResult = await queryForIssuesAndPrs(octokit);
+  const queryResult = await queryForIssuesAndPrs(octokit, config);
   const dataResult = {} as Record<string, { closedIssuesCount: number }>;
   queryResult.organization.repositories.edges.forEach((edge) => {
     dataResult[edge.node.name] = {
@@ -64,8 +71,8 @@ const getIssueAndPrData = async (
   return dataResult;
 };
 
-export const addIssueAndPrData: Fetcher = async (result, octokit) => {
-  const dataResult = await getIssueAndPrData(octokit);
+export const addIssueAndPrData: Fetcher = async (result, octokit, config) => {
+  const dataResult = await getIssueAndPrData(octokit, config);
   Object.keys(dataResult).forEach((repoName) => {
     const repo = result.repositories[repoName];
     if (repo) {

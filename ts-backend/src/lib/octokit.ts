@@ -6,7 +6,7 @@ import { Octokit } from "@octokit/rest";
  * @param token personal access token
  * @returns Octokit authorized with the personal access token
  */
-const personalOctokit = (token: string) => {
+export const personalOctokit = (token: string) => {
   const ModifiedOctokit = Octokit.plugin(paginateGraphql);
   return new ModifiedOctokit({
     auth: token,
@@ -14,4 +14,3 @@ const personalOctokit = (token: string) => {
 };
 
 export type CustomOctokit = ReturnType<typeof personalOctokit>;
-export const octokit = personalOctokit(process.env.GRAPHQL_TOKEN!);

@@ -27,6 +27,7 @@ export const addRepositoriesToResult: Fetcher = async (
           openPullRequestsCount: repo.open_issues_count,
           licenseName: repo.license?.name || "No License",
           watchersCount: repo.watchers_count,
+          issuesEnabled: repo.has_issues,
         } as RepositoryResult,
       };
     }, {} as Record<string, RepositoryResult>),
