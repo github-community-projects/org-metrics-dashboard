@@ -1,6 +1,7 @@
 import "dotenv/config";
 import fs from "fs-extra";
 import {
+  addDiscussionData,
   addIssueAndPrData,
   addMetaToResult,
   addOrganizationInfoToResult,
@@ -27,8 +28,12 @@ export interface Result {
 }
 
 export interface RepositoryResult {
+  // Repo metadata
   repositoryName: string;
   repoNameWithOwner: string;
+  licenseName: string;
+
+  // Counts of various things
   projectsCount: number;
   discussionsCount: number;
   forksCount: number;
@@ -36,10 +41,13 @@ export interface RepositoryResult {
   closedIssuesCount: number;
   openPullRequestsCount: number;
   mergedPullRequestsCount: number;
-  licenseName: string;
   watchersCount: number;
+  starsCount: number;
+
+  // Flags
+  discussionsEnabled: boolean;
+  projectsEnabled: boolean;
   issuesEnabled: boolean;
-  stars: number;
 }
 
 export type Fetcher = (
@@ -97,7 +105,8 @@ const result = await pipeline(octokit, config)(
   addMetaToResult,
   addOrganizationInfoToResult,
   addRepositoriesToResult,
-  addIssueAndPrData
+  addIssueAndPrData,
+  addDiscussionData
 );
 
 console.log(result);
