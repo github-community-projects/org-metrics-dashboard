@@ -1,6 +1,7 @@
 import 'dotenv/config'
 import { Octokit } from '@octokit/rest'
 import { paginateGraphql } from "@octokit/plugin-paginate-graphql"
+import fs from "fs-extra"
 /**
  * Creates a new octokit instance that is authenticated as the user
  * @param token personal access token
@@ -163,5 +164,6 @@ result = await addOrganizationInfoToResult(result, octokit)
 result = await addRepositoriesToResult(result, octokit)
 result = await addIssueandPrData(result, octokit)
 console.log(result)
+fs.outputJSONSync('./data.json', result, { spaces: 2 })
 
 
