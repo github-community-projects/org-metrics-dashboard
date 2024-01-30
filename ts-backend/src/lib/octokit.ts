@@ -35,4 +35,19 @@ export const personalOctokit = (token: string) => {
   });
 };
 
+export const checkRateLimit = async (octokit: Octokit) => {
+  const rateLimit = await octokit.rateLimit.get();
+  const {
+    core: { limit, remaining, reset },
+  } = rateLimit.data.resources;
+  const resetDate = new Date(reset * 1000);
+
+  return {
+    limit,
+    remaining,
+    reset,
+    resetDate,
+  };
+};
+
 export type CustomOctokit = ReturnType<typeof personalOctokit>;
