@@ -3,12 +3,12 @@ import fs from "fs-extra";
 import {
   addDiscussionData,
   addIssueAndPrData,
-  addIssueResponseTimeData,
+  addIssueMetricsData,
   addMetaToResult,
   addOrganizationInfoToResult,
   addRepositoriesToResult,
 } from "./fetchers";
-import { CustomOctokit, personalOctokit } from "./lib/octokit";
+import { checkRateLimit, CustomOctokit, personalOctokit } from "./lib/octokit";
 
 export interface Result {
   meta: {
@@ -55,6 +55,8 @@ export interface RepositoryResult {
   openIssuesMedianAge: number;
   closedIssuesAverageAge: number;
   closedIssuesMedianAge: number;
+  issuesResponseAverageAge: number;
+  issuesResponseMedianAge: number;
 }
 
 export type Fetcher = (
@@ -100,6 +102,12 @@ const pipeline =
       console.log(`🔧  Running fetcher ${fetcher.name}`);
       result = await fetcher(result, octokit, config);
       console.log(`✨  Finished ${fetcher.name}`);
+      const res = await checkRateLimit(octokit);
+      console.log(
+        `⚙️  Rate limit: ${res.remaining}/${
+          res.limit
+        } remaining until ${res.resetDate.toLocaleString()}`
+      );
     }
 
     return result;
@@ -117,8 +125,7 @@ const result = await pipeline(octokit, config)(
   addRepositoriesToResult,
   addIssueAndPrData,
   addDiscussionData,
-  addIssueResponseTimeData
+  addIssueMetricsData
 );
 
-console.log(result);
 outputResult(result);

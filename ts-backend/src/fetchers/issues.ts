@@ -1,5 +1,6 @@
 // Fetchers for issue & pull request data and metrics
 
+import { Repository } from "@octokit/graphql-schema";
 import { Config, Fetcher } from "..";
 import { CustomOctokit } from "../lib/octokit";
 
@@ -122,11 +123,90 @@ const calculateIssueMetricsPerRepo = async (
   };
 };
 
-export const addIssueResponseTimeData: Fetcher = async (
-  result,
-  octokit,
-  config
+const calculateIssueResponseTime = async (
+  repoName: string,
+  octokit: CustomOctokit,
+  config: Config
 ) => {
+  const result = await octokit.graphql.paginate<{ repository: Repository }>(
+    `
+    query ($cursor: String, $organization: String!, $repoName: String!, $since: DateTime!) {
+      repository(owner: $organization, name:$repoName) {
+        issues(first: 100, after: $cursor, filterBy: {since: $since}) {
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
+          nodes {
+            createdAt
+            comments(first: 1) {
+              totalCount
+              nodes {
+                createdAt
+              }
+            }
+          }
+        }
+      }
+    }
+  `,
+    {
+      organization: config.organization,
+      repoName: repoName,
+      since: config.since,
+    }
+  );
+
+  // Check if there are any issues at all
+  if (
+    !result.repository ||
+    !result.repository.issues.nodes ||
+    result.repository.issues.nodes?.length === 0
+  ) {
+    return {
+      issuesCount: 0,
+      issuesResponseAverageAge: 0,
+      issuesResponseMedianAge: 0,
+    };
+  }
+
+  // Filter out issues without comments
+  const issues = result.repository.issues.nodes.filter(
+    (issue) => issue!.comments.totalCount > 0
+  );
+
+  const issuesCount = issues.length;
+
+  // Calculate the response time for each issue
+  const issuesResponseTime = issues.map((issue) => {
+    const createdAt = new Date(issue!.createdAt);
+    const firstCommentAt = new Date(issue!.comments!.nodes?.[0]!.createdAt);
+    return firstCommentAt.getTime() - createdAt.getTime();
+  });
+
+  // Sort them based on response time
+  issuesResponseTime.sort((a, b) => a - b);
+
+  // Calculate the average
+  const issuesTotalResponseTime = issuesResponseTime.reduce(
+    (acc, responseTime) => acc + responseTime,
+    0
+  );
+  const issuesResponseAverageAge =
+    issuesCount > 0 ? issuesTotalResponseTime / issuesCount : 0;
+
+  // Calculate the median
+  const issuesResponseMedianAge =
+    issues.length > 0 ? issuesResponseTime[Math.floor(issues.length / 2)] : 0;
+
+  return {
+    issuesCount,
+    issuesResponseAverageAge,
+    issuesResponseMedianAge,
+  };
+};
+
+export const addIssueMetricsData: Fetcher = async (result, octokit, config) => {
   for (const repoName of Object.keys(result.repositories)) {
     const {
       issuesCount: openIssuesCount,
@@ -140,6 +220,9 @@ export const addIssueResponseTimeData: Fetcher = async (
       issuesMedianAge: closedIssuesMedianAge,
     } = await calculateIssueMetricsPerRepo(repoName, "closed", octokit, config);
 
+    const { issuesResponseAverageAge, issuesResponseMedianAge } =
+      await calculateIssueResponseTime(repoName, octokit, config);
+
     const repo = result.repositories[repoName];
     repo.openIssuesCount = openIssuesCount;
     repo.openIssuesAverageAge = openIssuesAverageAge;
@@ -147,6 +230,9 @@ export const addIssueResponseTimeData: Fetcher = async (
     repo.closedIssuesCount = closedIssuesCount;
     repo.closedIssuesAverageAge = closedIssuesAverageAge;
     repo.closedIssuesMedianAge = closedIssuesMedianAge;
+    repo.issuesResponseAverageAge = issuesResponseAverageAge;
+    repo.issuesResponseMedianAge = issuesResponseMedianAge;
   }
+
   return result;
 };
