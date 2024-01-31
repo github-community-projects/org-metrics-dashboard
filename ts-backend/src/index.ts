@@ -1,5 +1,8 @@
 import "dotenv/config";
 import fs from "fs-extra";
+import { dirname, resolve } from "path";
+import { fileURLToPath } from "url";
+import { parse } from "yaml";
 import {
   addDiscussionData,
   addIssueAndPrData,
@@ -89,14 +92,28 @@ console.log("🔑  Authenticating with GitHub");
 const octokit = personalOctokit(process.env.GRAPHQL_TOKEN!);
 
 // Read in configuration for the fetchers
-// TODO: Figure this out
+let yamlConfig: Partial<Config> = {};
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const configFileLocation = resolve(__dirname, "../../config.yml");
+try {
+  const configFile = fs.readFileSync(configFileLocation, "utf-8");
+  yamlConfig = parse(configFile) as Partial<Config>;
+} catch (e) {
+  console.error("Error reading config file at", configFileLocation);
+  console.log(e);
+}
+
 const config: Config = {
-  organization: "sbv-world-health-org-metrics",
+  organization: "github",
   includeForks: false,
   includeArchived: false,
   // Default since date is 180 days ago
   since: new Date(Date.now() - 180 * (24 * 60 * 60 * 1000)).toISOString(),
+  ...yamlConfig,
 };
+
+console.log(`📋  Configuration: \n${JSON.stringify(config, null, 2)}`);
 
 const pipeline =
   (octokit: CustomOctokit, config: Config) =>
