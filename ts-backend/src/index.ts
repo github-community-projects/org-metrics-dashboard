@@ -36,14 +36,19 @@ export interface RepositoryResult {
 
   // Counts of various things
   projectsCount: number;
+  projectsV2Count: number;
   discussionsCount: number;
   forksCount: number;
+  totalIssuesCount: number;
   openIssuesCount: number;
   closedIssuesCount: number;
+  totalPullRequestsCount: number;
   openPullRequestsCount: number;
+  closedPullRequestsCount: number;
   mergedPullRequestsCount: number;
   watchersCount: number;
   starsCount: number;
+  collaboratorsCount: number;
 
   // Flags
   discussionsEnabled: boolean;
@@ -86,7 +91,7 @@ const octokit = personalOctokit(process.env.GRAPHQL_TOKEN!);
 // Read in configuration for the fetchers
 // TODO: Figure this out
 const config: Config = {
-  organization: "github",
+  organization: "sbv-world-health-org-metrics",
   includeForks: false,
   includeArchived: false,
   // Default since date is 180 days ago

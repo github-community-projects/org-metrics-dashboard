@@ -1,5 +1,6 @@
 // Fetchers for repository data and metrics
 
+import { Organization, Repository } from "@octokit/graphql-schema";
 import { Fetcher, RepositoryResult } from "..";
 
 export const addRepositoriesToResult: Fetcher = async (
@@ -7,16 +8,61 @@ export const addRepositoriesToResult: Fetcher = async (
   octokit,
   config
 ) => {
-  const repos = await octokit.paginate(octokit.repos.listForOrg, {
-    org: config.organization,
-    type: "public",
-  });
-
-  const filteredRepos = repos.filter(
-    (repo) =>
-      !(repo.archived && !config.includeArchived) ||
-      !(repo.fork && !config.includeForks)
+  const organization = await octokit.graphql.paginate<{
+    organization: Organization;
+  }>(
+    `
+  query ($cursor: String, $organization: String!) {
+    organization(login:$organization) {
+      repositories(privacy:PUBLIC, first:100, isFork:false, isArchived:false, after: $cursor)
+      {
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+        nodes {
+          name
+          nameWithOwner
+          forkCount
+          stargazerCount
+          isFork
+          isArchived
+          hasIssuesEnabled
+          hasProjectsEnabled
+          hasDiscussionsEnabled
+          projects {
+            totalCount
+          }
+          projectsV2 {
+            totalCount
+          }
+          discussions {
+            totalCount
+          }
+          licenseInfo {
+            name
+          }
+          watchers {
+            totalCount
+          }
+          collaborators {
+            totalCount
+          }
+        }
+      }
+    }
+  }
+  `,
+    {
+      organization: config.organization,
+    }
   );
+
+  const filteredRepos = organization.organization.repositories.nodes!.filter(
+    (repo) =>
+      !(repo?.isArchived && !config.includeArchived) ||
+      !(repo.isFork && !config.includeForks)
+  ) as Repository[];
 
   return {
     ...result,
@@ -25,16 +71,17 @@ export const addRepositoriesToResult: Fetcher = async (
         ...acc,
         [repo.name]: {
           repositoryName: repo.name,
-          repoNameWithOwner: repo.full_name,
-          licenseName: repo.license?.name || "No License",
-          forksCount: repo.forks_count,
-          openIssuesCount: repo.open_issues_count || 0,
-          openPullRequestsCount: repo.open_issues_count,
-          watchersCount: repo.watchers_count,
-          starsCount: repo.stargazers_count,
-          issuesEnabled: repo.has_issues,
-          projectsEnabled: repo.has_projects,
-          discussionsEnabled: repo.has_discussions,
+          repoNameWithOwner: repo.nameWithOwner,
+          licenseName: repo.licenseInfo?.spdxId || "No License",
+          forksCount: repo.forkCount,
+          watchersCount: repo.watchers.totalCount,
+          starsCount: repo.stargazerCount,
+          issuesEnabled: repo.hasIssuesEnabled,
+          projectsEnabled: repo.hasProjectsEnabled,
+          discussionsEnabled: repo.hasDiscussionsEnabled,
+          collaboratorsCount: repo.collaborators?.totalCount || 0,
+          projectsCount: repo.projects.totalCount,
+          projectsV2Count: repo.projectsV2.totalCount,
         } as RepositoryResult,
       };
     }, {} as Record<string, RepositoryResult>),
