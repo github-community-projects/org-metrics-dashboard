@@ -72,7 +72,7 @@ export const addRepositoriesToResult: Fetcher = async (
         [repo.name]: {
           repositoryName: repo.name,
           repoNameWithOwner: repo.nameWithOwner,
-          licenseName: repo.licenseInfo?.spdxId || "No License",
+          licenseName: repo.licenseInfo?.name || "No License",
           forksCount: repo.forkCount,
           watchersCount: repo.watchers.totalCount,
           starsCount: repo.stargazerCount,
