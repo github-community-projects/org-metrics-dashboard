@@ -217,29 +217,25 @@ const calculateIssueResponseTime = async (
 export const addIssueMetricsData: Fetcher = async (result, octokit, config) => {
   for (const repoName of Object.keys(result.repositories)) {
     const {
-      issuesCount: openIssuesCount,
       issuesAverageAge: openIssuesAverageAge,
       issuesMedianAge: openIssuesMedianAge,
     } = await calculateIssueMetricsPerRepo(repoName, "open", octokit, config);
 
     const {
-      issuesCount: closedIssuesCount,
       issuesAverageAge: closedIssuesAverageAge,
       issuesMedianAge: closedIssuesMedianAge,
     } = await calculateIssueMetricsPerRepo(repoName, "closed", octokit, config);
 
-    const { issuesResponseAverageAge, issuesResponseMedianAge } =
-      await calculateIssueResponseTime(repoName, octokit, config);
+    // const { issuesResponseAverageAge, issuesResponseMedianAge } =
+    //   await calculateIssueResponseTime(repoName, octokit, config);
 
     const repo = result.repositories[repoName];
-    repo.openIssuesCount = openIssuesCount;
     repo.openIssuesAverageAge = openIssuesAverageAge;
     repo.openIssuesMedianAge = openIssuesMedianAge;
-    repo.closedIssuesCount = closedIssuesCount;
     repo.closedIssuesAverageAge = closedIssuesAverageAge;
     repo.closedIssuesMedianAge = closedIssuesMedianAge;
-    repo.issuesResponseAverageAge = issuesResponseAverageAge;
-    repo.issuesResponseMedianAge = issuesResponseMedianAge;
+    // repo.issuesResponseAverageAge = issuesResponseAverageAge;
+    // repo.issuesResponseMedianAge = issuesResponseMedianAge;
   }
 
   return result;

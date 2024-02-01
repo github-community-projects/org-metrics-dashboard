@@ -63,8 +63,10 @@ export interface RepositoryResult {
   openIssuesMedianAge: number;
   closedIssuesAverageAge: number;
   closedIssuesMedianAge: number;
-  issuesResponseAverageAge: number;
-  issuesResponseMedianAge: number;
+
+  // Will be added at a later time
+  // issuesResponseAverageAge: number;
+  // issuesResponseMedianAge: number;
 }
 
 export type Fetcher = (
