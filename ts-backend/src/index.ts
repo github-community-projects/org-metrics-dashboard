@@ -138,7 +138,7 @@ const pipeline =
   };
 
 const outputResult = async (result: Result) => {
-  const destination = "./data.json";
+  const destination = "../who-metrics-ui/src/data/data.json";
   fs.outputJSONSync(destination, result, { spaces: 2 });
   console.log(`📦  Wrote result to ${destination}`);
 };
