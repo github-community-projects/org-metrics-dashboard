@@ -41,6 +41,7 @@ jobs:
       - name: Collect metrics and save output
         id: metrics
         run: |
+          cd ts-backend
           npm i
           npm start
       - name: Detect package manager
