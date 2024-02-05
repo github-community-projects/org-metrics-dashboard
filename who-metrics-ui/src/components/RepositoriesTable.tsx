@@ -61,8 +61,9 @@ type SelectOption = {
 const dropdownOptions = (field: keyof Repo, filter = ''): SelectOption[] =>
   Array.from(new Set(repos.map((repo) => repo[field])))
     .map((fieldName) => ({
-      label: fieldName,
-      value: fieldName,
+      // some fields are boolean (hasXxEnabled), so we need to convert them to strings
+      label: typeof fieldName === 'boolean' ? fieldName.toString() : fieldName,
+      value: typeof fieldName === 'boolean' ? fieldName.toString() : fieldName,
     }))
     .filter((fieldName) =>
       (fieldName.value as string).toLowerCase().includes(filter.toLowerCase()),
@@ -72,7 +73,7 @@ const dropdownOptions = (field: keyof Repo, filter = ''): SelectOption[] =>
 const getSelectedOption = (
   filters: Filter,
   filterName: keyof Filter,
-  filterField: string | number,
+  filterField: string,
   defaultValue = false,
 ) =>
   (filters[filterName] as Record<string, boolean>)[filterField] ?? defaultValue;
@@ -210,7 +211,7 @@ const SearchableSelectRenderer: FC<{
                               [selectOption.value]: !getSelectedOption(
                                 filters,
                                 filterName,
-                                selectOption.value,
+                                selectOption.value as string,
                               ),
                             },
                           }));
@@ -243,7 +244,7 @@ const SearchableSelectRenderer: FC<{
                             [selectOption.value]: !getSelectedOption(
                               filters,
                               filterName,
-                              selectOption.value,
+                              selectOption.value as string,
                             ),
                           },
                         }));
@@ -255,7 +256,7 @@ const SearchableSelectRenderer: FC<{
                           checked={getSelectedOption(
                             filters,
                             filterName,
-                            selectOption.value,
+                            selectOption.value as string,
                           )}
                         />
                       </ActionList.LeadingVisual>
@@ -349,7 +350,7 @@ const getComparator = (sortColumn: keyof Repo): Comparator => {
     case 'collaboratorsCount':
     case 'discussionsCount':
     case 'forksCount':
-    case 'issuesCount':
+    case 'totalIssuesCount':
     case 'mergedPullRequestsCount':
     case 'openIssuesCount':
     case 'openPullRequestsCount':
@@ -369,7 +370,7 @@ const getComparator = (sortColumn: keyof Repo): Comparator => {
 
     // alphabetical sorting
     case 'licenseName':
-    case 'repoName':
+    case 'repoNameWithOwner':
     case 'repositoryName':
       return (a, b) => {
         return a[sortColumn]
@@ -651,7 +652,7 @@ const RepositoriesTable = () => {
             <Button
               variant="invisible"
               onClick={() => {
-                saveAs(generateCSV(displayRows), "output.csv");
+                saveAs(generateCSV(displayRows), 'output.csv');
               }}
             >
               Download CSV
@@ -665,7 +666,7 @@ const RepositoriesTable = () => {
           <DataGrid
             columns={dataGridColumns}
             rows={displayRows}
-            rowKeyGetter={(repo) => repo.repoName}
+            rowKeyGetter={(repo) => repo.repositoryName}
             defaultColumnOptions={{
               sortable: true,
               resizable: true,

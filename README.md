@@ -63,9 +63,9 @@ Issue Project  [here](https://github.com/github/SI-skills-based-volunteering/iss
 ## Development in Codespaces
 
 <!-- TODO: Add min requirements and deployment steps -->
-### Backend
+### Go Backend
 
-To update the repository data.
+To update the repository data using the Go backend
 
 1. Generate a [new GitHub Token](https://github.com/settings/tokens) with the ability to read repo, read org, and  read projects scopes.
 1. Set the `GRAPHQL_TOKEN` environment variable to be the value of your newly created token.
@@ -75,7 +75,16 @@ make build
 ./backend/bin/metrics
 ```
 
-This will generate a new `data.json` file in the UI directory which can be imported directly as part of the static build.
+This will generate a new `data.json` file in the UI directory which can be imported directly as part of the static build.\
+
+### TypeScript Backend
+
+To update the repository data using the TypeScript backend. 
+
+1. Generate a [new GitHub Token](https://github.com/settings/tokens) with the ability to read repo, read org, and  read projects scopes.
+1. Set the `GRAPHQL_TOKEN` environment variable to be the value of your newly created token.
+1. `cd ts-backend && npm install && yarn start`. This will generate a `data.json` file in the `who-metrics-ui` directory.
+1. `cd ../who-metrics-ui` and run `npm install && npm run dev` to start the server.
 
 ### UI
 
