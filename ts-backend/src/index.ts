@@ -63,10 +63,8 @@ export interface RepositoryResult {
   openIssuesMedianAge: number;
   closedIssuesAverageAge: number;
   closedIssuesMedianAge: number;
-
-  // Will be added at a later time
-  // issuesResponseAverageAge: number;
-  // issuesResponseMedianAge: number;
+  issuesResponseAverageAge: number;
+  issuesResponseMedianAge: number;
 }
 
 export type Fetcher = (
@@ -110,9 +108,11 @@ const config: Config = {
   organization: "github",
   includeForks: false,
   includeArchived: false,
-  // Default since date is 180 days ago
-  since: new Date(Date.now() - 180 * (24 * 60 * 60 * 1000)).toISOString(),
   ...yamlConfig,
+  // Default since date is 365 days ago (1 year)
+  since: yamlConfig.since
+    ? new Date(yamlConfig.since).toISOString()
+    : new Date(Date.now() - 365 * (24 * 60 * 60 * 1000)).toISOString(),
 };
 
 console.log(`📋  Configuration: \n${JSON.stringify(config, null, 2)}`);
