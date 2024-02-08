@@ -2,6 +2,8 @@
 import "../styles/globals.css";
 import type { AppProps } from "next/app";
 import { ThemeProvider as NextThemeProvider } from "next-themes";
+import "react-data-grid/lib/styles.css";
+
 import {
   ThemeProvider as PrimerThemeProvider,
   BaseStyles,

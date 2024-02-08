@@ -40,4 +40,8 @@ metrics:
 
 test-go:
 	@echo "==> running Go tests <=="
-	CGO_ENABLED=1 go test -p 64 -race ./backend/...
+	CGO_ENABLED=1 cd backend && go test -p 64 -race ./...
+
+dev:
+	@echo "==> Generating data"
+	cd backend && go build -o ./bin/metrics ./cmd && cd .. && ./backend/bin/metrics && cd who-metrics-ui && npm i && npm run dev
