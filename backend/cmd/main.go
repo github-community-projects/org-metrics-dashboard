@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	_ "github.com/joho/godotenv/autoload"
 	"github.com/who-metrics/business/core"
 	"github.com/who-metrics/business/core/collectors/github"
 	"github.com/who-metrics/business/helpers"

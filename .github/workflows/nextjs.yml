@@ -34,26 +34,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Set up Go 1.x
-        uses: actions/setup-go@v4
+      - name: Setup Node for metrics backend
+        uses: actions/setup-node@v4
         with:
-          go-version: ^1.19
-      - name: Get dependencies
+          node-version: "20.x"
+      - name: Collect metrics and save output
+        id: metrics
         run: |
-          cd backend
-          go get -v -t -d ./...
-          if [ -f Gopkg.toml ]; then
-              curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-              dep ensure
-          fi
-      - name: Build Go
-        run: make build
-      # - name: Test
-      #   run: make test
-      - name: Run Go program and save output
-        id: run
-        run: |
-          $PWD/backend/bin/metrics
+          cd ts-backend
+          npm i
+          npm start
       - name: Detect package manager
         id: detect-package-manager
         run: |
@@ -74,9 +64,9 @@ jobs:
             exit 1
           fi
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: "16"
+          node-version: "20.x"
           cache: ${{ steps.detect-package-manager.outputs.manager }}
           cache-dependency-path: ${{ steps.detect-package-manager.outputs.cache-dependency-path }}
       - name: Setup Pages
@@ -118,4 +108,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4
