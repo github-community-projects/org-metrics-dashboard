@@ -10,6 +10,30 @@ module.exports = {
     transparent: 'transparent',
     current: 'currentColor',
     extend: {
+      height: {
+        100: '24rem',
+        120: '30rem',
+        140: '36rem',
+        160: '42rem',
+      },
+      minHeight: (theme) => ({
+        ...theme('height'),
+      }),
+      maxHeight:(theme) => ({
+        ...theme('height'),
+      }),
+      width: {
+        100: '24rem',
+        120: '30rem',
+        140: '36rem',
+        160: '42rem',
+      },
+      minWidth: (theme) => ({
+        ...theme('width'),
+      }),
+      maxWidth: (theme) => ({
+        ...theme('width'),
+      }),
       colors: {
         // light mode
         tremor: {

@@ -63,6 +63,7 @@ const baseConfig = {
   },
   ignorePatterns: ["*__generated__*"],
   rules: {
+    "prettier/prettier": 0, // We use prettier for formatting instead of ESLint
     "import/no-unresolved": [
       "error",
       {
@@ -225,6 +226,7 @@ module.exports = {
       rules: {
         "i18n-text/no-en": "off",
         "filenames/match-regex": [2, "^[A-Z][a-zA-Z]+(.[a-z0-9-]+)?$"],
+        "import/extensions": "off",
       },
     },
     {
