@@ -146,11 +146,22 @@ const calculateIssueResponseTime = async (
             endCursor
           }
           nodes {
+            author {
+              login
+            }
             createdAt
-            comments(first: 1) {
+            comments(first: 30) {
               totalCount
               nodes {
                 createdAt
+                author {
+                  __typename
+                  login
+                  ... on Bot {
+                    id
+                  }
+                }
+                isMinimized
               }
             }
           }
@@ -178,10 +189,28 @@ const calculateIssueResponseTime = async (
     };
   }
 
-  // Filter out issues without comments
-  const issues = result.repository.issues.nodes.filter(
-    (issue) => issue!.comments.totalCount > 0
-  );
+  // Filter out issues without comments that meet our criteria
+  // Criteria:
+  // - not the author of the issue
+  // - the comment is not a bot
+  // - the comment is not marked as spam
+  //
+  // Also filter out issues without comments after we filtered the comments
+  const issues = result.repository.issues.nodes
+    .map((issue) => {
+      return {
+        ...issue,
+        comments: {
+          nodes: issue!.comments.nodes?.filter(
+            (comment) =>
+              comment!.author?.login !== issue!.author?.login &&
+              comment!.author?.__typename !== "Bot" &&
+              !comment?.isMinimized
+          ),
+        },
+      };
+    })
+    .filter((issue) => issue!.comments?.nodes?.length ?? 0 > 0);
 
   const issuesCount = issues.length;
 
@@ -226,16 +255,16 @@ export const addIssueMetricsData: Fetcher = async (result, octokit, config) => {
       issuesMedianAge: closedIssuesMedianAge,
     } = await calculateIssueMetricsPerRepo(repoName, "closed", octokit, config);
 
-    // const { issuesResponseAverageAge, issuesResponseMedianAge } =
-    //   await calculateIssueResponseTime(repoName, octokit, config);
+    const { issuesResponseAverageAge, issuesResponseMedianAge } =
+      await calculateIssueResponseTime(repoName, octokit, config);
 
     const repo = result.repositories[repoName];
     repo.openIssuesAverageAge = openIssuesAverageAge;
     repo.openIssuesMedianAge = openIssuesMedianAge;
     repo.closedIssuesAverageAge = closedIssuesAverageAge;
     repo.closedIssuesMedianAge = closedIssuesMedianAge;
-    // repo.issuesResponseAverageAge = issuesResponseAverageAge;
-    // repo.issuesResponseMedianAge = issuesResponseMedianAge;
+    repo.issuesResponseAverageAge = issuesResponseAverageAge;
+    repo.issuesResponseMedianAge = issuesResponseMedianAge;
   }
 
   return result;
