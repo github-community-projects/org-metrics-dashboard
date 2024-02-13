@@ -50,12 +50,29 @@ type Filter = {
   closedIssuesCount?: Array<number | undefined>;
   mergedPullRequestsCount?: Array<number | undefined>;
   forksCount?: Array<number | undefined>;
+  openIssuesMedianAge?: Array<number | undefined>;
 };
 
 type SelectOption = {
   label: string | number;
   value: string | number;
 };
+
+const millisecondsToDisplayString = (milliseconds: number) => {
+  const days = milliseconds / 1000 / 60 / 60 / 24
+  if (days === 0) {
+    return "N/A"
+  }
+  if ( days < 1 ) {
+    return `<1 day`
+  }
+
+  if (days < 2){
+    return `1 day`
+  }
+
+  return `${Math.floor(days)} days`
+}
 
 // This selects a field to populate a dropdown with
 const dropdownOptions = (field: keyof Repo, filter = ''): SelectOption[] =>
@@ -342,8 +359,9 @@ const HeaderCellRenderer = <R = unknown,>({
 const FilterContext = createContext<Filter | undefined>(undefined);
 
 type Comparator = (a: Repo, b: Repo) => number;
+type DisplayLabels = "openIssuesMedianAgeDisplay";
 
-const getComparator = (sortColumn: keyof Repo): Comparator => {
+const getComparator = (sortColumn: keyof Repo | DisplayLabels): Comparator => {
   switch (sortColumn) {
     // number based sorting
     case 'closedIssuesCount':
@@ -377,6 +395,21 @@ const getComparator = (sortColumn: keyof Repo): Comparator => {
           .toLowerCase()
           .localeCompare(b[sortColumn].toLowerCase());
       };
+
+      // sort by different values from display
+    case 'openIssuesMedianAgeDisplay':
+        return (a, b) => {
+        if (a.openIssuesMedianAge === b.openIssuesMedianAge) {
+          return 0;
+        }
+
+        if (a.openIssuesMedianAge > b.openIssuesMedianAge) {
+          return 1;
+        }
+
+        return -1;
+      };
+
     default:
       throw new Error(`unsupported sortColumn: "${sortColumn}"`);
   }
@@ -533,6 +566,20 @@ const RepositoriesTable = () => {
         );
       },
     },
+    OpenIssuesMedianAge: {
+      key: "openIssuesMedianAgeDisplay",
+      name: "Open Issues Median Age",
+      renderHeaderCell: (p) => {
+        return (
+          <MinMaxRenderer
+            headerCellProps={p}
+            filters={globalFilters}
+            updateFilters={setGlobalFilters}
+            filterName="openIssuesMedianAge"
+          />
+        );
+      },
+    },
   } as const;
 
   const dataGridColumns = Object.entries(labels).map(
@@ -564,6 +611,14 @@ const RepositoriesTable = () => {
 
     return sortedRows;
   };
+
+  const testTimeBasedFilter = (minDays: number | undefined, maxDays: number | undefined, timeInMs: number) => {
+    const timeInDays = Math.floor(timeInMs / 1000 / 60 / 60 / 24)
+    minDays = minDays || 0
+    maxDays = maxDays || Infinity
+
+    return timeInDays >= minDays && timeInDays <= maxDays;
+  }
 
   /**
    * Uses globalFilters to filter the repos that are then passed to sortRepos
@@ -618,7 +673,8 @@ const RepositoriesTable = () => {
           (globalFilters.forksCount
             ? (globalFilters.forksCount?.[0] ?? 0) <= repo.forksCount &&
             repo.forksCount <= (globalFilters.forksCount[1] ?? Infinity)
-            : true)
+            : true) &&
+          (globalFilters.openIssuesMedianAge ? testTimeBasedFilter(globalFilters.openIssuesMedianAge[0], globalFilters.openIssuesMedianAge[1], repo.openIssuesMedianAge) : true)
         );
       });
 
@@ -627,7 +683,17 @@ const RepositoriesTable = () => {
     [globalFilters],
   );
 
-  const displayRows = filterRepos(sortRepos(repos));
+  const updateDisplayValues = useCallback((inputRepos: Repo[]) => {
+    return inputRepos.map(repo => {
+      const openIssuesMedianAgeDisplay = millisecondsToDisplayString(repo.openIssuesMedianAge)
+      return ({
+        ...repo,
+        openIssuesMedianAgeDisplay,
+      })
+    })
+  }, [])
+
+  const displayRows = updateDisplayValues(filterRepos(sortRepos(repos)));
 
   return (
     <div className="h-full flex flex-col">
