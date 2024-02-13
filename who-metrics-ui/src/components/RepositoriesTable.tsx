@@ -61,18 +61,18 @@ type SelectOption = {
 const millisecondsToDisplayString = (milliseconds: number) => {
   const days = milliseconds / 1000 / 60 / 60 / 24
   if (days === 0) {
-    return "N/A"
+    return "N/A";
   }
   if ( days < 1 ) {
-    return `<1 day`
+    return `<1 day`;
   }
 
   if (days < 2){
-    return `1 day`
+    return `1 day`;
   }
 
-  return `${Math.floor(days)} days`
-}
+  return `${Math.floor(days)} days`;
+};
 
 // This selects a field to populate a dropdown with
 const dropdownOptions = (field: keyof Repo, filter = ''): SelectOption[] =>
@@ -613,12 +613,12 @@ const RepositoriesTable = () => {
   };
 
   const testTimeBasedFilter = (minDays: number | undefined, maxDays: number | undefined, timeInMs: number) => {
-    const timeInDays = Math.floor(timeInMs / 1000 / 60 / 60 / 24)
-    minDays = minDays || 0
-    maxDays = maxDays || Infinity
+    const timeInDays = Math.floor(timeInMs / 1000 / 60 / 60 / 24);
+    minDays = minDays || 0;
+    maxDays = maxDays || Infinity;
 
     return timeInDays >= minDays && timeInDays <= maxDays;
-  }
+  };
 
   /**
    * Uses globalFilters to filter the repos that are then passed to sortRepos
@@ -691,7 +691,7 @@ const RepositoriesTable = () => {
         openIssuesMedianAgeDisplay,
       })
     })
-  }, [])
+  }, []);
 
   const displayRows = updateDisplayValues(filterRepos(sortRepos(repos)));
 
