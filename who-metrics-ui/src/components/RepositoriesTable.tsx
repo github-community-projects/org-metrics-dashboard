@@ -51,6 +51,11 @@ type Filter = {
   mergedPullRequestsCount?: Array<number | undefined>;
   forksCount?: Array<number | undefined>;
   openIssuesMedianAge?: Array<number | undefined>;
+  openIssuesAverageAge?: Array<number | undefined>;
+  closedIssuesMedianAge?: Array<number | undefined>;
+  closedIssuesAverageAge?: Array<number | undefined>;
+  issuesResponseMedianAge?: Array<number | undefined>;
+  issuesResponseAverageAge?: Array<number | undefined>;
 };
 
 type SelectOption = {
@@ -59,15 +64,15 @@ type SelectOption = {
 };
 
 const millisecondsToDisplayString = (milliseconds: number) => {
-  const days = milliseconds / 1000 / 60 / 60 / 24
+  const days = milliseconds / 1000 / 60 / 60 / 24;
   if (days === 0) {
-    return "N/A";
+    return 'N/A';
   }
-  if ( days < 1 ) {
+  if (days < 1) {
     return `<1 day`;
   }
 
-  if (days < 2){
+  if (days < 2) {
     return `1 day`;
   }
 
@@ -359,9 +364,8 @@ const HeaderCellRenderer = <R = unknown,>({
 const FilterContext = createContext<Filter | undefined>(undefined);
 
 type Comparator = (a: Repo, b: Repo) => number;
-type DisplayLabels = "openIssuesMedianAgeDisplay";
 
-const getComparator = (sortColumn: keyof Repo | DisplayLabels): Comparator => {
+const getComparator = (sortColumn: keyof Repo): Comparator => {
   switch (sortColumn) {
     // number based sorting
     case 'closedIssuesCount':
@@ -374,6 +378,12 @@ const getComparator = (sortColumn: keyof Repo | DisplayLabels): Comparator => {
     case 'openPullRequestsCount':
     case 'projectsCount':
     case 'watchersCount':
+    case 'openIssuesMedianAge':
+    case 'openIssuesAverageAge':
+    case 'closedIssuesMedianAge':
+    case 'closedIssuesAverageAge':
+    case 'issuesResponseMedianAge':
+    case 'issuesResponseAverageAge':
       return (a, b) => {
         if (a[sortColumn] === b[sortColumn]) {
           return 0;
@@ -394,20 +404,6 @@ const getComparator = (sortColumn: keyof Repo | DisplayLabels): Comparator => {
         return a[sortColumn]
           .toLowerCase()
           .localeCompare(b[sortColumn].toLowerCase());
-      };
-
-      // sort by different values from display
-    case 'openIssuesMedianAgeDisplay':
-        return (a, b) => {
-        if (a.openIssuesMedianAge === b.openIssuesMedianAge) {
-          return 0;
-        }
-
-        if (a.openIssuesMedianAge > b.openIssuesMedianAge) {
-          return 1;
-        }
-
-        return -1;
       };
 
     default:
@@ -439,7 +435,7 @@ const RepositoriesTable = () => {
     Name: {
       key: 'repositoryName',
       name: 'Name',
-
+      frozen: true,
       renderHeaderCell: (p) => (
         <SearchableSelectRenderer
           headerCellProps={p}
@@ -447,6 +443,16 @@ const RepositoriesTable = () => {
           filters={globalFilters}
           updateFilters={setGlobalFilters}
         />
+      ),
+      renderCell: (props) => (
+        <a
+          href={`https://github.com/${props.row.repoNameWithOwner}`}
+          target="_blank"
+          rel="noreferrer"
+          className="underline"
+        >
+          {props.row.repositoryName}
+        </a>
       ),
     },
     License: {
@@ -567,8 +573,8 @@ const RepositoriesTable = () => {
       },
     },
     OpenIssuesMedianAge: {
-      key: "openIssuesMedianAgeDisplay",
-      name: "Open Issues Median Age",
+      key: 'openIssuesMedianAge',
+      name: 'Open Issues Median Age',
       renderHeaderCell: (p) => {
         return (
           <MinMaxRenderer
@@ -577,6 +583,110 @@ const RepositoriesTable = () => {
             updateFilters={setGlobalFilters}
             filterName="openIssuesMedianAge"
           />
+        );
+      },
+      renderCell: (p) => {
+        return millisecondsToDisplayString(p.row.openIssuesMedianAge);
+      },
+    },
+    OpenIssuesAverageAge: {
+      key: 'openIssuesAverageAge',
+      name: 'Open Issues Average Age',
+      renderHeaderCell: (p) => {
+        return (
+          <MinMaxRenderer
+            headerCellProps={p}
+            filters={globalFilters}
+            updateFilters={setGlobalFilters}
+            filterName="openIssuesAverageAge"
+          />
+        );
+      },
+      renderCell: (p) => {
+        return millisecondsToDisplayString(p.row.openIssuesAverageAge);
+      },
+    },
+    ClosedIssuesMedianAge: {
+      key: 'closedIssuesMedianAge',
+      name: 'Closed Issues Median Age',
+      renderHeaderCell: (p) => {
+        return (
+          <MinMaxRenderer
+            headerCellProps={p}
+            filters={globalFilters}
+            updateFilters={setGlobalFilters}
+            filterName="closedIssuesMedianAge"
+          />
+        );
+      },
+      renderCell: (p) => {
+        return (
+          <div className="m-auto">
+            {millisecondsToDisplayString(p.row.closedIssuesMedianAge)}
+          </div>
+        );
+      },
+    },
+    ClosedIssuesAverageAge: {
+      key: 'closedIssuesAverageAge',
+      name: 'Closed Issues Average Age',
+      renderHeaderCell: (p) => {
+        return (
+          <MinMaxRenderer
+            headerCellProps={p}
+            filters={globalFilters}
+            updateFilters={setGlobalFilters}
+            filterName="closedIssuesAverageAge"
+          />
+        );
+      },
+      renderCell: (p) => {
+        return (
+          <div className="m-auto">
+            {millisecondsToDisplayString(p.row.closedIssuesAverageAge)}
+          </div>
+        );
+      },
+    },
+    IssuesResponseMedianAge: {
+      key: 'issuesResponseMedianAge',
+      name: 'Issues Response Median Age',
+      renderHeaderCell: (p) => {
+        return (
+          <MinMaxRenderer
+            headerCellProps={p}
+            filters={globalFilters}
+            updateFilters={setGlobalFilters}
+            filterName="issuesResponseMedianAge"
+          />
+        );
+      },
+      renderCell: (p) => {
+        return (
+          <div className="m-auto">
+            {millisecondsToDisplayString(p.row.issuesResponseMedianAge)}
+          </div>
+        );
+      },
+    },
+    IssuesResponseAverageAge: {
+      key: 'issuesResponseAverageAge',
+      name: 'Issues Response Average Age',
+      renderHeaderCell: (p) => {
+        return (
+          <MinMaxRenderer
+            headerCellProps={p}
+            filters={globalFilters}
+            updateFilters={setGlobalFilters}
+            filterName="issuesResponseAverageAge"
+          />
+        );
+      },
+      renderCell: (p) => {
+        return (
+          <div className="m-auto">
+            {millisecondsToDisplayString(p.row.issuesResponseAverageAge)}
+          </div>
         );
       },
     },
@@ -612,7 +722,11 @@ const RepositoriesTable = () => {
     return sortedRows;
   };
 
-  const testTimeBasedFilter = (minDays: number | undefined, maxDays: number | undefined, timeInMs: number) => {
+  const testTimeBasedFilter = (
+    minDays: number | undefined,
+    maxDays: number | undefined,
+    timeInMs: number,
+  ) => {
     const timeInDays = Math.floor(timeInMs / 1000 / 60 / 60 / 24);
     minDays = minDays || 0;
     maxDays = maxDays || Infinity;
@@ -674,7 +788,48 @@ const RepositoriesTable = () => {
             ? (globalFilters.forksCount?.[0] ?? 0) <= repo.forksCount &&
             repo.forksCount <= (globalFilters.forksCount[1] ?? Infinity)
             : true) &&
-          (globalFilters.openIssuesMedianAge ? testTimeBasedFilter(globalFilters.openIssuesMedianAge[0], globalFilters.openIssuesMedianAge[1], repo.openIssuesMedianAge) : true)
+          (globalFilters.openIssuesMedianAge
+            ? testTimeBasedFilter(
+              globalFilters.openIssuesMedianAge[0],
+              globalFilters.openIssuesMedianAge[1],
+              repo.openIssuesMedianAge,
+            )
+            : true) &&
+          (globalFilters.openIssuesAverageAge
+            ? testTimeBasedFilter(
+              globalFilters.openIssuesAverageAge[0],
+              globalFilters.openIssuesAverageAge[1],
+              repo.openIssuesAverageAge,
+            )
+            : true) &&
+          (globalFilters.closedIssuesMedianAge
+            ? testTimeBasedFilter(
+              globalFilters.closedIssuesMedianAge[0],
+              globalFilters.closedIssuesMedianAge[1],
+              repo.closedIssuesMedianAge,
+            )
+            : true) &&
+          (globalFilters.closedIssuesAverageAge
+            ? testTimeBasedFilter(
+              globalFilters.closedIssuesAverageAge[0],
+              globalFilters.closedIssuesAverageAge[1],
+              repo.closedIssuesAverageAge,
+            )
+            : true) &&
+          (globalFilters.issuesResponseMedianAge
+            ? testTimeBasedFilter(
+              globalFilters.issuesResponseMedianAge[0],
+              globalFilters.issuesResponseMedianAge[1],
+              repo.issuesResponseMedianAge,
+            )
+            : true) &&
+          (globalFilters.issuesResponseAverageAge
+            ? testTimeBasedFilter(
+              globalFilters.issuesResponseAverageAge[0],
+              globalFilters.issuesResponseAverageAge[1],
+              repo.issuesResponseAverageAge,
+            )
+            : true)
         );
       });
 
@@ -683,17 +838,7 @@ const RepositoriesTable = () => {
     [globalFilters],
   );
 
-  const updateDisplayValues = useCallback((inputRepos: Repo[]) => {
-    return inputRepos.map(repo => {
-      const openIssuesMedianAgeDisplay = millisecondsToDisplayString(repo.openIssuesMedianAge)
-      return ({
-        ...repo,
-        openIssuesMedianAgeDisplay,
-      })
-    })
-  }, []);
-
-  const displayRows = updateDisplayValues(filterRepos(sortRepos(repos)));
+  const displayRows = filterRepos(sortRepos(repos));
 
   return (
     <div className="h-full flex flex-col">
@@ -740,6 +885,11 @@ const RepositoriesTable = () => {
             sortColumns={sortColumns}
             onSortColumnsChange={setSortColumns}
             style={{ height: '100%', width: '100%' }}
+            rowClass={(_, index) =>
+              index % 2 === 1
+                ? 'bg-slate-100 dark:bg-slate-700 dark:hover:bg-slate-600 hover:bg-slate-200'
+                : 'hover:bg-slate-200 dark:hover:bg-slate-600'
+            }
           />
         </div>
       </FilterContext.Provider>
