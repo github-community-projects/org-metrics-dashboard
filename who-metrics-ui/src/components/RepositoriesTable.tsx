@@ -839,16 +839,23 @@ const RepositoriesTable = () => {
   );
 
   const displayRows = filterRepos(sortRepos(repos));
+  const createdDate = new Date(Data.meta.createdAt);
 
   return (
     <div className="h-full flex flex-col">
       <div className="py-2">
         <div className="flex flex-row items-center justify-between">
-          <div className="flex flex-row space-x-1 justify-start items-center">
-            <Tooltip aria-label="All of the repositories in this organization">
-              <InfoIcon size={24} />
-            </Tooltip>
-            <Text>{subTitle()}</Text>
+          <div className="flex flex-row space-x-4 justify-start items-center">
+            <Box className="flex flex-row items-center space-x-1">
+              <Tooltip aria-label="All of the repositories in this organization">
+                <InfoIcon size={24} />
+              </Tooltip>
+              <Text>{subTitle()}</Text>
+            </Box>
+            <Text>
+              Last updated {createdDate.toLocaleDateString()} at{' '}
+              {createdDate.toLocaleTimeString()}
+            </Text>
           </div>
           <div className="flex flex-row items-center space-x-2">
             <Button
