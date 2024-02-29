@@ -36,6 +36,7 @@ export interface RepositoryResult {
   repositoryName: string;
   repoNameWithOwner: string;
   licenseName: string;
+  topics: string[];
 
   // Counts of various things
   projectsCount: number;
