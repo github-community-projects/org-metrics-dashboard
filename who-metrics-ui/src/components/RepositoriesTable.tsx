@@ -96,7 +96,7 @@ const dropdownOptions = (field: keyof RepositoryResult, filter = ''): SelectOpti
     .filter((fieldName) =>
       (fieldName.value as string).toLowerCase().includes(filter.toLowerCase()),
     );
-}
+};
 
 // Helper function to get the selected option value from a filter and field
 const getSelectedOption = (
