@@ -419,8 +419,8 @@ const getComparator = (sortColumn: keyof RepositoryResult): Comparator => {
       return (a, b) => {
         const first = a[sortColumn].sort()[0]
         const second = b[sortColumn].sort()[0]
-        if (second === undefined) return -1;
-        if (first === undefined) return 1;
+        if (!second) return -1;
+        if (!first) return 1;
         return first.toLowerCase().localeCompare(second.toLowerCase())
       };
 
