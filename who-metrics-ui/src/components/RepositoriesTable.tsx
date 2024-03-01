@@ -34,6 +34,7 @@ import {
 
 import { RepositoryResult } from '../../../ts-backend/src';
 import Data from '../data/data.json';
+import TopicCell from './TopicCell';
 
 const repos = Object.values(Data['repositories']);
 function inputStopPropagation(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -490,36 +491,9 @@ const RepositoriesTable = () => {
         )
       },
       renderCell: (props) => {
-        const [isHovering, setIsHovering] = useState(false)
-
         // tabIndex === 0 is used as a proxy when the Cell is selected. See https://github.com/adazzle/react-data-grid/pull/3236
-        const isOpen = props.row.topics.length > 0 && (isHovering || props.tabIndex === 0)
-
-        return (
-          <Popover isOpen={isOpen} content={() => {
-            return (
-              <Box
-                className="shadow-xl min-w-64 p-4 rounded"
-                onClick={(e) => e.stopPropagation()}
-                sx={{
-                  backgroundColor: 'Background',
-                  border: '1px solid',
-                  borderColor: 'border.default',
-                }}
-              >
-                {props.row.topics.sort().join(", ")}
-              </Box>
-            )
-          }}>
-            <span 
-              style={{textOverflow: 'ellipsis'}} 
-              onMouseEnter={() => setIsHovering(true)} 
-              onMouseLeave={() => setIsHovering(false)}
-            >
-              {props.row.topics.sort().join(', ')}
-            </span>
-          </Popover>
-        )
+        const isSelected = props.tabIndex === 0
+        return <TopicCell topics={props.row.topics} isSelected={isSelected} />
       },
     },
     License: {
