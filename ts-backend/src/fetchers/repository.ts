@@ -1,7 +1,8 @@
 // Fetchers for repository data and metrics
 
 import { Organization, Repository } from "@octokit/graphql-schema";
-import { Fetcher, RepositoryResult } from "..";
+import { Fetcher } from "..";
+import { RepositoryResult } from '../../../types'
 
 export const addRepositoriesToResult: Fetcher = async (
   result,
@@ -48,6 +49,13 @@ export const addRepositoriesToResult: Fetcher = async (
           collaborators {
             totalCount
           }
+          repositoryTopics(first: 20) {
+            nodes {
+              topic {
+                name
+              }
+            }
+          }
         }
       }
     }
@@ -73,6 +81,7 @@ export const addRepositoriesToResult: Fetcher = async (
           repositoryName: repo.name,
           repoNameWithOwner: repo.nameWithOwner,
           licenseName: repo.licenseInfo?.name || "No License",
+          topics: repo.repositoryTopics.nodes?.map((node) => node?.topic.name ),
           forksCount: repo.forkCount,
           watchersCount: repo.watchers.totalCount,
           starsCount: repo.stargazerCount,

@@ -31,11 +31,12 @@ import {
   useRef,
   useState
 } from 'react';
+
+import { RepositoryResult } from '../../../types';
 import Data from '../data/data.json';
+import TopicCell from './TopicCell';
 
 const repos = Object.values(Data['repositories']);
-type Repo = (typeof repos)[0];
-
 function inputStopPropagation(event: React.KeyboardEvent<HTMLInputElement>) {
   event.stopPropagation();
 }
@@ -43,6 +44,7 @@ function inputStopPropagation(event: React.KeyboardEvent<HTMLInputElement>) {
 type Filter = {
   repositoryName?: Record<string, boolean>;
   licenseName?: Record<string, boolean>;
+  topics?: Record<string, boolean>;
   collaboratorsCount?: Array<number | undefined>;
   watchersCount?: Array<number | undefined>;
   openIssuesCount?: Array<number | undefined>;
@@ -80,9 +82,14 @@ const millisecondsToDisplayString = (milliseconds: number) => {
 };
 
 // This selects a field to populate a dropdown with
-const dropdownOptions = (field: keyof Repo, filter = ''): SelectOption[] =>
-  Array.from(new Set(repos.map((repo) => repo[field])))
-    .map((fieldName) => ({
+const dropdownOptions = (field: keyof RepositoryResult, filter = ''): SelectOption[] => {
+  let options = []
+  if (field === 'topics'){
+    options = Array.from(new Set(repos.flatMap(repo => repo.topics))).sort()
+  } else {
+    options = Array.from(new Set(repos.map((repo) => repo[field])))
+  }
+  return options.map((fieldName) => ({
       // some fields are boolean (hasXxEnabled), so we need to convert them to strings
       label: typeof fieldName === 'boolean' ? fieldName.toString() : fieldName,
       value: typeof fieldName === 'boolean' ? fieldName.toString() : fieldName,
@@ -90,6 +97,7 @@ const dropdownOptions = (field: keyof Repo, filter = ''): SelectOption[] =>
     .filter((fieldName) =>
       (fieldName.value as string).toLowerCase().includes(filter.toLowerCase()),
     );
+};
 
 // Helper function to get the selected option value from a filter and field
 const getSelectedOption = (
@@ -102,14 +110,14 @@ const getSelectedOption = (
 
 // Renderer for the min/max filter inputs
 const MinMaxRenderer: FC<{
-  headerCellProps: RenderHeaderCellProps<Repo>;
+  headerCellProps: RenderHeaderCellProps<RepositoryResult>;
   filters: Filter;
   updateFilters: ((filters: Filter) => void) &
   ((filters: (filters: Filter) => Filter) => void);
   filterName: keyof Filter;
 }> = ({ headerCellProps, filters, updateFilters, filterName }) => {
   return (
-    <HeaderCellRenderer<Repo> {...headerCellProps}>
+    <HeaderCellRenderer<RepositoryResult> {...headerCellProps}>
       {({ ...rest }) => (
         <Box className="w-full">
           <FormControl>
@@ -165,7 +173,7 @@ const MinMaxRenderer: FC<{
 
 // Renderer for the searchable select filter
 const SearchableSelectRenderer: FC<{
-  headerCellProps: RenderHeaderCellProps<Repo>;
+  headerCellProps: RenderHeaderCellProps<RepositoryResult>;
   filters: Filter;
   updateFilters: ((filters: Filter) => void) &
   ((filters: (filters: Filter) => Filter) => void);
@@ -175,7 +183,7 @@ const SearchableSelectRenderer: FC<{
   const allSelectOptions = dropdownOptions(filterName, filteredOptions);
 
   return (
-    <HeaderCellRenderer<Repo> {...headerCellProps}>
+    <HeaderCellRenderer<RepositoryResult> {...headerCellProps}>
       {({ ...rest }) => (
         <Box>
           <TextInput
@@ -363,9 +371,9 @@ const HeaderCellRenderer = <R = unknown,>({
 // re-created when filters are changed and filter loses focus
 const FilterContext = createContext<Filter | undefined>(undefined);
 
-type Comparator = (a: Repo, b: Repo) => number;
+type Comparator = (a: RepositoryResult, b: RepositoryResult) => number;
 
-const getComparator = (sortColumn: keyof Repo): Comparator => {
+const getComparator = (sortColumn: keyof RepositoryResult): Comparator => {
   switch (sortColumn) {
     // number based sorting
     case 'closedIssuesCount':
@@ -405,6 +413,16 @@ const getComparator = (sortColumn: keyof Repo): Comparator => {
           .toLowerCase()
           .localeCompare(b[sortColumn].toLowerCase());
       };
+    
+    // Multi option, alphabetical
+    case 'topics':
+      return (a, b) => {
+        const first = a[sortColumn].sort()[0]
+        const second = b[sortColumn].sort()[0]
+        if (!second) return -1;
+        if (!first) return 1;
+        return first.toLowerCase().localeCompare(second.toLowerCase())
+      };
 
     default:
       throw new Error(`unsupported sortColumn: "${sortColumn}"`);
@@ -419,10 +437,13 @@ const defaultFilters: Filter = {
   licenseName: {
     all: true,
   },
+  topics: {
+    all: true,
+  }
 };
 
 // Helper for generating the csv blob
-const generateCSV = (data: Repo[]): Blob => {
+const generateCSV = (data: RepositoryResult[]): Blob => {
   const output = json2csv(data);
   return new Blob([output], { type: 'text/csv' });
 };
@@ -431,7 +452,7 @@ const RepositoriesTable = () => {
   const [globalFilters, setGlobalFilters] = useState<Filter>(defaultFilters);
 
   // This needs a type, technically it's a Column but needs to be typed
-  const labels: Record<string, Column<Repo>> = {
+  const labels: Record<string, Column<RepositoryResult>> = {
     Name: {
       key: 'repositoryName',
       name: 'Name',
@@ -454,6 +475,26 @@ const RepositoriesTable = () => {
           {props.row.repositoryName}
         </a>
       ),
+    },
+    Topics: {
+      key: 'topics',
+      name: 'Topics',
+      width: 275,
+      renderHeaderCell: (p) => {
+        return (
+          <SearchableSelectRenderer
+            headerCellProps={p}
+            filterName="topics"
+            filters={globalFilters}
+            updateFilters={setGlobalFilters}
+          />
+        )
+      },
+      renderCell: (props) => {
+        // tabIndex === 0 is used as a proxy when the Cell is selected. See https://github.com/adazzle/react-data-grid/pull/3236
+        const isSelected = props.tabIndex === 0
+        return <TopicCell topics={props.row.topics} isSelected={isSelected} />
+      },
     },
     License: {
       key: 'licenseName',
@@ -703,14 +744,14 @@ const RepositoriesTable = () => {
 
   const [sortColumns, setSortColumns] = useState<SortColumn[]>([]);
 
-  const sortRepos = (inputRepos: Repo[]) => {
+  const sortRepos = (inputRepos: RepositoryResult[]) => {
     if (sortColumns.length === 0) {
       return repos;
     }
 
     const sortedRows = [...inputRepos].sort((a, b) => {
       for (const sort of sortColumns) {
-        const comparator = getComparator(sort.columnKey as keyof Repo);
+        const comparator = getComparator(sort.columnKey as keyof RepositoryResult);
         const compResult = comparator(a, b);
         if (compResult !== 0) {
           return sort.direction === 'ASC' ? compResult : -compResult;
@@ -743,11 +784,13 @@ const RepositoriesTable = () => {
    * This is kind of a mess, but it works
    */
   const filterRepos = useCallback(
-    (inputRepos: Repo[]) => {
+    (inputRepos: RepositoryResult[]) => {
       const result = inputRepos.filter((repo) => {
         return (
           ((globalFilters.repositoryName?.[repo.repositoryName] ?? false) ||
             (globalFilters.repositoryName?.['all'] ?? false)) &&
+          (( globalFilters.topics && Object.entries(globalFilters.topics).some(([selectedTopic, isSelected]) => isSelected && repo.topics.includes(selectedTopic))) ||
+            (globalFilters.topics?.['all'] ?? false)) &&
           ((globalFilters.licenseName?.[repo.licenseName] ?? false) ||
             (globalFilters.licenseName?.['all'] ?? false)) &&
           (globalFilters.collaboratorsCount
@@ -853,8 +896,8 @@ const RepositoriesTable = () => {
               <Text>{subTitle()}</Text>
             </Box>
             <Text>
-              Last updated {createdDate.toLocaleDateString()} at{' '}
-              {createdDate.toLocaleTimeString()}
+              Last updated <span suppressHydrationWarning>{createdDate.toLocaleDateString()}</span> at{' '}
+              <span suppressHydrationWarning>{createdDate.toLocaleTimeString()}</span>
             </Text>
           </div>
           <div className="flex flex-row items-center space-x-2">
