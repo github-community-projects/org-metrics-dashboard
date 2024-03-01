@@ -32,7 +32,7 @@ import {
   useState
 } from 'react';
 
-import { RepositoryResult } from '../../../ts-backend/src';
+import { RepositoryResult } from '../../../types';
 import Data from '../data/data.json';
 import TopicCell from './TopicCell';
 

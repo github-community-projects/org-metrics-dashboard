@@ -1,7 +1,8 @@
 // Fetchers for repository data and metrics
 
 import { Organization, Repository } from "@octokit/graphql-schema";
-import { Fetcher, RepositoryResult } from "..";
+import { Fetcher } from "..";
+import { RepositoryResult } from '../../../types'
 
 export const addRepositoriesToResult: Fetcher = async (
   result,
