@@ -31,11 +31,12 @@ import {
   useRef,
   useState
 } from 'react';
+
+import { RepositoryResult } from '../../../types';
 import Data from '../data/data.json';
+import TopicCell from './TopicCell';
 
 const repos = Object.values(Data['repositories']);
-type Repo = (typeof repos)[0];
-
 function inputStopPropagation(event: React.KeyboardEvent<HTMLInputElement>) {
   event.stopPropagation();
 }
@@ -43,6 +44,7 @@ function inputStopPropagation(event: React.KeyboardEvent<HTMLInputElement>) {
 type Filter = {
   repositoryName?: Record<string, boolean>;
   licenseName?: Record<string, boolean>;
+  topics?: Record<string, boolean>;
   collaboratorsCount?: Array<number | undefined>;
   watchersCount?: Array<number | undefined>;
   openIssuesCount?: Array<number | undefined>;
@@ -50,6 +52,12 @@ type Filter = {
   closedIssuesCount?: Array<number | undefined>;
   mergedPullRequestsCount?: Array<number | undefined>;
   forksCount?: Array<number | undefined>;
+  openIssuesMedianAge?: Array<number | undefined>;
+  openIssuesAverageAge?: Array<number | undefined>;
+  closedIssuesMedianAge?: Array<number | undefined>;
+  closedIssuesAverageAge?: Array<number | undefined>;
+  issuesResponseMedianAge?: Array<number | undefined>;
+  issuesResponseAverageAge?: Array<number | undefined>;
 };
 
 type SelectOption = {
@@ -57,10 +65,31 @@ type SelectOption = {
   value: string | number;
 };
 
+const millisecondsToDisplayString = (milliseconds: number) => {
+  const days = milliseconds / 1000 / 60 / 60 / 24;
+  if (days === 0) {
+    return 'N/A';
+  }
+  if (days < 1) {
+    return `<1 day`;
+  }
+
+  if (days < 2) {
+    return `1 day`;
+  }
+
+  return `${Math.floor(days)} days`;
+};
+
 // This selects a field to populate a dropdown with
-const dropdownOptions = (field: keyof Repo, filter = ''): SelectOption[] =>
-  Array.from(new Set(repos.map((repo) => repo[field])))
-    .map((fieldName) => ({
+const dropdownOptions = (field: keyof RepositoryResult, filter = ''): SelectOption[] => {
+  let options = []
+  if (field === 'topics'){
+    options = Array.from(new Set(repos.flatMap(repo => repo.topics))).sort()
+  } else {
+    options = Array.from(new Set(repos.map((repo) => repo[field])))
+  }
+  return options.map((fieldName) => ({
       // some fields are boolean (hasXxEnabled), so we need to convert them to strings
       label: typeof fieldName === 'boolean' ? fieldName.toString() : fieldName,
       value: typeof fieldName === 'boolean' ? fieldName.toString() : fieldName,
@@ -68,6 +97,7 @@ const dropdownOptions = (field: keyof Repo, filter = ''): SelectOption[] =>
     .filter((fieldName) =>
       (fieldName.value as string).toLowerCase().includes(filter.toLowerCase()),
     );
+};
 
 // Helper function to get the selected option value from a filter and field
 const getSelectedOption = (
@@ -80,14 +110,14 @@ const getSelectedOption = (
 
 // Renderer for the min/max filter inputs
 const MinMaxRenderer: FC<{
-  headerCellProps: RenderHeaderCellProps<Repo>;
+  headerCellProps: RenderHeaderCellProps<RepositoryResult>;
   filters: Filter;
   updateFilters: ((filters: Filter) => void) &
   ((filters: (filters: Filter) => Filter) => void);
   filterName: keyof Filter;
 }> = ({ headerCellProps, filters, updateFilters, filterName }) => {
   return (
-    <HeaderCellRenderer<Repo> {...headerCellProps}>
+    <HeaderCellRenderer<RepositoryResult> {...headerCellProps}>
       {({ ...rest }) => (
         <Box className="w-full">
           <FormControl>
@@ -143,7 +173,7 @@ const MinMaxRenderer: FC<{
 
 // Renderer for the searchable select filter
 const SearchableSelectRenderer: FC<{
-  headerCellProps: RenderHeaderCellProps<Repo>;
+  headerCellProps: RenderHeaderCellProps<RepositoryResult>;
   filters: Filter;
   updateFilters: ((filters: Filter) => void) &
   ((filters: (filters: Filter) => Filter) => void);
@@ -153,7 +183,7 @@ const SearchableSelectRenderer: FC<{
   const allSelectOptions = dropdownOptions(filterName, filteredOptions);
 
   return (
-    <HeaderCellRenderer<Repo> {...headerCellProps}>
+    <HeaderCellRenderer<RepositoryResult> {...headerCellProps}>
       {({ ...rest }) => (
         <Box>
           <TextInput
@@ -341,9 +371,9 @@ const HeaderCellRenderer = <R = unknown,>({
 // re-created when filters are changed and filter loses focus
 const FilterContext = createContext<Filter | undefined>(undefined);
 
-type Comparator = (a: Repo, b: Repo) => number;
+type Comparator = (a: RepositoryResult, b: RepositoryResult) => number;
 
-const getComparator = (sortColumn: keyof Repo): Comparator => {
+const getComparator = (sortColumn: keyof RepositoryResult): Comparator => {
   switch (sortColumn) {
     // number based sorting
     case 'closedIssuesCount':
@@ -356,6 +386,12 @@ const getComparator = (sortColumn: keyof Repo): Comparator => {
     case 'openPullRequestsCount':
     case 'projectsCount':
     case 'watchersCount':
+    case 'openIssuesMedianAge':
+    case 'openIssuesAverageAge':
+    case 'closedIssuesMedianAge':
+    case 'closedIssuesAverageAge':
+    case 'issuesResponseMedianAge':
+    case 'issuesResponseAverageAge':
       return (a, b) => {
         if (a[sortColumn] === b[sortColumn]) {
           return 0;
@@ -377,6 +413,17 @@ const getComparator = (sortColumn: keyof Repo): Comparator => {
           .toLowerCase()
           .localeCompare(b[sortColumn].toLowerCase());
       };
+    
+    // Multi option, alphabetical
+    case 'topics':
+      return (a, b) => {
+        const first = a[sortColumn].sort()[0]
+        const second = b[sortColumn].sort()[0]
+        if (!second) return -1;
+        if (!first) return 1;
+        return first.toLowerCase().localeCompare(second.toLowerCase())
+      };
+
     default:
       throw new Error(`unsupported sortColumn: "${sortColumn}"`);
   }
@@ -390,10 +437,13 @@ const defaultFilters: Filter = {
   licenseName: {
     all: true,
   },
+  topics: {
+    all: true,
+  }
 };
 
 // Helper for generating the csv blob
-const generateCSV = (data: Repo[]): Blob => {
+const generateCSV = (data: RepositoryResult[]): Blob => {
   const output = json2csv(data);
   return new Blob([output], { type: 'text/csv' });
 };
@@ -402,11 +452,11 @@ const RepositoriesTable = () => {
   const [globalFilters, setGlobalFilters] = useState<Filter>(defaultFilters);
 
   // This needs a type, technically it's a Column but needs to be typed
-  const labels: Record<string, Column<Repo>> = {
+  const labels: Record<string, Column<RepositoryResult>> = {
     Name: {
       key: 'repositoryName',
       name: 'Name',
-
+      frozen: true,
       renderHeaderCell: (p) => (
         <SearchableSelectRenderer
           headerCellProps={p}
@@ -415,6 +465,36 @@ const RepositoriesTable = () => {
           updateFilters={setGlobalFilters}
         />
       ),
+      renderCell: (props) => (
+        <a
+          href={`https://github.com/${props.row.repoNameWithOwner}`}
+          target="_blank"
+          rel="noreferrer"
+          className="underline"
+        >
+          {props.row.repositoryName}
+        </a>
+      ),
+    },
+    Topics: {
+      key: 'topics',
+      name: 'Topics',
+      width: 275,
+      renderHeaderCell: (p) => {
+        return (
+          <SearchableSelectRenderer
+            headerCellProps={p}
+            filterName="topics"
+            filters={globalFilters}
+            updateFilters={setGlobalFilters}
+          />
+        )
+      },
+      renderCell: (props) => {
+        // tabIndex === 0 is used as a proxy when the Cell is selected. See https://github.com/adazzle/react-data-grid/pull/3236
+        const isSelected = props.tabIndex === 0
+        return <TopicCell topics={props.row.topics} isSelected={isSelected} />
+      },
     },
     License: {
       key: 'licenseName',
@@ -533,6 +613,124 @@ const RepositoriesTable = () => {
         );
       },
     },
+    OpenIssuesMedianAge: {
+      key: 'openIssuesMedianAge',
+      name: 'Open Issues Median Age',
+      renderHeaderCell: (p) => {
+        return (
+          <MinMaxRenderer
+            headerCellProps={p}
+            filters={globalFilters}
+            updateFilters={setGlobalFilters}
+            filterName="openIssuesMedianAge"
+          />
+        );
+      },
+      renderCell: (p) => {
+        return millisecondsToDisplayString(p.row.openIssuesMedianAge);
+      },
+    },
+    OpenIssuesAverageAge: {
+      key: 'openIssuesAverageAge',
+      name: 'Open Issues Average Age',
+      renderHeaderCell: (p) => {
+        return (
+          <MinMaxRenderer
+            headerCellProps={p}
+            filters={globalFilters}
+            updateFilters={setGlobalFilters}
+            filterName="openIssuesAverageAge"
+          />
+        );
+      },
+      renderCell: (p) => {
+        return millisecondsToDisplayString(p.row.openIssuesAverageAge);
+      },
+    },
+    ClosedIssuesMedianAge: {
+      key: 'closedIssuesMedianAge',
+      name: 'Closed Issues Median Age',
+      renderHeaderCell: (p) => {
+        return (
+          <MinMaxRenderer
+            headerCellProps={p}
+            filters={globalFilters}
+            updateFilters={setGlobalFilters}
+            filterName="closedIssuesMedianAge"
+          />
+        );
+      },
+      renderCell: (p) => {
+        return (
+          <div className="m-auto">
+            {millisecondsToDisplayString(p.row.closedIssuesMedianAge)}
+          </div>
+        );
+      },
+    },
+    ClosedIssuesAverageAge: {
+      key: 'closedIssuesAverageAge',
+      name: 'Closed Issues Average Age',
+      renderHeaderCell: (p) => {
+        return (
+          <MinMaxRenderer
+            headerCellProps={p}
+            filters={globalFilters}
+            updateFilters={setGlobalFilters}
+            filterName="closedIssuesAverageAge"
+          />
+        );
+      },
+      renderCell: (p) => {
+        return (
+          <div className="m-auto">
+            {millisecondsToDisplayString(p.row.closedIssuesAverageAge)}
+          </div>
+        );
+      },
+    },
+    IssuesResponseMedianAge: {
+      key: 'issuesResponseMedianAge',
+      name: 'Issues Response Median Age',
+      renderHeaderCell: (p) => {
+        return (
+          <MinMaxRenderer
+            headerCellProps={p}
+            filters={globalFilters}
+            updateFilters={setGlobalFilters}
+            filterName="issuesResponseMedianAge"
+          />
+        );
+      },
+      renderCell: (p) => {
+        return (
+          <div className="m-auto">
+            {millisecondsToDisplayString(p.row.issuesResponseMedianAge)}
+          </div>
+        );
+      },
+    },
+    IssuesResponseAverageAge: {
+      key: 'issuesResponseAverageAge',
+      name: 'Issues Response Average Age',
+      renderHeaderCell: (p) => {
+        return (
+          <MinMaxRenderer
+            headerCellProps={p}
+            filters={globalFilters}
+            updateFilters={setGlobalFilters}
+            filterName="issuesResponseAverageAge"
+          />
+        );
+      },
+      renderCell: (p) => {
+        return (
+          <div className="m-auto">
+            {millisecondsToDisplayString(p.row.issuesResponseAverageAge)}
+          </div>
+        );
+      },
+    },
   } as const;
 
   const dataGridColumns = Object.entries(labels).map(
@@ -546,14 +744,14 @@ const RepositoriesTable = () => {
 
   const [sortColumns, setSortColumns] = useState<SortColumn[]>([]);
 
-  const sortRepos = (inputRepos: Repo[]) => {
+  const sortRepos = (inputRepos: RepositoryResult[]) => {
     if (sortColumns.length === 0) {
       return repos;
     }
 
     const sortedRows = [...inputRepos].sort((a, b) => {
       for (const sort of sortColumns) {
-        const comparator = getComparator(sort.columnKey as keyof Repo);
+        const comparator = getComparator(sort.columnKey as keyof RepositoryResult);
         const compResult = comparator(a, b);
         if (compResult !== 0) {
           return sort.direction === 'ASC' ? compResult : -compResult;
@@ -565,6 +763,18 @@ const RepositoriesTable = () => {
     return sortedRows;
   };
 
+  const testTimeBasedFilter = (
+    minDays: number | undefined,
+    maxDays: number | undefined,
+    timeInMs: number,
+  ) => {
+    const timeInDays = Math.floor(timeInMs / 1000 / 60 / 60 / 24);
+    minDays = minDays || 0;
+    maxDays = maxDays || Infinity;
+
+    return timeInDays >= minDays && timeInDays <= maxDays;
+  };
+
   /**
    * Uses globalFilters to filter the repos that are then passed to sortRepos
    *
@@ -574,11 +784,13 @@ const RepositoriesTable = () => {
    * This is kind of a mess, but it works
    */
   const filterRepos = useCallback(
-    (inputRepos: Repo[]) => {
+    (inputRepos: RepositoryResult[]) => {
       const result = inputRepos.filter((repo) => {
         return (
           ((globalFilters.repositoryName?.[repo.repositoryName] ?? false) ||
             (globalFilters.repositoryName?.['all'] ?? false)) &&
+          (( globalFilters.topics && Object.entries(globalFilters.topics).some(([selectedTopic, isSelected]) => isSelected && repo.topics.includes(selectedTopic))) ||
+            (globalFilters.topics?.['all'] ?? false)) &&
           ((globalFilters.licenseName?.[repo.licenseName] ?? false) ||
             (globalFilters.licenseName?.['all'] ?? false)) &&
           (globalFilters.collaboratorsCount
@@ -618,6 +830,48 @@ const RepositoriesTable = () => {
           (globalFilters.forksCount
             ? (globalFilters.forksCount?.[0] ?? 0) <= repo.forksCount &&
             repo.forksCount <= (globalFilters.forksCount[1] ?? Infinity)
+            : true) &&
+          (globalFilters.openIssuesMedianAge
+            ? testTimeBasedFilter(
+              globalFilters.openIssuesMedianAge[0],
+              globalFilters.openIssuesMedianAge[1],
+              repo.openIssuesMedianAge,
+            )
+            : true) &&
+          (globalFilters.openIssuesAverageAge
+            ? testTimeBasedFilter(
+              globalFilters.openIssuesAverageAge[0],
+              globalFilters.openIssuesAverageAge[1],
+              repo.openIssuesAverageAge,
+            )
+            : true) &&
+          (globalFilters.closedIssuesMedianAge
+            ? testTimeBasedFilter(
+              globalFilters.closedIssuesMedianAge[0],
+              globalFilters.closedIssuesMedianAge[1],
+              repo.closedIssuesMedianAge,
+            )
+            : true) &&
+          (globalFilters.closedIssuesAverageAge
+            ? testTimeBasedFilter(
+              globalFilters.closedIssuesAverageAge[0],
+              globalFilters.closedIssuesAverageAge[1],
+              repo.closedIssuesAverageAge,
+            )
+            : true) &&
+          (globalFilters.issuesResponseMedianAge
+            ? testTimeBasedFilter(
+              globalFilters.issuesResponseMedianAge[0],
+              globalFilters.issuesResponseMedianAge[1],
+              repo.issuesResponseMedianAge,
+            )
+            : true) &&
+          (globalFilters.issuesResponseAverageAge
+            ? testTimeBasedFilter(
+              globalFilters.issuesResponseAverageAge[0],
+              globalFilters.issuesResponseAverageAge[1],
+              repo.issuesResponseAverageAge,
+            )
             : true)
         );
       });
@@ -628,16 +882,23 @@ const RepositoriesTable = () => {
   );
 
   const displayRows = filterRepos(sortRepos(repos));
+  const createdDate = new Date(Data.meta.createdAt);
 
   return (
     <div className="h-full flex flex-col">
       <div className="py-2">
         <div className="flex flex-row items-center justify-between">
-          <div className="flex flex-row space-x-1 justify-start items-center">
-            <Tooltip aria-label="All of the repositories in this organization">
-              <InfoIcon size={24} />
-            </Tooltip>
-            <Text>{subTitle()}</Text>
+          <div className="flex flex-row space-x-4 justify-start items-center">
+            <Box className="flex flex-row items-center space-x-1">
+              <Tooltip aria-label="All of the repositories in this organization">
+                <InfoIcon size={24} />
+              </Tooltip>
+              <Text>{subTitle()}</Text>
+            </Box>
+            <Text>
+              Last updated <span suppressHydrationWarning>{createdDate.toLocaleDateString()}</span> at{' '}
+              <span suppressHydrationWarning>{createdDate.toLocaleTimeString()}</span>
+            </Text>
           </div>
           <div className="flex flex-row items-center space-x-2">
             <Button
@@ -674,6 +935,11 @@ const RepositoriesTable = () => {
             sortColumns={sortColumns}
             onSortColumnsChange={setSortColumns}
             style={{ height: '100%', width: '100%' }}
+            rowClass={(_, index) =>
+              index % 2 === 1
+                ? 'bg-slate-100 dark:bg-slate-700 dark:hover:bg-slate-600 hover:bg-slate-200'
+                : 'hover:bg-slate-200 dark:hover:bg-slate-600'
+            }
           />
         </div>
       </FilterContext.Provider>
