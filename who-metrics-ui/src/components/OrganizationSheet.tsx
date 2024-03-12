@@ -11,11 +11,12 @@ import {
 } from '@tremor/react';
 
 import logo from '@/images/who-logo-wide.svg';
-import { Box, useTheme as primerUseTheme } from '@primer/react';
+import { Box, Flash, useTheme as primerUseTheme } from '@primer/react';
 import Image from 'next/image';
 
 import { useTheme } from 'next-themes';
 import data from '../data/data.json';
+import Documentation from './Documentation';
 import RepositoriesTable from './RepositoriesTable';
 
 export const OrganizationSheet = () => {
@@ -48,13 +49,22 @@ export const OrganizationSheet = () => {
         This project includes metrics about the Open Source repositories for the
         {data.orgInfo.name}.
       </Text>
+      <Flash variant="default" className="pt-6">
+        Welcome new user!
+      </Flash>
       <TabGroup className="mt-6 flex-1 flex flex-col">
         <TabList>
           <Tab>Repositories</Tab>
+          <Tab>Documentation</Tab>
         </TabList>
         <TabPanels className="flex-1 flex flex-col">
           <TabPanel className="flex-1">
             <RepositoriesTable />
+          </TabPanel>
+          <TabPanel className="flex-1">
+            <Box className="prose">
+              <Documentation />
+            </Box>
           </TabPanel>
         </TabPanels>
       </TabGroup>

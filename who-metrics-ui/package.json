@@ -27,6 +27,7 @@
     "json-2-csv": "^5.0.1",
     "kysely": "^0.23.4",
     "kysely-planetscale": "^1.3.0",
+    "marked": "^12.0.1",
     "next": "^13.5.6",
     "next-auth": "^4.24.5",
     "next-themes": "^0.2.1",
