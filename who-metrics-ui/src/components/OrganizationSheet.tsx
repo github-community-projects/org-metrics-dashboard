@@ -49,9 +49,11 @@ export const OrganizationSheet = () => {
         This project includes metrics about the Open Source repositories for the
         {data.orgInfo.name}.
       </Text>
-      <Flash variant="default" className="pt-6">
-        Welcome new user!
-      </Flash>
+      <Box className="mt-6">
+        <Flash variant="default" >
+          Welcome new user!
+        </Flash>
+      </Box>
       <TabGroup className="mt-6 flex-1 flex flex-col">
         <TabList>
           <Tab>Repositories</Tab>
