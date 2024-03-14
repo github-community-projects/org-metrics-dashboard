@@ -45,9 +45,9 @@ export const addRepositoriesToResult: Fetcher = async (
           watchers {
             totalCount
           }
-          collaborators {
-            totalCount
-          }
+          # collaborators {
+          #   totalCount
+          # }
         }
       }
     }
@@ -79,7 +79,7 @@ export const addRepositoriesToResult: Fetcher = async (
           issuesEnabled: repo.hasIssuesEnabled,
           projectsEnabled: repo.hasProjectsEnabled,
           discussionsEnabled: repo.hasDiscussionsEnabled,
-          collaboratorsCount: repo.collaborators?.totalCount || 0,
+          collaboratorsCount: repo?.collaborators?.totalCount || 0,
           projectsCount: repo.projects.totalCount,
           projectsV2Count: repo.projectsV2.totalCount,
         } as RepositoryResult,

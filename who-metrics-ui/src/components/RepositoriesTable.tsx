@@ -10,6 +10,7 @@ import {
   Button,
   Checkbox,
   FormControl,
+  SelectPanel,
   TextInput,
   Tooltip
 } from '@primer/react';
@@ -22,6 +23,7 @@ import DataGrid, {
 } from 'react-data-grid';
 import { Popover } from 'react-tiny-popover';
 
+import { ItemInput } from '@primer/react/lib/deprecated/ActionList/List';
 import { saveAs } from 'file-saver';
 import {
   createContext,
@@ -841,6 +843,21 @@ const RepositoriesTable = () => {
   const displayRows = filterRepos(sortRepos(repos));
   const createdDate = new Date(Data.meta.createdAt);
 
+  const searchableColumns = dataGridColumns.map((column) => ({
+    text: column.name.toString(),
+    id: column.key,
+  }))
+  const [selected, setSelected] = useState<ItemInput[]>([])
+  const [filter, setFilter] = useState('')
+  const filteredColumns = searchableColumns.filter(item => item.text.toLowerCase().includes(filter.toLowerCase()))
+  const [open, setOpen] = useState(false)
+
+  console.log(selected)
+
+  const columns = selected.map((column) => {
+    return dataGridColumns.find((dataGridColumn) => dataGridColumn.key === column.id)!
+  })
+
   return (
     <div className="h-full flex flex-col">
       <div className="py-2">
@@ -858,6 +875,23 @@ const RepositoriesTable = () => {
             </Text>
           </div>
           <div className="flex flex-row items-center space-x-2">
+            <SelectPanel
+              renderAnchor={({ 'aria-labelledby': ariaLabelledBy, ...anchorProps }) => (
+                <Button trailingAction={TriangleDownIcon} aria-labelledby={` ${ariaLabelledBy}`} {...anchorProps}>
+                  Select Columns
+                </Button>
+              )}
+              placeholderText="Filter Labels"
+              open={open}
+              onOpenChange={setOpen}
+              items={filteredColumns}
+              selected={selected}
+              onSelectedChange={setSelected}
+              onFilterChange={setFilter}
+              overlayProps={{ width: 'medium', height: 'medium' }}
+              inputLabel='Filter Labels'
+              showItemDividers
+            />
             <Button
               variant="invisible"
               onClick={() => {
@@ -882,7 +916,7 @@ const RepositoriesTable = () => {
         {/* This is a weird hack to make the table fill the page */}
         <div className="h-64 flex-grow">
           <DataGrid
-            columns={dataGridColumns}
+            columns={columns}
             rows={displayRows}
             rowKeyGetter={(repo) => repo.repositoryName}
             defaultColumnOptions={{
