@@ -44,4 +44,4 @@ test-go:
 
 dev:
 	@echo "==> Generating data"
-	cd backend && go build -o ./bin/metrics ./cmd && cd .. && ./backend/bin/metrics && cd who-metrics-ui && npm i && npm run dev
+	cd ts-backend && npm i && npm run start && cd .. && cd who-metrics-ui && npm i && npm run dev
