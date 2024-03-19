@@ -1,23 +1,18 @@
-"use client"
-
 import { marked } from 'marked'
-// import markdown from "../docs/index.md"
+import docs from '../../docs/definitions.md'
 
-const convertMarkdownToHTML = (): string => {
-  const markdown = `data`
+const convertMarkdownToHTML = (markdown: string): string => {
   return marked(markdown) as string
 }
 
-
-
 const Documentation = () => {
-  const data = convertMarkdownToHTML()
-  console.log(data)
+  const html = convertMarkdownToHTML(docs)
 
   return (
     // eslint-disable-next-line react/no-danger
-    <div dangerouslySetInnerHTML={{ __html: data }} />
+    <div dangerouslySetInnerHTML={{ __html: html }} />
   )
 }
+
 
 export default Documentation

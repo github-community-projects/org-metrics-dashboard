@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 
+
 module.exports = {
   darkMode: 'class',
   content: [
@@ -10,6 +11,34 @@ module.exports = {
     transparent: 'transparent',
     current: 'currentColor',
     extend: {
+      typography: (theme) => ({
+        DEFAULT: {
+          css: {
+            maxWidth: '2000px',
+            code: {
+              backgroundColor: theme('colors.tremor.background.muted'),
+              padding: '0.25rem 0.5rem',
+              borderRadius: theme('borderRadius.tremor-small')
+              // Now need to do that for dark mode
+            },
+            'code::before': {
+              content: '""',
+            },
+            'code::after': {
+              content: '""',
+            },
+          }
+        },
+        invert: {
+          css: {
+            code: {
+              backgroundColor: theme('colors.dark-tremor.background.muted'),
+              padding: '0.25rem 0.5rem',
+              borderRadius: theme('borderRadius.tremor-small')
+            },
+          }
+        }
+      }),
       height: {
         100: '24rem',
         120: '30rem',

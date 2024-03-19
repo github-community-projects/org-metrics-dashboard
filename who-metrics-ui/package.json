@@ -11,9 +11,9 @@
   "dependencies": {
     "@headlessui/react": "^1.7.12",
     "@heroicons/react": "^2.0.16",
-    "@planetscale/database": "^1.5.0",
     "@primer/octicons-react": "^19.4.0",
     "@primer/react": "^35.26.0",
+    "@tailwindcss/typography": "^0.5.10",
     "@tremor/react": "^3.3.0",
     "@types/js-cookie": "^3.0.3",
     "@types/node": "18.15.11",
@@ -33,6 +33,7 @@
     "next-themes": "^0.2.1",
     "postcss": "^8.4.31",
     "prop-types": "^15.8.1",
+    "raw-loader": "^4.0.2",
     "react": "^18.2.0",
     "react-data-grid": "^7.0.0-beta.41",
     "react-dom": "^18.2.0",
@@ -40,7 +41,8 @@
     "server-only": "^0.0.1",
     "styled-components": "^5.3.11",
     "tailwindcss": "^3.2.7",
-    "typescript": "4.9.5"
+    "typescript": "4.9.5",
+    "usehooks-ts": "^3.0.1"
   },
   "homepage": "https://sbv-world-health-org-metrics.github.io/sbv-world-health-org-metrics/",
   "devDependencies": {
