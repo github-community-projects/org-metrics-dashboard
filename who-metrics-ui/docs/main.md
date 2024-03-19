@@ -15,6 +15,14 @@ Metrics and Definitions
 > 
 > `Open PR's:` A pull request is a request to make a change to the master code of the project. Open PR's are the totall of full request with open status
 > 
-> `Merge PR's`: A total of Pull Requests that are completed into the code based of the porject.
+> `Merge PR's`: A total of Pull Requests that are completed into the code based of the project. 
 >
->`Open Issues:` 
+> `Total Fork:` Fork is copy of the current repository into other repositories. Total Forks is how many times the repository has been copied
+>
+> `Open Issues Median Age:` Median of how many days of all isues in days with status Closed. If the issue age is zero (meaning there are no open issues), we display "N/A". 
+>
+> `Close Issues Median Age:` Median of how many days of all isues in days with status Closed. If the issue age is zero (meaning there are no open issues), we display "N/A". (Total Closed Age + 1 ) divide by 2
+>
+> `Issue Response Median Age:` Issues Response time must be greater than 0.   (Total Response Time Issues + 1 ) divide by 2
+>
+> `Issue Response Average Age:` Issues Response time must be greater than 0.  Issues Total Response Time divide by Total Issues
