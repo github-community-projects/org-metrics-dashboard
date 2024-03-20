@@ -10,7 +10,7 @@ The Dashboard is currently a snapshot of data from the **World Organization Heal
 
 `Watchers:` The number of users who are tracking a particular repository, receiving notifications regarding its activity.
 
-`Open Issues:` Issues are tickets that represent bugs or new features that other people collaborate. Open issues are total of Open issues.
+`Open Issues:` Issues are tickets that represent bugs or new features that other people report and can collaborate on. Open issues are total of unresolved issues.
 
 `Open PR's:` A pull request is a request to make a change to the master code of the project. Open PR's are the total of pull requests with status Open.
 
