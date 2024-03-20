@@ -1,5 +1,6 @@
 {
-  "name": "metrics-ts-backend",
+  "name": "backend",
+  "private": true,
   "type": "module",
   "version": "0.0.0",
   "description": "_description_",
@@ -29,9 +30,9 @@
   ],
   "scripts": {
     "build": "unbuild",
-    "dev": "unbuild --stub",
+    "stub": "unbuild --stub",
     "lint": "eslint .",
-    "start": "esno src/index.ts",
+    "dev": "esno src/index.ts",
     "test": "vitest",
     "typecheck": "tsc --noEmit"
   },

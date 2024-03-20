@@ -2,7 +2,7 @@
 
 import { Organization, Repository } from "@octokit/graphql-schema";
 import { Fetcher } from "..";
-import { RepositoryResult } from '../../../types'
+import { RepositoryResult } from "../../../types";
 
 export const addRepositoriesToResult: Fetcher = async (
   result,
@@ -46,9 +46,9 @@ export const addRepositoriesToResult: Fetcher = async (
           watchers {
             totalCount
           }
-          collaborators {
-            totalCount
-          }
+          #collaborators {
+          #  totalCount
+          #}
           repositoryTopics(first: 20) {
             nodes {
               topic {
@@ -74,25 +74,30 @@ export const addRepositoriesToResult: Fetcher = async (
 
   return {
     ...result,
-    repositories: filteredRepos.reduce((acc, repo) => {
-      return {
-        ...acc,
-        [repo.name]: {
-          repositoryName: repo.name,
-          repoNameWithOwner: repo.nameWithOwner,
-          licenseName: repo.licenseInfo?.name || "No License",
-          topics: repo.repositoryTopics.nodes?.map((node) => node?.topic.name ),
-          forksCount: repo.forkCount,
-          watchersCount: repo.watchers.totalCount,
-          starsCount: repo.stargazerCount,
-          issuesEnabled: repo.hasIssuesEnabled,
-          projectsEnabled: repo.hasProjectsEnabled,
-          discussionsEnabled: repo.hasDiscussionsEnabled,
-          collaboratorsCount: repo.collaborators?.totalCount || 0,
-          projectsCount: repo.projects.totalCount,
-          projectsV2Count: repo.projectsV2.totalCount,
-        } as RepositoryResult,
-      };
-    }, {} as Record<string, RepositoryResult>),
+    repositories: filteredRepos.reduce(
+      (acc, repo) => {
+        return {
+          ...acc,
+          [repo.name]: {
+            repositoryName: repo.name,
+            repoNameWithOwner: repo.nameWithOwner,
+            licenseName: repo.licenseInfo?.name || "No License",
+            topics: repo.repositoryTopics.nodes?.map(
+              (node) => node?.topic.name
+            ),
+            forksCount: repo.forkCount,
+            watchersCount: repo.watchers.totalCount,
+            starsCount: repo.stargazerCount,
+            issuesEnabled: repo.hasIssuesEnabled,
+            projectsEnabled: repo.hasProjectsEnabled,
+            discussionsEnabled: repo.hasDiscussionsEnabled,
+            // collaboratorsCount: repo.collaborators?.totalCount || 0,
+            projectsCount: repo.projects.totalCount,
+            projectsV2Count: repo.projectsV2.totalCount,
+          } as RepositoryResult,
+        };
+      },
+      {} as Record<string, RepositoryResult>
+    ),
   };
 };
