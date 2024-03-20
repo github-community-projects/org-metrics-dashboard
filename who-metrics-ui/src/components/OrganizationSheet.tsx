@@ -70,7 +70,7 @@ export const OrganizationSheet = () => {
               alignItems: 'center',
             }}
           >
-            <Box>Welcome to the <span className='font-semibold'>{data.orgInfo.name}</span> Open Source Dashboard!</Box>
+            <Box>Open Source Health Metrics for <span className='font-semibold'>{data.orgInfo.name}</span. Visit the Documentation page to learn more about how these metrics are calcultated.</Box>
             <Box>
               <IconButton
                 onClick={() => setShowBanner(false)}

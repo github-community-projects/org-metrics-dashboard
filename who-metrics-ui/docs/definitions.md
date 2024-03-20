@@ -10,13 +10,13 @@ The Dashboard is currently a snapshot of data from the **World Organization Heal
 
 `Watchers:` The number of users who are tracking a particular repository, receiving notifications regarding its activity.
 
-`Open Issues:` Issues are tickets that represent bugs or new features that other people collaborate. Open issues are total of Open issues.
+`Open Issues:` Issues are tickets that represent bugs or new features that other people report and can collaborate on. Open issues are total of unresolved issues.
 
-`Open PR's:` A pull request is a request to make a change to the master code of the project. Open PR's are the total of pull requests with status Open.
+`Open PR's:` A pull request is a request to make a change to the files of the project (code, documentation, README changes, etc.). Open PR's are the total of pull requests with status Open.
 
-`Merge PR's`: A total of Pull Requests that are completed into the code based of the project.
+`Merge PR's`: A total of Pull Requests that are accepted into the code base of the project.
 
-`Total Fork:` Fork is copy of the current repository into other repositories. Total Forks is how many times the repository has been copied.
+`Total Fork:` A fork is a copy of the current repository belonging to another user. Total Forks is how many times the repository has been copied.
 
 `Open Issues Median Age:` Median of how many days of all issues in days with Open Status. If the issue age is zero (meaning there are no open issues), we display "N/A".
 
