@@ -21,7 +21,7 @@ import {
 } from '@primer/react';
 import Image from 'next/image';
 
-import { useSSR } from '@/hooks/useSSR';
+import { useIsSSR } from '@/hooks/useIsSSR';
 import { XIcon } from '@primer/octicons-react';
 import { useTheme } from 'next-themes';
 import data from '../data/data.json';
@@ -30,7 +30,7 @@ import RepositoriesTable from './RepositoriesTable';
 
 export const OrganizationSheet = () => {
   const [showBanner, setShowBanner] = useLocalStorage('show-banner', false);
-  const isSSR = useSSR();
+  const isSSR = useIsSSR();
   const { theme, systemTheme } = useTheme();
   const { setColorMode } = primerUseTheme();
   if (theme === 'light' || theme === 'dark' || theme === 'auto') {
@@ -70,7 +70,7 @@ export const OrganizationSheet = () => {
               alignItems: 'center',
             }}
           >
-            <Box>Open Source Health Metrics for <span className='font-semibold'>{data.orgInfo.name}</span. Visit the Documentation page to learn more about how these metrics are calcultated.</Box>
+            <Box>Open Source Health Metrics for <span className='font-semibold'>{data.orgInfo.name}</span>. Visit the Documentation page to learn more about how these metrics are calcultated.</Box>
             <Box>
               <IconButton
                 onClick={() => setShowBanner(false)}
