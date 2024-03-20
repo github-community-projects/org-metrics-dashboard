@@ -16,7 +16,7 @@ The Dashboard is currently a snapshot of data from the **World Organization Heal
 
 `Merge PR's`: A total of Pull Requests that are accepted into the code base of the project.
 
-`Total Fork:` Fork is copy of the current repository into other repositories. Total Forks is how many times the repository has been copied.
+`Total Fork:` A fork is a copy of the current repository belonging to another user. Total Forks is how many times the repository has been copied.
 
 `Open Issues Median Age:` Median of how many days of all issues in days with Open Status. If the issue age is zero (meaning there are no open issues), we display "N/A".
 
