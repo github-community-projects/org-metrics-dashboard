@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 
+
 module.exports = {
   darkMode: 'class',
   content: [
@@ -10,6 +11,34 @@ module.exports = {
     transparent: 'transparent',
     current: 'currentColor',
     extend: {
+      typography: (theme) => ({
+        DEFAULT: {
+          css: {
+            maxWidth: '2000px',
+            code: {
+              backgroundColor: theme('colors.tremor.background.muted'),
+              padding: '0.25rem 0.5rem',
+              borderRadius: theme('borderRadius.tremor-small')
+              // Now need to do that for dark mode
+            },
+            'code::before': {
+              content: '""',
+            },
+            'code::after': {
+              content: '""',
+            },
+          }
+        },
+        invert: {
+          css: {
+            code: {
+              backgroundColor: theme('colors.dark-tremor.background.muted'),
+              padding: '0.25rem 0.5rem',
+              borderRadius: theme('borderRadius.tremor-small')
+            },
+          }
+        }
+      }),
       height: {
         100: '24rem',
         120: '30rem',
@@ -148,5 +177,5 @@ module.exports = {
         /^(fill-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(?:50|100|200|300|400|500|600|700|800|900|950))$/
     }
   ],
-  plugins: [require('@headlessui/tailwindcss')]
+  plugins: [require('@headlessui/tailwindcss'), require('@tailwindcss/typography'),]
 }
