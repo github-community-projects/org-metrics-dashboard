@@ -3,6 +3,7 @@ import fs from "fs-extra";
 import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 import { parse } from "yaml";
+import { RepositoryResult } from "../../types";
 import {
   addDiscussionData,
   addIssueAndPrData,
@@ -11,8 +12,7 @@ import {
   addOrganizationInfoToResult,
   addRepositoriesToResult,
 } from "./fetchers";
-import { checkRateLimit, CustomOctokit, personalOctokit } from "./lib/octokit";
-import { RepositoryResult } from '../../types'
+import { CustomOctokit, checkRateLimit, personalOctokit } from "./lib/octokit";
 
 export interface Result {
   meta: {
@@ -103,7 +103,7 @@ const pipeline =
   };
 
 const outputResult = async (result: Result) => {
-  const destination = "../who-metrics-ui/src/data/data.json";
+  const destination = "../app/src/data/data.json";
   fs.outputJSONSync(destination, result, { spaces: 2 });
   console.log(`📦  Wrote result to ${destination}`);
 };
