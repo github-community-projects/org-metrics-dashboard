@@ -2,11 +2,11 @@
 
 #### How to Read World Health Organization Open-Source Dashboard
 
-The Dashboard is currently a snapshot of data from the **World Organization Health** Repositories. All the metrics are based on the _Last Updated Date_ reflected on the top of the dashboard.
+The Dashboard is currently a snapshot of data from the **World Health Organization** Repositories. All the metrics are based on the _Last Updated Date_ reflected on the top of the dashboard.
 
 ### Metrics and Definitions
 
-`Collaborators:` Collaborator is an individual that can read a write to the current repository. Metric calculates the current number of Collaborators.
+`Collaborators:` Collaborator is an individual that can read and write to the current repository. Metric calculates the current number of Collaborators.
 
 `Watchers:` The number of users who are tracking a particular repository, receiving notifications regarding its activity.
 
