@@ -5,20 +5,12 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch metrics (local)",
-      "type": "go",
-      "request": "launch",
-      "mode": "debug",
-      "program": "${workspaceFolder}/backend/cmd/main.go",
-      "envFile": "${workspaceFolder}/dev.vscode.env"
-    },
-    {
       "name": "Next.js: debug metrics",
       "type": "node-terminal",
       "request": "launch",
-      "cwd": "${workspaceFolder}/ts-backend",
+      "cwd": "${workspaceFolder}/backend",
       "command": "npm run start",
-      "envFile": "${workspaceFolder}/ts-backend/.env"
+      "envFile": "${workspaceFolder}/backend/.env"
     }
   ]
 }

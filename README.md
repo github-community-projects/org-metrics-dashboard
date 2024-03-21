@@ -83,7 +83,7 @@ To update the repository data using the TypeScript backend.
 
 1. Generate a [new GitHub Token](https://github.com/settings/tokens) with the ability to read repo, read org, and  read projects scopes.
 1. Set the `GRAPHQL_TOKEN` environment variable to be the value of your newly created token.
-1. `cd ts-backend && npm install && yarn start`. This will generate a `data.json` file in the `who-metrics-ui` directory.
+1. `cd backend && npm install && yarn start`. This will generate a `data.json` file in the `who-metrics-ui` directory.
 1. `cd ../who-metrics-ui` and run `npm install && npm run dev` to start the server.
 
 ### UI

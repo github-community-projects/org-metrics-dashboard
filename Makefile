@@ -33,15 +33,6 @@ clean:
 	rm -rf backend/bin
 	cd backend && go clean -cache -testcache -modcache
 
-.PHONY: metrics
-metrics:
-	@echo "==> building metrics <=="
-	cd backend && go build -o ./bin/metrics ./cmd
-
-test-go:
-	@echo "==> running Go tests <=="
-	CGO_ENABLED=1 cd backend && go test -p 64 -race ./...
-
 dev:
 	@echo "==> Generating data"
-	cd ts-backend && npm i && npm run start && cd .. && cd who-metrics-ui && npm i && npm run dev
+	cd backend && npm i && npm run start && cd .. && cd who-metrics-ui && npm i && npm run dev
