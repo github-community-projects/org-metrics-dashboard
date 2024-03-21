@@ -2,23 +2,24 @@ import {
   InfoIcon,
   TriangleDownIcon,
   TriangleUpIcon,
-  XIcon
+  XIcon,
 } from '@primer/octicons-react';
+
 import {
   ActionList,
   Box,
   Button,
   Checkbox,
   FormControl,
+  Text,
   TextInput,
-  Tooltip
+  Tooltip,
 } from '@primer/react';
-import { Text } from '@tremor/react';
 import { json2csv } from 'json-2-csv';
 import DataGrid, {
   Column,
   type RenderHeaderCellProps,
-  type SortColumn
+  type SortColumn,
 } from 'react-data-grid';
 import { Popover } from 'react-tiny-popover';
 
@@ -26,18 +27,21 @@ import { saveAs } from 'file-saver';
 import {
   createContext,
   FC,
+  KeyboardEvent,
+  ReactElement,
   useCallback,
   useContext,
   useRef,
-  useState
+  useState,
 } from 'react';
 
 import { RepositoryResult } from '../../../types';
 import Data from '../data/data.json';
 import TopicCell from './TopicCell';
 
-const repos = Object.values(Data['repositories']);
-function inputStopPropagation(event: React.KeyboardEvent<HTMLInputElement>) {
+const repos = Object.values(Data['repositories']) as RepositoryResult[];
+
+function inputStopPropagation(event: KeyboardEvent<HTMLInputElement>) {
   event.stopPropagation();
 }
 
@@ -82,14 +86,18 @@ const millisecondsToDisplayString = (milliseconds: number) => {
 };
 
 // This selects a field to populate a dropdown with
-const dropdownOptions = (field: keyof RepositoryResult, filter = ''): SelectOption[] => {
-  let options = []
-  if (field === 'topics'){
-    options = Array.from(new Set(repos.flatMap(repo => repo.topics))).sort()
+const dropdownOptions = (
+  field: keyof RepositoryResult,
+  filter = '',
+): SelectOption[] => {
+  let options = [];
+  if (field === 'topics') {
+    options = Array.from(new Set(repos.flatMap((repo) => repo.topics))).sort();
   } else {
-    options = Array.from(new Set(repos.map((repo) => repo[field])))
+    options = Array.from(new Set(repos.map((repo) => repo[field])));
   }
-  return options.map((fieldName) => ({
+  return options
+    .map((fieldName) => ({
       // some fields are boolean (hasXxEnabled), so we need to convert them to strings
       label: typeof fieldName === 'boolean' ? fieldName.toString() : fieldName,
       value: typeof fieldName === 'boolean' ? fieldName.toString() : fieldName,
@@ -113,7 +121,7 @@ const MinMaxRenderer: FC<{
   headerCellProps: RenderHeaderCellProps<RepositoryResult>;
   filters: Filter;
   updateFilters: ((filters: Filter) => void) &
-  ((filters: (filters: Filter) => Filter) => void);
+    ((filters: (updatedFilters: Filter) => Filter) => void);
   filterName: keyof Filter;
 }> = ({ headerCellProps, filters, updateFilters, filterName }) => {
   return (
@@ -176,7 +184,7 @@ const SearchableSelectRenderer: FC<{
   headerCellProps: RenderHeaderCellProps<RepositoryResult>;
   filters: Filter;
   updateFilters: ((filters: Filter) => void) &
-  ((filters: (filters: Filter) => Filter) => void);
+    ((filters: (newFilters: Filter) => Filter) => void);
   filterName: keyof Filter;
 }> = ({ headerCellProps, filters, updateFilters, filterName }) => {
   const [filteredOptions, setFilteredOptions] = useState<string>('');
@@ -310,7 +318,7 @@ const HeaderCellRenderer = <R = unknown,>({
   children: filterFunction,
   sortDirection,
 }: RenderHeaderCellProps<R> & {
-  children: (args: { tabIndex: number; filters: Filter }) => React.ReactElement;
+  children: (args: { tabIndex: number; filters: Filter }) => ReactElement;
 }) => {
   const filters = useContext(FilterContext)!;
   const clickMeButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -413,15 +421,15 @@ const getComparator = (sortColumn: keyof RepositoryResult): Comparator => {
           .toLowerCase()
           .localeCompare(b[sortColumn].toLowerCase());
       };
-    
+
     // Multi option, alphabetical
     case 'topics':
       return (a, b) => {
-        const first = a[sortColumn].sort()[0]
-        const second = b[sortColumn].sort()[0]
+        const first = a[sortColumn].sort()[0];
+        const second = b[sortColumn].sort()[0];
         if (!second) return -1;
         if (!first) return 1;
-        return first.toLowerCase().localeCompare(second.toLowerCase())
+        return first.toLowerCase().localeCompare(second.toLowerCase());
       };
 
     default:
@@ -439,7 +447,7 @@ const defaultFilters: Filter = {
   },
   topics: {
     all: true,
-  }
+  },
 };
 
 // Helper for generating the csv blob
@@ -488,12 +496,12 @@ const RepositoriesTable = () => {
             filters={globalFilters}
             updateFilters={setGlobalFilters}
           />
-        )
+        );
       },
       renderCell: (props) => {
         // tabIndex === 0 is used as a proxy when the Cell is selected. See https://github.com/adazzle/react-data-grid/pull/3236
-        const isSelected = props.tabIndex === 0
-        return <TopicCell topics={props.row.topics} isSelected={isSelected} />
+        const isSelected = props.tabIndex === 0;
+        return <TopicCell topics={props.row.topics} isSelected={isSelected} />;
       },
     },
     License: {
@@ -738,9 +746,7 @@ const RepositoriesTable = () => {
     ([_, columnProps]) => columnProps,
   );
 
-  const subTitle = () => {
-    return `${repos.length} total repositories`;
-  };
+  const subTitle = `${repos.length} total repositories`;
 
   const [sortColumns, setSortColumns] = useState<SortColumn[]>([]);
 
@@ -751,7 +757,9 @@ const RepositoriesTable = () => {
 
     const sortedRows = [...inputRepos].sort((a, b) => {
       for (const sort of sortColumns) {
-        const comparator = getComparator(sort.columnKey as keyof RepositoryResult);
+        const comparator = getComparator(
+          sort.columnKey as keyof RepositoryResult,
+        );
         const compResult = comparator(a, b);
         if (compResult !== 0) {
           return sort.direction === 'ASC' ? compResult : -compResult;
@@ -789,89 +797,93 @@ const RepositoriesTable = () => {
         return (
           ((globalFilters.repositoryName?.[repo.repositoryName] ?? false) ||
             (globalFilters.repositoryName?.['all'] ?? false)) &&
-          (( globalFilters.topics && Object.entries(globalFilters.topics).some(([selectedTopic, isSelected]) => isSelected && repo.topics.includes(selectedTopic))) ||
+          ((globalFilters.topics &&
+            Object.entries(globalFilters.topics).some(
+              ([selectedTopic, isSelected]) =>
+                isSelected && repo.topics.includes(selectedTopic),
+            )) ||
             (globalFilters.topics?.['all'] ?? false)) &&
           ((globalFilters.licenseName?.[repo.licenseName] ?? false) ||
             (globalFilters.licenseName?.['all'] ?? false)) &&
           (globalFilters.collaboratorsCount
             ? (globalFilters.collaboratorsCount?.[0] ?? 0) <=
-            repo.collaboratorsCount &&
-            repo.collaboratorsCount <=
-            (globalFilters.collaboratorsCount[1] ?? Infinity)
+                repo.collaboratorsCount &&
+              repo.collaboratorsCount <=
+                (globalFilters.collaboratorsCount[1] ?? Infinity)
             : true) &&
           (globalFilters.watchersCount
             ? (globalFilters.watchersCount?.[0] ?? 0) <= repo.watchersCount &&
-            repo.watchersCount <= (globalFilters.watchersCount[1] ?? Infinity)
+              repo.watchersCount <= (globalFilters.watchersCount[1] ?? Infinity)
             : true) &&
           (globalFilters.openIssuesCount
             ? (globalFilters.openIssuesCount?.[0] ?? 0) <=
-            repo.openIssuesCount &&
-            repo.openIssuesCount <=
-            (globalFilters.openIssuesCount[1] ?? Infinity)
+                repo.openIssuesCount &&
+              repo.openIssuesCount <=
+                (globalFilters.openIssuesCount[1] ?? Infinity)
             : true) &&
           (globalFilters.closedIssuesCount
             ? (globalFilters.closedIssuesCount?.[0] ?? 0) <=
-            repo.closedIssuesCount &&
-            repo.closedIssuesCount <=
-            (globalFilters.closedIssuesCount[1] ?? Infinity)
+                repo.closedIssuesCount &&
+              repo.closedIssuesCount <=
+                (globalFilters.closedIssuesCount[1] ?? Infinity)
             : true) &&
           (globalFilters.openPullRequestsCount
             ? (globalFilters.openPullRequestsCount?.[0] ?? 0) <=
-            repo.openPullRequestsCount &&
-            repo.openPullRequestsCount <=
-            (globalFilters.openPullRequestsCount[1] ?? Infinity)
+                repo.openPullRequestsCount &&
+              repo.openPullRequestsCount <=
+                (globalFilters.openPullRequestsCount[1] ?? Infinity)
             : true) &&
           (globalFilters.mergedPullRequestsCount
             ? (globalFilters.mergedPullRequestsCount?.[0] ?? 0) <=
-            repo.mergedPullRequestsCount &&
-            repo.mergedPullRequestsCount <=
-            (globalFilters.mergedPullRequestsCount[1] ?? Infinity)
+                repo.mergedPullRequestsCount &&
+              repo.mergedPullRequestsCount <=
+                (globalFilters.mergedPullRequestsCount[1] ?? Infinity)
             : true) &&
           (globalFilters.forksCount
             ? (globalFilters.forksCount?.[0] ?? 0) <= repo.forksCount &&
-            repo.forksCount <= (globalFilters.forksCount[1] ?? Infinity)
+              repo.forksCount <= (globalFilters.forksCount[1] ?? Infinity)
             : true) &&
           (globalFilters.openIssuesMedianAge
             ? testTimeBasedFilter(
-              globalFilters.openIssuesMedianAge[0],
-              globalFilters.openIssuesMedianAge[1],
-              repo.openIssuesMedianAge,
-            )
+                globalFilters.openIssuesMedianAge[0],
+                globalFilters.openIssuesMedianAge[1],
+                repo.openIssuesMedianAge,
+              )
             : true) &&
           (globalFilters.openIssuesAverageAge
             ? testTimeBasedFilter(
-              globalFilters.openIssuesAverageAge[0],
-              globalFilters.openIssuesAverageAge[1],
-              repo.openIssuesAverageAge,
-            )
+                globalFilters.openIssuesAverageAge[0],
+                globalFilters.openIssuesAverageAge[1],
+                repo.openIssuesAverageAge,
+              )
             : true) &&
           (globalFilters.closedIssuesMedianAge
             ? testTimeBasedFilter(
-              globalFilters.closedIssuesMedianAge[0],
-              globalFilters.closedIssuesMedianAge[1],
-              repo.closedIssuesMedianAge,
-            )
+                globalFilters.closedIssuesMedianAge[0],
+                globalFilters.closedIssuesMedianAge[1],
+                repo.closedIssuesMedianAge,
+              )
             : true) &&
           (globalFilters.closedIssuesAverageAge
             ? testTimeBasedFilter(
-              globalFilters.closedIssuesAverageAge[0],
-              globalFilters.closedIssuesAverageAge[1],
-              repo.closedIssuesAverageAge,
-            )
+                globalFilters.closedIssuesAverageAge[0],
+                globalFilters.closedIssuesAverageAge[1],
+                repo.closedIssuesAverageAge,
+              )
             : true) &&
           (globalFilters.issuesResponseMedianAge
             ? testTimeBasedFilter(
-              globalFilters.issuesResponseMedianAge[0],
-              globalFilters.issuesResponseMedianAge[1],
-              repo.issuesResponseMedianAge,
-            )
+                globalFilters.issuesResponseMedianAge[0],
+                globalFilters.issuesResponseMedianAge[1],
+                repo.issuesResponseMedianAge,
+              )
             : true) &&
           (globalFilters.issuesResponseAverageAge
             ? testTimeBasedFilter(
-              globalFilters.issuesResponseAverageAge[0],
-              globalFilters.issuesResponseAverageAge[1],
-              repo.issuesResponseAverageAge,
-            )
+                globalFilters.issuesResponseAverageAge[0],
+                globalFilters.issuesResponseAverageAge[1],
+                repo.issuesResponseAverageAge,
+              )
             : true)
         );
       });
@@ -893,11 +905,19 @@ const RepositoriesTable = () => {
               <Tooltip aria-label="All of the repositories in this organization">
                 <InfoIcon size={24} />
               </Tooltip>
-              <Text>{subTitle()}</Text>
+              <Text as="p" className="text-sm">
+                {subTitle}
+              </Text>
             </Box>
-            <Text>
-              Last updated <span suppressHydrationWarning>{createdDate.toLocaleDateString()}</span> at{' '}
-              <span suppressHydrationWarning>{createdDate.toLocaleTimeString()}</span>
+            <Text as="p" className="text-sm">
+              Last updated{' '}
+              <span suppressHydrationWarning>
+                {createdDate.toLocaleDateString()}
+              </span>{' '}
+              at{' '}
+              <span suppressHydrationWarning>
+                {createdDate.toLocaleTimeString()}
+              </span>
             </Text>
           </div>
           <div className="flex flex-row items-center space-x-2">

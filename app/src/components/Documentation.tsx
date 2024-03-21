@@ -1,16 +1,18 @@
+import Docs from '@/docs/definitions.md';
+import { Box } from '@primer/react';
 import { marked } from 'marked';
-import docs from '../../docs/definitions.md';
 
 const convertMarkdownToHTML = (markdown: string): string => {
   return marked(markdown) as string;
 };
 
 const Documentation = () => {
-  const html = convertMarkdownToHTML(docs);
+  const html = convertMarkdownToHTML(Docs);
 
   return (
-    // eslint-disable-next-line react/no-danger
-    <div dangerouslySetInnerHTML={{ __html: html }} />
+    <Box className="prose dark:prose-invert prose-lg">
+      <Box dangerouslySetInnerHTML={{ __html: html }} />
+    </Box>
   );
 };
 

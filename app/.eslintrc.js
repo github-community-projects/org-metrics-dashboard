@@ -1,8 +1,7 @@
-// eslint-disable-next-line import/no-extraneous-dependencies, @typescript-eslint/no-var-requires
+/* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable import/no-nodejs-modules */
 const glob = require('glob');
-// eslint-disable-next-line import/no-nodejs-modules, @typescript-eslint/no-var-requires
 const { readFileSync } = require('fs');
-// eslint-disable-next-line import/no-nodejs-modules, @typescript-eslint/no-var-requires
 const { dirname, join } = require('path');
 
 const noRestrictedSyntaxRules = {
@@ -49,7 +48,6 @@ const baseConfig = {
     'plugin:github/recommended',
     'plugin:github/browser',
     'plugin:escompat/typescript',
-    'plugin:github/typescript',
     'plugin:import/typescript',
     'plugin:react/recommended',
     'plugin:react/jsx-runtime',
@@ -63,13 +61,8 @@ const baseConfig = {
   },
   ignorePatterns: ['*__generated__*'],
   rules: {
-    'prettier/prettier': 0, // We use prettier for formatting instead of ESLint
-    'import/no-unresolved': [
-      'error',
-      {
-        ignore: ['.svg'],
-      },
-    ],
+    'prettier/prettier': 1, // We use prettier for formatting instead of ESLint
+    'import/no-unresolved': 0, // Handled by TypeScript instead
     'import/extensions': [
       'error',
       {
@@ -83,6 +76,7 @@ const baseConfig = {
     'escompat/no-nullish-coalescing': 'off',
     '@typescript-eslint/no-shadow': 'error',
     '@typescript-eslint/no-unused-vars': ['error'],
+    'no-unused-vars': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     'valid-typeof': ['error', { requireStringLiterals: true }],
     'github/no-inner-html': 'off',
@@ -116,10 +110,10 @@ const baseConfig = {
     ],
     'import/resolver': {
       node: {
-        extensions: ['.js', '.ts', '.tsx'],
+        extensions: ['.js', '.ts', '.tsx', '.json', '.md'],
         moduleDirectory: ['app/src', 'app/node_modules'],
       },
-      typescript: true,
+      typescript: {},
     },
     react: {
       version: 'detect',

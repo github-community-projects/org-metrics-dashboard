@@ -1,3 +1,4 @@
+// eslint-disable-next-line filenames/match-regex
 import { ThemeProvider as NextThemeProvider } from 'next-themes';
 import type { AppProps } from 'next/app';
 import 'react-data-grid/lib/styles.css';

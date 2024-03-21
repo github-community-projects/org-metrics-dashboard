@@ -1,28 +1,26 @@
-"use client";
-
-import { useTheme } from "next-themes";
-import { Text, ToggleSwitch, useTheme as primerUseTheme } from "@primer/react";
+import { Text, ToggleSwitch, useTheme as primerUseTheme } from '@primer/react';
+import { useTheme } from 'next-themes';
 
 const DarkModeToggle = () => {
   const { theme, setTheme } = useTheme();
   const { setColorMode } = primerUseTheme();
 
   const setThemePage = () => {
-    if (theme === "dark") {
-      setTheme("light");
-      setColorMode("light");
+    if (theme === 'dark') {
+      setTheme('light');
+      setColorMode('light');
     } else {
-      setTheme("dark");
-      setColorMode("dark");
+      setTheme('dark');
+      setColorMode('dark');
     }
   };
   return (
     <>
-      <Text id="toggle" sx={{ fontWeight: "bold", fontSize: 1 }}>
+      <Text id="toggle" sx={{ fontWeight: 'bold', fontSize: 1 }}>
         Toggle Mode
       </Text>
       <ToggleSwitch
-        checked={theme === "dark"}
+        checked={theme === 'dark'}
         aria-labelledby="toggle"
         onClick={() => setThemePage()}
       />

@@ -1,34 +1,25 @@
-'use client';
-
 import { useLocalStorage } from 'usehooks-ts';
-
-import {
-  Tab,
-  TabGroup,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Text,
-  Title
-} from '@tremor/react';
 
 import logo from '@/images/who-logo-wide.svg';
 import {
   Box,
   Flash,
   IconButton,
-  useTheme as primerUseTheme
+  TabNav,
+  Text,
+  useTheme as primerUseTheme,
 } from '@primer/react';
 import Image from 'next/image';
 
 import { useIsSSR } from '@/hooks/useIsSSR';
 import { XIcon } from '@primer/octicons-react';
 import { useTheme } from 'next-themes';
+import { useRouter } from 'next/router';
+import { FC, PropsWithChildren } from 'react';
 import data from '../data/data.json';
-import Documentation from './Documentation';
-import RepositoriesTable from './RepositoriesTable';
 
-export const OrganizationSheet = () => {
+export const Layout: FC<PropsWithChildren> = ({ children }) => {
+  const router = useRouter();
   const [showBanner, setShowBanner] = useLocalStorage('show-banner', false);
   const isSSR = useIsSSR();
   const { theme, systemTheme } = useTheme();
@@ -43,10 +34,7 @@ export const OrganizationSheet = () => {
 
   return (
     <main className="px-18 py-18 h-full flex flex-col">
-      <Box
-        className="flex"
-        sx={{ flexDirection: 'row', gap: 4, alignItems: 'center', mb: 1 }}
-      >
+      <Box className="flex flex-row items-center gap-6">
         <Image
           className="block h-8 w-auto"
           src={logo}
@@ -54,12 +42,17 @@ export const OrganizationSheet = () => {
           width={150}
           alt="World Health Organization logo"
         />
-        <Title>{data.orgInfo.name} Open Source Dashboard</Title>
+        <Text as="h1" className="font-semibold text-xl">
+          {data.orgInfo.name} Open Source Dashboard
+        </Text>
       </Box>
-      <Text>
-        This project includes metrics about the Open Source repositories for the
-        {data.orgInfo.name}.
-      </Text>
+      <Box className="mt-2">
+        <Text as="h2" className="text-sm">
+          This project includes metrics about the Open Source repositories for
+          the
+          {data.orgInfo.name}.
+        </Text>
+      </Box>
       {!isSSR && showBanner && (
         <Box className="mt-6">
           <Flash
@@ -70,7 +63,12 @@ export const OrganizationSheet = () => {
               alignItems: 'center',
             }}
           >
-            <Box>Open Source Health Metrics for <span className='font-semibold'>{data.orgInfo.name}</span>. Visit the Documentation page to learn more about how these metrics are calcultated.</Box>
+            <Text>
+              Open Source Health Metrics for{' '}
+              <Text className="font-semibold">{data.orgInfo.name}</Text>. Visit
+              the Documentation page to learn more about how these metrics are
+              calculated.
+            </Text>
             <Box>
               <IconButton
                 onClick={() => setShowBanner(false)}
@@ -83,22 +81,18 @@ export const OrganizationSheet = () => {
           </Flash>
         </Box>
       )}
-      <TabGroup className="mt-6 flex-1 flex flex-col">
-        <TabList>
-          <Tab>Repositories</Tab>
-          <Tab>Documentation</Tab>
-        </TabList>
-        <TabPanels className="flex-1 flex flex-col">
-          <TabPanel className="flex-1">
-            <RepositoriesTable />
-          </TabPanel>
-          <TabPanel className="flex-1">
-            <Box className="prose dark:prose-invert prose-lg">
-              <Documentation />
-            </Box>
-          </TabPanel>
-        </TabPanels>
-      </TabGroup>
+      <TabNav aria-label="Main" className="mt-8">
+        <TabNav.Link href="/" selected={router.pathname === '/'}>
+          Repositories
+        </TabNav.Link>
+        <TabNav.Link
+          href="/documentation"
+          selected={router.pathname === '/documentation'}
+        >
+          Documentation
+        </TabNav.Link>
+      </TabNav>
+      <Box className="flex-1 mt-2">{children}</Box>
     </main>
   );
 };
