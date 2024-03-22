@@ -45,7 +45,7 @@ export const OrganizationSheet = () => {
         <Title>{data.orgInfo.name} Open Source Dashboard</Title>
       </Box>
       <Text>
-        This project includes metrics about the Open Source repositories for the
+        This project includes metrics about the Open Source repositories for the 
         {data.orgInfo.name}.
       </Text>
       <TabGroup className="mt-6 flex-1 flex flex-col">
