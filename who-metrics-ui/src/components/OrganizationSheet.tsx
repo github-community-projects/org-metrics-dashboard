@@ -57,8 +57,7 @@ export const OrganizationSheet = () => {
         <Title>{data.orgInfo.name} Open Source Dashboard</Title>
       </Box>
       <Text>
-        This project includes metrics about the Open Source repositories for the
-        {data.orgInfo.name}.
+        This project includes metrics about the Open Source repositories for the {data.orgInfo.name}.
       </Text>
       {!isSSR && showBanner && (
         <Box className="mt-6">
