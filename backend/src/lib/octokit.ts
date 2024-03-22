@@ -1,7 +1,7 @@
-import { paginateGraphql } from "@octokit/plugin-paginate-graphql";
-import { retry } from "@octokit/plugin-retry";
-import { throttling } from "@octokit/plugin-throttling";
-import { Octokit } from "@octokit/rest";
+import { paginateGraphql } from '@octokit/plugin-paginate-graphql';
+import { retry } from '@octokit/plugin-retry';
+import { throttling } from '@octokit/plugin-throttling';
+import { Octokit } from '@octokit/rest';
 
 /**
  * Creates a new octokit instance that is authenticated as the user
@@ -16,7 +16,7 @@ export const personalOctokit = (token: string) => {
     throttle: {
       onRateLimit: (retryAfter, options, octokit, retryCount) => {
         octokit.log.warn(
-          `Request quota exhausted for request ${options.method} ${options.url} - retrying in ${retryAfter} seconds`
+          `Request quota exhausted for request ${options.method} ${options.url} - retrying in ${retryAfter} seconds`,
         );
 
         if (retryCount < 1) {
@@ -28,14 +28,14 @@ export const personalOctokit = (token: string) => {
       onSecondaryRateLimit: (retryAfter, options, octokit) => {
         // does not retry, only logs a warning
         octokit.log.warn(
-          `SecondaryRateLimit detected for request ${options.method} ${options.url}`
+          `SecondaryRateLimit detected for request ${options.method} ${options.url}`,
         );
       },
     },
   });
 };
 
-export const checkRateLimit = async (octokit: Octokit) => {
+export const checkRateLimit = async (octokit: CustomOctokit) => {
   const rateLimit = await octokit.rateLimit.get();
   const {
     core: { limit, remaining, reset },

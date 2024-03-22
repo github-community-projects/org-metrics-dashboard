@@ -1,19 +1,10 @@
 import { useLocalStorage } from 'usehooks-ts';
 
-import logo from '@/images/who-logo-wide.svg';
-import {
-  Box,
-  Flash,
-  IconButton,
-  TabNav,
-  Text,
-  useTheme as primerUseTheme,
-} from '@primer/react';
+import { Box, Flash, IconButton, TabNav, Text } from '@primer/react';
 import Image from 'next/image';
 
 import { useIsSSR } from '@/hooks/useIsSSR';
 import { XIcon } from '@primer/octicons-react';
-import { useTheme } from 'next-themes';
 import { useRouter } from 'next/router';
 import { FC, PropsWithChildren } from 'react';
 import data from '../data/data.json';
@@ -22,22 +13,13 @@ export const Layout: FC<PropsWithChildren> = ({ children }) => {
   const router = useRouter();
   const [showBanner, setShowBanner] = useLocalStorage('show-banner', false);
   const isSSR = useIsSSR();
-  const { theme, systemTheme } = useTheme();
-  const { setColorMode } = primerUseTheme();
-  if (theme === 'light' || theme === 'dark' || theme === 'auto') {
-    setColorMode(theme);
-  }
-
-  if (theme === 'system' && systemTheme) {
-    setColorMode(systemTheme);
-  }
 
   return (
     <main className="px-18 py-18 h-full flex flex-col">
       <Box className="flex flex-row items-center gap-6">
         <Image
           className="block h-8 w-auto"
-          src={logo}
+          src="/images/logo.svg"
           height={50}
           width={150}
           alt="World Health Organization logo"

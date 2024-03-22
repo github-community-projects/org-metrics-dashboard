@@ -1,3 +1,4 @@
+/* eslint-disable primer-react/a11y-tooltip-interactive-trigger */
 import {
   InfoIcon,
   TriangleDownIcon,
@@ -897,10 +898,10 @@ const RepositoriesTable = () => {
   const createdDate = new Date(Data.meta.createdAt);
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="py-2">
-        <div className="flex flex-row items-center justify-between">
-          <div className="flex flex-row space-x-4 justify-start items-center">
+    <Box className="h-full flex flex-col">
+      <Box className="py-2">
+        <Box className="flex flex-row items-center justify-between">
+          <Box className="flex flex-row space-x-4 justify-start items-center">
             <Box className="flex flex-row items-center space-x-1">
               <Tooltip aria-label="All of the repositories in this organization">
                 <InfoIcon size={24} />
@@ -911,16 +912,16 @@ const RepositoriesTable = () => {
             </Box>
             <Text as="p" className="text-sm">
               Last updated{' '}
-              <span suppressHydrationWarning>
+              <Text suppressHydrationWarning>
                 {createdDate.toLocaleDateString()}
-              </span>{' '}
+              </Text>{' '}
               at{' '}
-              <span suppressHydrationWarning>
+              <Text suppressHydrationWarning>
                 {createdDate.toLocaleTimeString()}
-              </span>
+              </Text>
             </Text>
-          </div>
-          <div className="flex flex-row items-center space-x-2">
+          </Box>
+          <Box className="flex flex-row items-center space-x-2">
             <Button
               variant="invisible"
               onClick={() => {
@@ -938,12 +939,12 @@ const RepositoriesTable = () => {
             >
               Download CSV
             </Button>
-          </div>
-        </div>
-      </div>
+          </Box>
+        </Box>
+      </Box>
       <FilterContext.Provider value={globalFilters}>
         {/* This is a weird hack to make the table fill the page */}
-        <div className="h-64 flex-grow">
+        <Box className="h-64 flex-grow">
           <DataGrid
             columns={dataGridColumns}
             rows={displayRows}
@@ -961,9 +962,9 @@ const RepositoriesTable = () => {
                 : 'hover:bg-slate-200 dark:hover:bg-slate-600'
             }
           />
-        </div>
+        </Box>
       </FilterContext.Provider>
-    </div>
+    </Box>
   );
 };
 

@@ -1,6 +1,6 @@
-import Docs from '@/docs/definitions.md';
 import { Box } from '@primer/react';
 import { marked } from 'marked';
+import Docs from '../../docs/definitions.md';
 
 const convertMarkdownToHTML = (markdown: string): string => {
   return marked(markdown) as string;
@@ -11,7 +11,9 @@ const Documentation = () => {
 
   return (
     <Box className="prose dark:prose-invert prose-lg">
-      <Box dangerouslySetInnerHTML={{ __html: html }} />
+      <Box className="h-full flex flex-col overflow-scroll">
+        <Box dangerouslySetInnerHTML={{ __html: html }} />
+      </Box>
     </Box>
   );
 };

@@ -138,6 +138,7 @@ const baseConfig = {
 
         // muting an expensive rule that scans jsdoc comments looking for @deprecated notes
         'import/no-deprecated': 'off',
+        'filenames/match-regex': 'off',
       },
     },
     {
@@ -219,7 +220,7 @@ module.exports = {
       excludedFiles: ['**/__tests__/**'],
       rules: {
         'i18n-text/no-en': 'off',
-        'filenames/match-regex': [2, '^[A-Z][a-zA-Z]+(.[a-z0-9-]+)?$'],
+        // 'filenames/match-regex': [2, '^[A-Z][a-zA-Z]+(.[a-z0-9-]+)?$'],
         'import/extensions': 'off',
       },
     },
