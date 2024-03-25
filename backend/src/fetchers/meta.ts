@@ -1,6 +1,6 @@
 // Fetchers for meta data about this run
 
-import { Fetcher } from "..";
+import { Fetcher } from '..';
 
 export const addMetaToResult: Fetcher = async (result) => {
   return {

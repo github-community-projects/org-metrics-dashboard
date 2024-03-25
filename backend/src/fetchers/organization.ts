@@ -1,11 +1,11 @@
 // Fetchers for organization data and metrics
 
-import { Fetcher } from "..";
+import { Fetcher } from '..';
 
 export const addOrganizationInfoToResult: Fetcher = async (
   result,
   octokit,
-  config
+  config,
 ) => {
   const organization = await octokit.orgs.get({ org: config.organization });
 

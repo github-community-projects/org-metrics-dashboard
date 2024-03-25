@@ -1,8 +1,8 @@
 // Fetchers for issue & pull request data and metrics
 
-import { Organization } from "@octokit/graphql-schema";
-import { Config, Fetcher } from "..";
-import { CustomOctokit } from "../lib/octokit";
+import { Organization } from '@octokit/graphql-schema';
+import { Config, Fetcher } from '..';
+import { CustomOctokit } from '../lib/octokit';
 
 const queryForDiscussions = async (octokit: CustomOctokit, config: Config) => {
   return await octokit.graphql.paginate<{ organization: Organization }>(
@@ -27,7 +27,7 @@ const queryForDiscussions = async (octokit: CustomOctokit, config: Config) => {
     `,
     {
       organization: config.organization,
-    }
+    },
   );
 };
 
@@ -40,7 +40,7 @@ const getDiscussionData = async (octokit: CustomOctokit, config: Config) => {
         repositoryName: node!.name,
         discussionsCount: node!.discussions.totalCount,
       };
-    }
+    },
   );
 
   return dataResult;

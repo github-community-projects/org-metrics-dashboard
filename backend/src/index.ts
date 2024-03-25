@@ -1,9 +1,9 @@
-import "dotenv/config";
-import fs from "fs-extra";
-import { dirname, resolve } from "path";
-import { fileURLToPath } from "url";
-import { parse } from "yaml";
-import { RepositoryResult } from "../../types";
+import 'dotenv/config';
+import fs from 'fs-extra';
+import { dirname, resolve } from 'path';
+import { fileURLToPath } from 'url';
+import { parse } from 'yaml';
+import { RepositoryResult } from '../../types';
 import {
   addDiscussionData,
   addIssueAndPrData,
@@ -11,8 +11,8 @@ import {
   addMetaToResult,
   addOrganizationInfoToResult,
   addRepositoriesToResult,
-} from "./fetchers";
-import { CustomOctokit, checkRateLimit, personalOctokit } from "./lib/octokit";
+} from './fetchers';
+import { CustomOctokit, checkRateLimit, personalOctokit } from './lib/octokit';
 
 export interface Result {
   meta: {
@@ -35,7 +35,7 @@ export interface Result {
 export type Fetcher = (
   result: Result,
   octokit: CustomOctokit,
-  config: Config
+  config: Config,
 ) => Promise<Result> | Result;
 
 export interface Config {
@@ -47,12 +47,12 @@ export interface Config {
 
 // Check for the GRAPHQL_TOKEN environment variable
 if (!process.env.GRAPHQL_TOKEN) {
-  console.log("GRAPHQL_TOKEN environment variable is required, exiting...");
-  throw new Error("GRAPHQL_TOKEN environment variable is required!");
+  console.log('GRAPHQL_TOKEN environment variable is required, exiting...');
+  throw new Error('GRAPHQL_TOKEN environment variable is required!');
 }
 
-console.log("Starting GitHub organization metrics fetcher");
-console.log("🔑  Authenticating with GitHub");
+console.log('Starting GitHub organization metrics fetcher');
+console.log('🔑  Authenticating with GitHub');
 
 const octokit = personalOctokit(process.env.GRAPHQL_TOKEN!);
 
@@ -60,17 +60,17 @@ const octokit = personalOctokit(process.env.GRAPHQL_TOKEN!);
 let yamlConfig: Partial<Config> = {};
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const configFileLocation = resolve(__dirname, "../../config.yml");
+const configFileLocation = resolve(__dirname, '../../config.yml');
 try {
-  const configFile = fs.readFileSync(configFileLocation, "utf-8");
+  const configFile = fs.readFileSync(configFileLocation, 'utf-8');
   yamlConfig = parse(configFile) as Partial<Config>;
 } catch (e) {
-  console.error("Error reading config file at", configFileLocation);
+  console.error('Error reading config file at', configFileLocation);
   console.log(e);
 }
 
 const config: Config = {
-  organization: "github",
+  organization: 'github',
   includeForks: false,
   includeArchived: false,
   ...yamlConfig,
@@ -95,7 +95,7 @@ const pipeline =
       console.log(
         `⚙️  Rate limit: ${res.remaining}/${
           res.limit
-        } remaining until ${res.resetDate.toLocaleString()}`
+        } remaining until ${res.resetDate.toLocaleString()}`,
       );
     }
 
@@ -103,7 +103,7 @@ const pipeline =
   };
 
 const outputResult = async (result: Result) => {
-  const destination = "../app/src/data/data.json";
+  const destination = '../app/src/data/data.json';
   fs.outputJSONSync(destination, result, { spaces: 2 });
   console.log(`📦  Wrote result to ${destination}`);
 };
@@ -114,7 +114,7 @@ const result = await pipeline(octokit, config)(
   addRepositoriesToResult,
   addIssueAndPrData,
   addDiscussionData,
-  addIssueMetricsData
+  addIssueMetricsData,
 );
 
 outputResult(result);

@@ -1,13 +1,13 @@
 // Fetchers for repository data and metrics
 
-import { Organization, Repository } from "@octokit/graphql-schema";
-import { Fetcher } from "..";
-import { RepositoryResult } from "../../../types";
+import { Organization, Repository } from '@octokit/graphql-schema';
+import { Fetcher } from '..';
+import { RepositoryResult } from '../../../types';
 
 export const addRepositoriesToResult: Fetcher = async (
   result,
   octokit,
-  config
+  config,
 ) => {
   const organization = await octokit.graphql.paginate<{
     organization: Organization;
@@ -63,13 +63,13 @@ export const addRepositoriesToResult: Fetcher = async (
   `,
     {
       organization: config.organization,
-    }
+    },
   );
 
   const filteredRepos = organization.organization.repositories.nodes!.filter(
     (repo) =>
       !(repo?.isArchived && !config.includeArchived) ||
-      !(repo.isFork && !config.includeForks)
+      !(repo.isFork && !config.includeForks),
   ) as Repository[];
 
   return {
@@ -81,9 +81,9 @@ export const addRepositoriesToResult: Fetcher = async (
           [repo.name]: {
             repositoryName: repo.name,
             repoNameWithOwner: repo.nameWithOwner,
-            licenseName: repo.licenseInfo?.name || "No License",
+            licenseName: repo.licenseInfo?.name || 'No License',
             topics: repo.repositoryTopics.nodes?.map(
-              (node) => node?.topic.name
+              (node) => node?.topic.name,
             ),
             forksCount: repo.forkCount,
             watchersCount: repo.watchers.totalCount,
@@ -97,7 +97,7 @@ export const addRepositoriesToResult: Fetcher = async (
           } as RepositoryResult,
         };
       },
-      {} as Record<string, RepositoryResult>
+      {} as Record<string, RepositoryResult>,
     ),
   };
 };

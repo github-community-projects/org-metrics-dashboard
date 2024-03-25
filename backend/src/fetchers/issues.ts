@@ -6,18 +6,18 @@ import {
   PullRequestConnection,
   Repository,
   RepositoryConnection,
-} from "@octokit/graphql-schema";
-import { Config, Fetcher } from "..";
-import { CustomOctokit } from "../lib/octokit";
+} from '@octokit/graphql-schema';
+import { Config, Fetcher } from '..';
+import { CustomOctokit } from '../lib/octokit';
 
 const getIssueAndPrData = async (octokit: CustomOctokit, config: Config) => {
   const issueData = await octokit.graphql.paginate<{
     organization: {
       repositories: {
-        totalCount: RepositoryConnection["totalCount"];
+        totalCount: RepositoryConnection['totalCount'];
         pageInfo: PageInfo;
         nodes: {
-          name: Repository["name"];
+          name: Repository['name'];
           totalIssues: IssueConnection;
           openIssues: IssueConnection;
           closedIssues: IssueConnection;
@@ -68,7 +68,7 @@ const getIssueAndPrData = async (octokit: CustomOctokit, config: Config) => {
 `,
     {
       organization: config.organization,
-    }
+    },
   );
 
   return issueData;
@@ -94,9 +94,9 @@ export const addIssueAndPrData: Fetcher = async (result, octokit, config) => {
 
 const calculateIssueMetricsPerRepo = async (
   repoName: string,
-  state: "open" | "closed",
+  state: 'open' | 'closed',
   octokit: CustomOctokit,
-  config: Config
+  config: Config,
 ) => {
   const result = await octokit.paginate(octokit.issues.listForRepo, {
     owner: config.organization,
@@ -134,7 +134,7 @@ const calculateIssueMetricsPerRepo = async (
 const calculateIssueResponseTime = async (
   repoName: string,
   octokit: CustomOctokit,
-  config: Config
+  config: Config,
 ) => {
   const result = await octokit.graphql.paginate<{ repository: Repository }>(
     `
@@ -173,7 +173,7 @@ const calculateIssueResponseTime = async (
       organization: config.organization,
       repoName: repoName,
       since: config.since,
-    }
+    },
   );
 
   // Check if there are any issues at all
@@ -204,8 +204,8 @@ const calculateIssueResponseTime = async (
           nodes: issue!.comments.nodes?.filter(
             (comment) =>
               comment!.author?.login !== issue!.author?.login &&
-              comment!.author?.__typename !== "Bot" &&
-              !comment?.isMinimized
+              comment!.author?.__typename !== 'Bot' &&
+              !comment?.isMinimized,
           ),
         },
       };
@@ -227,7 +227,7 @@ const calculateIssueResponseTime = async (
   // Calculate the average
   const issuesTotalResponseTime = issuesResponseTime.reduce(
     (acc, responseTime) => acc + responseTime,
-    0
+    0,
   );
   const issuesResponseAverageAge =
     issuesCount > 0 ? issuesTotalResponseTime / issuesCount : 0;
@@ -248,12 +248,12 @@ export const addIssueMetricsData: Fetcher = async (result, octokit, config) => {
     const {
       issuesAverageAge: openIssuesAverageAge,
       issuesMedianAge: openIssuesMedianAge,
-    } = await calculateIssueMetricsPerRepo(repoName, "open", octokit, config);
+    } = await calculateIssueMetricsPerRepo(repoName, 'open', octokit, config);
 
     const {
       issuesAverageAge: closedIssuesAverageAge,
       issuesMedianAge: closedIssuesMedianAge,
-    } = await calculateIssueMetricsPerRepo(repoName, "closed", octokit, config);
+    } = await calculateIssueMetricsPerRepo(repoName, 'closed', octokit, config);
 
     const { issuesResponseAverageAge, issuesResponseMedianAge } =
       await calculateIssueResponseTime(repoName, octokit, config);
