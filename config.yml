@@ -1,3 +1,10 @@
 ---
-organization: "WorldHealthOrganization"
-since: "2008-01-01"
+organization: 'WorldHealthOrganization'
+since: '2024-02-22'
+
+# Used for snapshotting
+snapshots:
+  - 30
+  - 90
+  - 180
+  - 365
