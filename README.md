@@ -21,12 +21,6 @@ Issue Project [here](https://github.com/github/SI-skills-based-volunteering/issu
       <b>Project Lead, Senior Data Analyst </b>
     </td>
     <td align=center>
-    <img src="https://avatars.githubusercontent.com/u/61184284?v=4" width="110" height="110"><br/>
-      <a href="https://github.com/darostegui">@darostegui</a><br/>
-      Diego Arostegui<br/>
-      <b>Customer Reliability Engineer III</b>
-    </td>
-    <td align=center>
     <img src="https://avatars.githubusercontent.com/u/24923406?v=4" width="110" height="110"><br/>
       <a href="https://github.com/ajhenry">@ajhenry</a><br/>
       Andrew Henry<br/>
