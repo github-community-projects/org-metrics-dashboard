@@ -90,7 +90,7 @@ The `GRAPHQL_TOKEN` token requires the following scopes:
 - read:project
 
 > [!NOTE]
-> To fetch collaborator counts, you need to provide a token that is an admin of the repository.
+> To fetch collaborator counts, you need to provide a token that is an admin of the organization.
 
 ### Installation
 
