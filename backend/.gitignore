@@ -1,12 +1,5 @@
-.cache
-.DS_Store
-.idea
-*.log
-*.tgz
-coverage
-dist
-lib-cov
-logs
-node_modules
-temp
-*data.json
+config/.env
+*.env
+bin/
+__debug_bin
+.goproxytoken
