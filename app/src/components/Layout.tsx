@@ -63,23 +63,12 @@ export const Layout: FC<PropsWithChildren> = ({ children }) => {
         </Box>
       )}
       <TabNav aria-label="Main" className="mt-8">
-        <TabNav.Link
-          href="/"
-          selected={!router.pathname.includes('documentation')}
-          onClick={(e) => {
-            e.preventDefault();
-            router.push('/');
-          }}
-        >
+        <TabNav.Link href="/" selected={router.pathname === '/'}>
           Repositories
         </TabNav.Link>
         <TabNav.Link
           href="/documentation"
-          selected={router.pathname.includes('documentation')}
-          onClick={(e) => {
-            e.preventDefault();
-            router.push('/documentation');
-          }}
+          selected={router.pathname === '/documentation'}
         >
           Documentation
         </TabNav.Link>
