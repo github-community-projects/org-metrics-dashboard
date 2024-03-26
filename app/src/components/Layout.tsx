@@ -31,8 +31,7 @@ export const Layout: FC<PropsWithChildren> = ({ children }) => {
       <Box className="mt-2">
         <Text as="h2" className="text-sm">
           This project includes metrics about the Open Source repositories for
-          the
-          {data.orgInfo.name}.
+          the {data.orgInfo.name}.
         </Text>
       </Box>
       {!isSSR && showBanner && (
