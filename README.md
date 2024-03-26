@@ -83,7 +83,7 @@ You will need a `.env` file in the root of the project:
 cp .env.example .env
 ```
 
-The `GITHUB_TOKEN` token requires the following scopes:
+The `GRAPHQL_TOKEN` token requires the following scopes:
 
 - read:org
 - read:repo
