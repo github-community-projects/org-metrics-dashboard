@@ -1,0 +1,14 @@
+{
+  organization(login: "WorldHealthOrganization") {
+    repositories(first: 100) {
+      edges {
+        node {
+          name
+          collaborators {
+           totalCount
+          }
+        }
+      }
+    }
+  }
+}
