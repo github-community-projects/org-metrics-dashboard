@@ -1,6 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
   compiler: {
     styledComponents: true,
   },
@@ -10,7 +9,7 @@ const nextConfig = {
   basePath:
     process.env.NODE_ENV === 'development'
       ? ''
-      : '/sbv-world-health-org-metrics',
+      : process.env.NEXT_PUBLIC_BASE_PATH,
   webpack: (config) => {
     config.module.rules.push({
       test: /\.md$/,
