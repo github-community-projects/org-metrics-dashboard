@@ -9,7 +9,7 @@ const nextConfig = {
   basePath:
     process.env.NODE_ENV === 'development'
       ? ''
-      : process.env.NEXT_PUBLIC_BASE_PATH,
+      : '/sbv-world-health-org-metrics',
   webpack: (config) => {
     config.module.rules.push({
       test: /\.md$/,
