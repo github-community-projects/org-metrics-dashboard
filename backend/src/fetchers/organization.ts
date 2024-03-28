@@ -13,7 +13,7 @@ export const addOrganizationInfoToResult: Fetcher = async (
     ...result,
     orgInfo: {
       login: organization.data.login,
-      name: organization.data.name,
+      name: organization.data.name ?? organization.data.login,
       description: organization.data.description,
       createdAt: organization.data.created_at,
       repositoriesCount: organization.data.public_repos,

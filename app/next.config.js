@@ -6,10 +6,7 @@ const nextConfig = {
   reactStrictMode: true,
   productionBrowserSourceMaps: true,
   pageExtensions: ['js', 'jsx', 'mdx', 'ts', 'tsx', 'json'],
-  basePath:
-    process.env.NODE_ENV === 'development'
-      ? ''
-      : '/sbv-world-health-org-metrics',
+  basePath: process.env.NEXT_PUBLIC_BASE_PATH ?? '',
   webpack: (config) => {
     config.module.rules.push({
       test: /\.md$/,
