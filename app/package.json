@@ -3,10 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "NODE_ENV=development node scripts/generate-basepath.js && next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prepare": "node scripts/generate-basepath.js"
   },
   "dependencies": {
     "@primer/octicons-react": "^19.9.0",

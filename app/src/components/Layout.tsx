@@ -7,6 +7,7 @@ import { useIsSSR } from '@/hooks/useIsSSR';
 import { XIcon } from '@primer/octicons-react';
 import { useRouter } from 'next/router';
 import { FC, PropsWithChildren } from 'react';
+import { basePath } from '../../generated/basePath';
 import data from '../data/data.json';
 
 export const Layout: FC<PropsWithChildren> = ({ children }) => {
@@ -19,7 +20,7 @@ export const Layout: FC<PropsWithChildren> = ({ children }) => {
       <Box className="flex flex-row items-center gap-6">
         <Image
           className="block h-8 w-auto"
-          src="/images/logo.svg"
+          src={`${basePath}/images/logo.svg`}
           height={50}
           width={150}
           alt="World Health Organization logo"
