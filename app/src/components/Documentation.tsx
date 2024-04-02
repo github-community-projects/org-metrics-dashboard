@@ -11,9 +11,7 @@ const Documentation = () => {
 
   return (
     <Box className="prose dark:prose-invert prose-lg">
-      <Box className="h-full flex flex-col overflow-scroll">
-        <Box dangerouslySetInnerHTML={{ __html: html }} />
-      </Box>
+      <Box dangerouslySetInnerHTML={{ __html: html }} />
     </Box>
   );
 };
