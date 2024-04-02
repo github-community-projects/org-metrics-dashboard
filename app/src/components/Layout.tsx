@@ -19,7 +19,7 @@ export const Layout: FC<PropsWithChildren> = ({ children }) => {
       <Box className="flex flex-row items-center gap-6">
         <Image
           className="block h-8 w-auto"
-          src={`${process.env.NEXT_PUBLIC_BASE_PATH}/images/logo.svg`}
+          src="/images/logo.svg"
           height={50}
           width={150}
           alt="World Health Organization logo"
@@ -64,13 +64,13 @@ export const Layout: FC<PropsWithChildren> = ({ children }) => {
       )}
       <TabNav aria-label="Main" className="mt-8">
         <TabNav.Link
-          href={`${process.env.NEXT_PUBLIC_BASE_PATH}/`}
+          href="/"
           selected={!router.pathname.includes('documentation')}
         >
           Repositories
         </TabNav.Link>
         <TabNav.Link
-          href={`${process.env.NEXT_PUBLIC_BASE_PATH}/documentation`}
+          href="/documentation"
           selected={router.pathname.includes('documentation')}
         >
           Documentation
