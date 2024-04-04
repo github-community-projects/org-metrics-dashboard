@@ -69,12 +69,12 @@ try {
   console.log(e);
 }
 
-if (!process.env.ORGANIZATION && !yamlConfig.organization) {
+if (!process.env.ORGANIZATION_NAME && !yamlConfig.organization) {
   console.log(
-    'ORGANIZATION environment variable or `organization` in config.yml is required',
+    'ORGANIZATION_NAME environment variable or `organization` in config.yml is required',
   );
   throw new Error(
-    'ORGANIZATION environment variable or `organization` in config.yml is required, exiting...',
+    'ORGANIZATION_NAME environment variable or `organization` in config.yml is required, exiting...',
   );
 }
 
@@ -82,8 +82,8 @@ const config: Config = {
   includeForks: false,
   includeArchived: false,
   ...yamlConfig,
-  // You can override the organization in an env variable ORGANIZATION
-  organization: process.env.ORGANIZATION ?? yamlConfig.organization ?? '',
+  // You can override the organization in an env variable ORGANIZATION_NAME
+  organization: process.env.ORGANIZATION_NAME ?? yamlConfig.organization ?? '',
   // Default since date is 365 days ago (1 year)
   since: yamlConfig.since
     ? new Date(yamlConfig.since).toISOString()
