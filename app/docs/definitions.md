@@ -18,9 +18,9 @@ The Dashboard is currently a snapshot of data from the **World Health Organizati
 
 `Total Fork:` A fork is a copy of the current repository belonging to another user. Total Forks is how many times the repository has been copied.
 
-`Open Issues Median Age:` Median of how many days of all issues in days with Open Status. If the issue age is zero (meaning there are no open issues), we display "N/A".
+`Open Issues Median Age:` Median number of days for all issues with Open status. If the issue age is zero (meaning there are no open issues), we display "N/A".
 
-`Close Issues Median Age:` Median of how many days of all issues in days with Closed status. If the issue age is zero (meaning there are no open issues), we display "N/A".
+`Close Issues Median Age:` Median number of days for all issues with Closed status. If the issue age is zero (meaning there are no open issues), we display "N/A".
 
 `Issue Response Median Age:` Median response time of issues that has a response. If the issue response age is zero (meaning there are no comments), we display "N/A". If the first response is by the creator of the issue the comment is not counted.
 
