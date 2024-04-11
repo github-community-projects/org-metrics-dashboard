@@ -1,0 +1,6 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* add here - see https://github.com/adazzle/react-data-grid/issues/3460#issuecomment-2016837753 */
+@import 'react-data-grid/lib/styles.css';

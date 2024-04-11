@@ -38,5 +38,4 @@ next-env.d.ts
 # Data files - these get generated at buildtime. The README includes instructions for generating these.
 /src/data/data.json
 
-.env*
-!.env.example
+generated/**
