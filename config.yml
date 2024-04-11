@@ -1,3 +1,4 @@
 ---
-organization: 'sbv-world-health-org-metrics'
+organization: 'WorldHealthOrganization'
 since: '2008-01-01'
+basePath: '/sbv-world-health-org-metrics-staging'
