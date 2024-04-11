@@ -10,43 +10,6 @@ Monitor open source health across different projects to have a high level view t
 
 Issue Project [here](https://github.com/github/SI-skills-based-volunteering/issues/147#issuecomment-1472370039)
 
-## Team
-
-<table>
-  <tr valign="top">
-  <td align=center>
-    <img src="https://avatars.githubusercontent.com/u/12959012?v=4" width="110" height="110"><br/>
-      <a href="https://github.com/liliana3186">@liliana3186</a><br/>
-     Liliana Torres<br/>
-      <b>Project Lead, Senior Data Analyst </b>
-    </td>
-    <td align=center>
-    <img src="https://avatars.githubusercontent.com/u/61184284?v=4" width="110" height="110"><br/>
-      <a href="https://github.com/darostegui">@darostegui</a><br/>
-      Diego Arostegui<br/>
-      <b>Customer Reliability Engineer III</b>
-    </td>
-    <td align=center>
-    <img src="https://avatars.githubusercontent.com/u/24923406?v=4" width="110" height="110"><br/>
-      <a href="https://github.com/ajhenry">@ajhenry</a><br/>
-      Andrew Henry<br/>
-      <b>Senior Software Engineer </b>
-    </td>
-    <td align=center>
-    <img src="https://github.com/ipc103.png?v=4" width="110" height="110"><br/>
-      <a href="https://github.com/ipc103">@ipc103</a><br/>
-      Ian Candy<br/>
-      <b>Senior Software Engineer</b>
-    </td>
-    <td align=center>
-    <img src="https://github.com/lehcar.png?v=4" width="110" height="110"><br/>
-      <a href="https://github.com/lehcar">@lehcar</a><br/>
-      Rachel Stanik<br/>
-      <b>Software Engineer III</b>
-    </td>
-   </tr>
-</table>
-
 ## Configuration
 
 There is a `config.yml` located in the root of the project that contains the configuration for the project. The configuration is as follows:
