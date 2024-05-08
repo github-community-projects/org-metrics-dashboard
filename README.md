@@ -25,7 +25,7 @@ You will need to set a secret in the repository settings. The secret is a GitHub
 > [!NOTE]
 > To fetch collaborator counts, you need to provide a token that is an admin of the organization.
 
-The secret should be named `GRAPHQL_TOKEN`.
+The secret should be named `GRAPHQL_TOKEN`. You can set this for your repository in `Settings` -> `Secrets and variables` -> `Actions`. 
 
 ### Configuration
 
