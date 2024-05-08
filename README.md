@@ -2,8 +2,6 @@
 
 An actions-powered dashboard to get an overview of your organization's repository health.
 
-Image preview
-
 [![Image preview](./assets/preview.png)](https://github-community-projects.github.io/org-metrics-dashboard)
 
 ## Setting up the project for your organization
