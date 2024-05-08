@@ -20,7 +20,7 @@ export const Layout: FC<PropsWithChildren> = ({ children }) => {
       <Box className="flex flex-row items-center gap-6">
         <Image
           className="block h-8 w-auto"
-          src={`${basePath}/images/logo.svg`}
+          src={`${basePath}/images/logo.png`}
           height={50}
           width={150}
           alt="World Health Organization logo"
@@ -31,8 +31,8 @@ export const Layout: FC<PropsWithChildren> = ({ children }) => {
       </Box>
       <Box className="mt-2">
         <Text as="h2" className="text-sm">
-          This project includes metrics about the Open Source repositories for
-          the {data.orgInfo.name}.
+          This project includes metrics about the Open Source repositories for{' '}
+          {data.orgInfo.name}.
         </Text>
       </Box>
       {!isSSR && showBanner && (

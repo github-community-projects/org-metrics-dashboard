@@ -1,28 +1,50 @@
-# World Health Org Metrics Project
+# Org Metrics Dashboard
 
-## Problem Statement
+An actions-powered dashboard to get an overview of your organization's repository health.
 
-The World Health Organization leads global efforts to expand universal health coverage. They direct and coordinate the world’s response to health emergencies however there is currently no integrated digital environment for public health experts from all around the globe to collaborate on pandemic and epidemic intelligence and ongoing public health emergency events. The World Health Organization is exploring how to easily collaborate with external experts around the world to work on public health issues like COVID-19.
+Image preview
 
-## Goal
+[![Image preview](./assets/preview.png)](https://github-community-projects.github.io/org-metrics-dashboard)
 
-Monitor open source health across different projects to have a high level view the best practices adopted by various open source projects to help build interest in open source work and advocate for more open source development
+## Setting up the project for your organization
 
-Issue Project [here](https://github.com/github/SI-skills-based-volunteering/issues/147#issuecomment-1472370039)
+### Fork the repository
 
-## Configuration
+You will need to [fork this repository](https://github.com/github-community-projects/org-metrics-dashboard/fork) into your org. Alternatively, you can clone this repository and push it to your org.
+
+### Actions
+
+Since we use the GitHub API and actions to generate the data, you will need to enable actions for the repository. You can do this by going to the `Actions` tab in the repository and enabling actions.
+
+You will need to set a secret in the repository settings. The secret is a GitHub token that has admin read access to the organization. You can create a token by going to `Settings` -> `Developer settings` -> `Personal access tokens` and creating a new token with the following scopes.
+
+- read:org
+- read:repo
+- read:project
+
+> [!NOTE]
+> To fetch collaborator counts, you need to provide a token that is an admin of the organization.
+
+The secret should be named `GRAPHQL_TOKEN`.
+
+### Configuration
 
 There is a `config.yml` located in the root of the project that contains the configuration for the project. The configuration is as follows:
 
 ```yaml
 ---
 # The GitHub organization name
-organization: 'YOUR_ORG_NAME'
+organization: 'github-community-projects'
 # An ISO 8601 date string representing the date to start fetching data from
 since: '2024-02-22'
+# Path of the github pages site. i.e. github-community-projects.github.io/org-metrics-dashboard
+# This will typically be "/{REPOSITORY_NAME}" if you are hosting on GitHub pages
+basePath: '/org-metrics-dashboard'
 ```
 
-This modifies the behavior of the fetcher to fetch data from the specified organization and since the specified date.
+- `organization`: The name of the organization you want to fetch data from.
+- `since`: The date to start fetching data from. This is useful if you want to fetch data from a specific date.
+- `basePath`: **Important**. This is the path where the site will be hosted. If you are hosting the site on GitHub pages, you will need to set this to the repository name for links and assets to work correctly.
 
 ## Development
 
@@ -31,14 +53,14 @@ This project is split into two parts:
 - **app**: the code for the frontend
 - **backend**: the code for the backend and fetcher
 
-Both are written in TypeScript. We use npm workspaces to manage the dependencies between the two projects.
+Both are written in TypeScript. We use [npm workspaces](https://docs.npmjs.com/cli/v8/using-npm/workspaces) to manage the dependencies between the two projects.
 
 ### Prerequisites
 
 - Node.js 20.X or later
 - npm
 
-### Environment Variables
+### Environment variables
 
 You will need a `.env` file in the root of the project:
 
