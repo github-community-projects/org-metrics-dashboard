@@ -7,4 +7,4 @@ since: '2023-01-01'
 
 # GitHub Pages path to the repository
 # Used for handling relative paths for assets
-basePath: '/sbv-world-health-org-metrics'
+basePath: '/org-metrics-dashboard'
