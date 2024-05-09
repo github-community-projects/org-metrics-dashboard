@@ -123,7 +123,7 @@ Check out the [CODEOWNERS](./CODEOWNERS) file to see who to contact for code cha
 
 ## Support
 
-If you need support using this project or have questions about it, please [open an issue in this repository](https://github.com/github-community-projects/internal-contribution-forks/issues/new) and we'd be happy to help. Requests made directly to GitHub staff or the support team will be redirected here to open an issue. GitHub SLA's and support/services contracts do not apply to this repository.
+If you need support using this project or have questions about it, please [open an issue in this repository](https://github.com/github-community-projects/org-metrics-dashboard/issues/new) and we'd be happy to help. Requests made directly to GitHub staff or the support team will be redirected here to open an issue. GitHub SLA's and support/services contracts do not apply to this repository.
 
 ## More OSPO Tools
 
