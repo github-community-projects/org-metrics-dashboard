@@ -69,7 +69,10 @@ try {
   console.log(e);
 }
 
-if (!process.env.ORGANIZATION_NAME && !yamlConfig.organization) {
+const envOrganizationName = process.env.ORGANIZATION_NAME;
+const configOrganizationName = yamlConfig.organization;
+
+if (!envOrganizationName && !configOrganizationName) {
   console.log(
     'ORGANIZATION_NAME environment variable or `organization` in config.yml is required',
   );
@@ -83,7 +86,10 @@ const config: Config = {
   includeArchived: false,
   ...yamlConfig,
   // You can override the organization in an env variable ORGANIZATION_NAME
-  organization: process.env.ORGANIZATION_NAME ?? yamlConfig.organization ?? '',
+  organization:
+    (envOrganizationName && envOrganizationName?.length !== 0
+      ? envOrganizationName
+      : configOrganizationName) ?? '',
   // Default since date is 365 days ago (1 year)
   since: yamlConfig.since
     ? new Date(yamlConfig.since).toISOString()
