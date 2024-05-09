@@ -1,8 +1,16 @@
 # Org Metrics Dashboard
 
-An actions-powered dashboard to get an overview of your organization's repository health.
+An actions-powered dashboard to get an overview of your organization's open source repository health.
 
 [![Image preview](./assets/preview.png)](https://github-community-projects.github.io/org-metrics-dashboard)
+
+The dashboard provides a quick overview of your organization's public repositories. It fetches data from the GitHub API using actions and displays it in a github pages site. The dashboard provides the following information about your repositories:
+
+- License information
+- Issue and PR counts
+- Metrics around response times for issues and PRs
+
+Check out the live demo [here](https://github-community-projects.github.io/org-metrics-dashboard).
 
 ## Setting up the project for your organization
 
@@ -23,7 +31,7 @@ You will need to set a secret in the repository settings. The secret is a GitHub
 > [!NOTE]
 > To fetch collaborator counts, you need to provide a token that is an admin of the organization.
 
-The secret should be named `GRAPHQL_TOKEN`. You can set this for your repository in `Settings` -> `Secrets and variables` -> `Actions`. 
+The secret should be named `GRAPHQL_TOKEN`. You can set this for your repository in `Settings` -> `Secrets and variables` -> `Actions`.
 
 ### Configuration
 
@@ -104,3 +112,19 @@ If you wish to run the app only:
 ```sh
 npm run dev:app
 ```
+
+## License
+
+This project is licensed under the terms of the MIT open source license. Please refer to [MIT](./LICENSE.md) for the full terms.
+
+## Maintainers
+
+Check out the [CODEOWNERS](./CODEOWNERS) file to see who to contact for code changes.
+
+## Support
+
+If you need support using this project or have questions about it, please [open an issue in this repository](https://github.com/github-community-projects/internal-contribution-forks/issues/new) and we'd be happy to help. Requests made directly to GitHub staff or the support team will be redirected here to open an issue. GitHub SLA's and support/services contracts do not apply to this repository.
+
+## More OSPO Tools
+
+Looking for more resources for your open source program office (OSPO)? Check out the [`github-ospo`](https://github.com/github/github-ospo) repo for a variety of tools designed to support your needs.
