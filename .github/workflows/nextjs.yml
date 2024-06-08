@@ -1,22 +1,17 @@
 name: Deploy Next.js site to Pages
-
 on:
   # Runs on pushes targeting the default branch
   push:
     branches: ['main']
-
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-
   # Build step runs on each pull request
   pull_request:
-
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
   pages: write
   id-token: write
-
 env:
   GRAPHQL_TOKEN: ${{ secrets.GRAPHQL_TOKEN }}
   ORGANIZATION_NAME: ${{ vars.ORGANIZATION_NAME }}
@@ -25,16 +20,15 @@ env:
 concurrency:
   group: 'pages'
   cancel-in-progress: false
-
 jobs:
   # Build job
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4
         with:
           node-version: '20.x'
       - name: Collect metrics and save output
@@ -63,7 +57,7 @@ jobs:
             exit 1
           fi
       - name: Setup Pages
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@1f0c5cde4bc74cd7e1254d0cb4de8d49e9068c7d # v4
         with:
           # Automatically inject basePath in your Next.js configuration file and disable
           # server side image optimization (https://nextjs.org/docs/api-reference/next/image#unoptimized).
@@ -71,7 +65,7 @@ jobs:
           # You may remove this line if you want to manage the configuration yourself.
           static_site_generator: next
       - name: Restore cache
-        uses: actions/cache@v3
+        uses: actions/cache@734d9cb93d6f7610c2400b0f789eaa6f9813e271 # v3
         with:
           path: |
             "${{ github.workspace }}/app/.next/cache"
@@ -87,10 +81,9 @@ jobs:
       - name: Static HTML export with Next.js
         run: cd "${{ github.workspace }}/app" && ${{ steps.detect-package-manager.outputs.runner }} next export
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
         with:
           path: '${{ github.workspace }}/app/out'
-
   # Deployment job
   deploy:
     environment:
@@ -102,4 +95,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
