@@ -23,7 +23,7 @@ export const Layout: FC<PropsWithChildren> = ({ children }) => {
           src={`${basePath}/images/logo.png`}
           height={50}
           width={150}
-          alt="World Health Organization logo"
+          alt={`${data.orgInfo.name} logo`}
         />
         <Text as="h1" className="font-semibold text-xl">
           {data.orgInfo.name} Open Source Dashboard
