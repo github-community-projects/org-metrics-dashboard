@@ -24,8 +24,8 @@ Since we use the GitHub API and actions to generate the data, you will need to e
 
 You will need to set a secret in the repository settings. The secret is a GitHub token that has admin read access to the organization. You can create a token by going to `Settings` -> `Developer settings` -> `Personal access tokens` and creating a new token with the following scopes.
 
+- public_repo
 - read:org
-- read:repo
 - read:project
 
 > [!NOTE]
@@ -76,8 +76,8 @@ cp .env.example .env
 
 The `GRAPHQL_TOKEN` token requires the following scopes:
 
+- public_repo
 - read:org
-- read:repo
 - read:project
 
 > [!NOTE]
