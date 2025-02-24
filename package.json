@@ -16,7 +16,7 @@
   "devDependencies": {
     "@dotenvx/dotenvx": "^0.26.0",
     "concurrently": "^8.2.2",
-    "prettier": "^3.2.5",
-    "yaml": "^2.4.1"
+    "prettier": "^3.4.2",
+    "yaml": "^2.6.1"
   }
 }
