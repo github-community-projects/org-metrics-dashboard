@@ -14,7 +14,7 @@
     "./backend"
   ],
   "devDependencies": {
-    "@dotenvx/dotenvx": "^0.26.0",
+    "@dotenvx/dotenvx": "^1.38.2",
     "concurrently": "^8.2.2",
     "prettier": "^3.4.2",
     "yaml": "^2.6.1"
