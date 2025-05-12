@@ -31,9 +31,6 @@ export const addRepositoriesToResult: Fetcher = async (
           hasIssuesEnabled
           hasProjectsEnabled
           hasDiscussionsEnabled
-          projects {
-            totalCount
-          }
           projectsV2 {
             totalCount
           }
@@ -92,7 +89,7 @@ export const addRepositoriesToResult: Fetcher = async (
             projectsEnabled: repo.hasProjectsEnabled,
             discussionsEnabled: repo.hasDiscussionsEnabled,
             collaboratorsCount: repo.collaborators?.totalCount || 0,
-            projectsCount: repo.projects.totalCount,
+            projectsCount: repo.projects?.totalCount || 0,
             projectsV2Count: repo.projectsV2.totalCount,
           } as RepositoryResult,
         };
