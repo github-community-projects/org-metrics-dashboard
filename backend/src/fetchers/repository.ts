@@ -1,5 +1,3 @@
-// Fetchers for repository data and metrics
-
 import { Organization, Repository } from '@octokit/graphql-schema';
 import { Fetcher } from '..';
 import { RepositoryResult } from '../../../types';
@@ -15,8 +13,7 @@ export const addRepositoriesToResult: Fetcher = async (
     `
   query ($cursor: String, $organization: String!) {
     organization(login:$organization) {
-      repositories(privacy:PUBLIC, first:100, isFork:false, isArchived:false, after: $cursor)
-      {
+      repositories(privacy:PUBLIC, first:100, isFork:false, isArchived:false, after: $cursor) {
         pageInfo {
           hasNextPage
           endCursor
@@ -31,9 +28,6 @@ export const addRepositoriesToResult: Fetcher = async (
           hasIssuesEnabled
           hasProjectsEnabled
           hasDiscussionsEnabled
-          projects {
-            totalCount
-          }
           projectsV2 {
             totalCount
           }
@@ -89,10 +83,9 @@ export const addRepositoriesToResult: Fetcher = async (
             watchersCount: repo.watchers.totalCount,
             starsCount: repo.stargazerCount,
             issuesEnabled: repo.hasIssuesEnabled,
-            projectsEnabled: repo.hasProjectsEnabled,
+            projectsEnabled: repo.hasProjectsEnabled, // still valid (boolean)
             discussionsEnabled: repo.hasDiscussionsEnabled,
             collaboratorsCount: repo.collaborators?.totalCount || 0,
-            projectsCount: repo.projects.totalCount,
             projectsV2Count: repo.projectsV2.totalCount,
           } as RepositoryResult,
         };

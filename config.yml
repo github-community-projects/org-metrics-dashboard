@@ -1,10 +1,10 @@
 ---
 # Organization to pull metrics from
-organization: 'github-community-projects'
+organization: 'Falakme'
 
 # Start date to pull metrics from
 since: '2023-01-01'
 
 # GitHub Pages path to the repository
 # Used for handling relative paths for assets
-basePath: '/org-metrics-dashboard'
+basePath: '/metrics'
