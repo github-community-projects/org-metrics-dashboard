@@ -17,7 +17,7 @@
     "file-saver": "^2.0.5",
     "json-2-csv": "^5.5.7",
     "marked": "^12.0.1",
-    "next": "^13",
+    "next": "^15",
     "next-themes": "^0.4.4",
     "postcss": "^8.4.49",
     "raw-loader": "^4.0.2",
